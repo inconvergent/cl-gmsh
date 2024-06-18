@@ -1,0 +1,17 @@
+*-tmp*
+*.dat
+*.fasl
+*.gif
+*.mp4
+*.mtl
+*.obj
+*.png
+*.svg
+*.tmp*
+*tmp
+*weir.core
+2tmp.lisp
+system-index.txt
+tmp.*
+*delete-me.*
+log

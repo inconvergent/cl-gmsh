@@ -1,0 +1,32 @@
+
+; Mx = model to world
+; Vx = world to cam
+; Px = cam to screen
+; PVx = screen space
+; ( inv(v) * inv(p)* (scree) ) = x
+
+(gl:enable :depth-test)
+(gl:depth-func :less)
+
+(gl:clear :color-buffer) (gl:clear :depth-buffer)
+
+(veq:fvdef model-to-world (vm (:varg 3 p))
+  (declare #.*opt* (veq:fvec vm))
+  (multiple-value-bind (x y z w)
+    (veq:f4mtv vm p 1f0)
+    (declare (veq:ff x y z w))
+    (values (/ x w) (/ y w) (/ z w))) )
+
+glCullFace FRONT BACK FRONT_AND_BACK
+glFrontFace GC_CW CCW c
+
+(defun struct-field (s i f) (format nil "~a[~d].~a" s i f))
+(veq:vdef* rgb (r g b) (veq:f3~ (/ r 255) (/ g 255) (/ b 255)))
+(defun gl-export-rgb (w h) (gl:read-pixels 0 0 w h :rgb :float))
+
+unsigned int uboExampleBlock;
+glGenBuffers(1, &uboExampleBlock);
+glBindBuffer(GL_UNIFORM_BUFFER, uboExampleBlock);
+glBufferData(GL_UNIFORM_BUFFER, 152, NULL, GL_STATIC_DRAW); // allocate 152 bytes of memory
+glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
