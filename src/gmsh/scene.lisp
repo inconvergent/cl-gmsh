@@ -21,14 +21,14 @@
   ; (attr nil :read-only nil) (n 0 :read-only nil)
 
 (declaim (inline make-pm make-vm get-pm get-vm get-s set-s))
+(defun get-s (sc)   (declare (scene sc)) "current scale."             (ortho:@s (scene-proj sc)))
+(defun set-s (sc s) (declare (scene sc)) "set new scale."             (ortho:update (scene-proj sc) :s s))
 (defun make-vm (sc) (declare (scene sc)) "new view matrix."
   (vector (ortho:vm (scene-proj sc) (veq:f3$ (scene-look sc)))))
 (defun make-pm (sc) (declare (scene sc)) "new projection matrix."
   (vector (ortho:pm (scene-proj sc) (get-s sc) 0.01 50f0)))
 (defun get-pm (sc)  (declare (scene sc)) "current projection matrix." (scene-pm sc))
 (defun get-vm (sc)  (declare (scene sc)) "current view matrix."       (scene-vm sc))
-(defun get-s (sc)   (declare (scene sc)) "current scale."             (ortho:@s (scene-proj sc)))
-(defun set-s (sc s) (declare (scene sc)) "set new scale."             (ortho:update (scene-proj sc) :s s))
 
 (veq:fvdef update-view (sc &aux (look (scene-look sc)))
   (declare (optimize speed (safety 1))) "update scene view."
@@ -46,7 +46,7 @@
                              (,#'trans :u -2.0) (,#'trans :v -2.0)
                              (,#'around :roll 0.07) (,#'around :roll -0.07))
           for v across (scene-axis-state sc)
-          if fx do (funcall fx (scene-proj sc) ax (* s v))))
+          if fx do (funcall (the function fx) (scene-proj sc) ax (* s v))))
   (setf (scene-vm sc) (make-vm sc) (scene-pm sc) (make-pm sc)))
 
 (defun canv/save (sc fn &key (gamma 1f0))
@@ -79,24 +79,26 @@
   (gmsh/bvh:gpu/pack-bvh (gmsh:make-bvh (scene-msh sc) :num 7
                            :matfx (scene-matfx sc) :mode :bvh2-stackless)))
 
-(defun scene/save (sc &key (fn (fn:fn)) matfx (colors gmsh:*matpar*)
-                      &aux (msh (scene-msh sc)))
+(defun scene/save (sc fn &key matfx (colors gmsh:*matpar*) &aux (msh (scene-msh sc)))
   (declare (scene sc) (string fn))
   (lqn:out "~&████ exporting: ~a.~%████ fn: ~a~&" msh fn)
-  (labels ((mfx (p) (getmat sc p '(:c :x)))
-           (mname (m) (lqn:sdwn m 1))
+  (labels ((matfx (p) (getmat sc p '(:c :x)))
            (expfx (m &aux (m (second m))) `(,(mname m) :c ,m))
+           (mname (m) (lqn:sdwn m 1))
            (propfx (mc) `(("mtllib" . ,(lqn:fmt "~a.mtl" fn))
-                          ("usemtl" . ,(mname (second mc)))))) ; TODO: usemtl is incorrect
-    (let ((exp-mats (gmsh/io:obj/save msh fn :matfx (the function (or matfx #'mfx))
-                                             :propfx #'propfx)))
-      (gmsh/io:obj/mat-save msh fn (mapcar #'expfx exp-mats) :colors colors)
-      (lqn:dat-export fn
-        `((:fn . ,fn) (:size . ,(scene-size sc))
-          (:programs . ,gmsh:*programs*) (:matpar . ,gmsh:*matpar*)
-          (:proj . ,(ortho:export-data (scene-proj sc)))
-          (:msh . ,(gmsh/io:mexport msh
-                      :matfx (the function (or matfx #'mfx)))))))))
+                          ("usemtl" . ,(mname (second mc)))))) ; TODO: usemtl is incomplete
+    (gmsh/io:obj/mat-save msh fn
+      (mapcar #'expfx (gmsh/io:obj/save msh fn :matfx (the function (or matfx #'matfx))
+                                               :propfx #'propfx))
+                                               :colors colors)
+    (lqn:dat-export fn `((:fn . ,fn) (:now . ,(lqn:now))
+                         (:true-name . ,*load-truename*) ; TODO: get this as input?
+                         (:size . ,(scene-size sc))
+                         (:programs . ,gmsh:*programs*) (:matpar . ,gmsh:*matpar*)
+                         (:proj . ,(ortho:export-data (scene-proj sc)))
+                         (:msh . ,(gmsh/io:mexport msh
+                                     :matfx (the function (or matfx #'matfx)))))
+                    ".gmsh-scene")))
 
 ; TODO: use fvec for keys?
 (veq:fvdef scene/make (&key (max-verts 2000000) (program :std)
@@ -116,7 +118,16 @@
                  :canv canv
                  :look (veq:f3$point (veq:from-lst look))
                  :matmap matmap :matfx (the function (or matfx #'matfx)))))
-(defun scene/load (fn &aux (o (lqn:dat-read-one fn))) ; TODO: incomplete
-  (declare (string fn))
-  (gmsh/io:mimport (cdr (assoc :msh o))))
+
+; TODO: rescale scene camera/projection
+; TODO: incomplete
+(defun scene/load (fn &aux (o (lqn:dat-read-one fn))
+                           (matmap (make-hash-table :test #'equal)))
+  (declare (string fn) (hash-table matmap))
+  (labels ((matfx (p m c) (setf (gethash p matmap) `(,m ,c))))
+   (scene/make :max-verts (cdr (assoc :max-verts o))
+               :msh (gmsh/io:mimport (cdr (assoc :msh o)) :matfx #'matfx)
+               :proj (ortho:import-data (cdr (assoc :proj o)))
+               :matmap matmap
+               :canv (canvas:make :size 1000)))) ; import size
 

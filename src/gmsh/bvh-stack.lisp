@@ -2,63 +2,57 @@
 
 
 (veq:fvdef -make-objects-and-normals (vfx objs)
+  (declare (function vfx) (list objs))
   (loop for p in objs for vv = (f@vfx p)
         collect (list p (bbox (veq:f3$mima vv))
                         (veq:f3$point (gmsh::-poly-normal vv))
                         vv)))
 
-(veq:fvdef make-polyx ((:va 3 v0 v1 v2))
-  (declare (veq:ff v0 v1 v2)) "#(v2v0x v2v0y v2v0z, ... v1v0x , ... , v0x v0y v0z)"
+(veq:fvdef make-polyx ((:va 3 v0 v1 v2)) (declare (veq:ff v0 v1 v2))
+  "#(v2v0x v2v0y v2v0z, ... v1v0x , ... , v0x v0y v0z)"
   (veq:~ (f3!@- v2 v0) (f3!@- v1 v0) (veq:f3 v0)))
 
-; -----------------------------------------------------
+(blurb BVH2 MIMA LAYOUT
+       =================================================
+       |00   |01   |02   |03   |04   |05   |06   |07   |
+       |0miX |0maX |1miY |1maY |2miZ |2maZ |pad  |pad  |
+       =================================================
 
-(blurb
-
-  BVH2 MIMA LAYOUT
-  =================================================
-  |00   |01   |02   |03   |04   |05   |06   |07   |
-  |0miX |0maX |1miY |1maY |2miZ |2maZ |pad  |pad  |
-  =================================================
-
-  BVH4 SIMD MIMA LAYOUT
-  =========================
-  |00   |01   |02   |03   |
-  |0miX |1miX |2miX |3miX |    == miX 0
-  -------------------------
-  |04   |05   |06   |07   |
-  |0maX |1maX |2maX |3maX |    == maX 1
-  =========================
-  |08   |09   |10   |11   |
-  |0miY |1miY |2miY |3miY |    == miY 2
-  -------------------------
-  |12   |13   |14   |15   |
-  |0maY |1maY |2maY |3maY |    == maY 3
-  =========================
-  |16   |17   |18   |19   |
-  |0miZ |1miZ |2miZ |3miZ |    == miZ 4
-  -------------------------
-  |20   |21   |22   |23   |
-  |0maZ |1maZ |2maZ |3maZ |    == maZ 5
-  =========================
-  )
+       BVH4 SIMD MIMA LAYOUT
+       =========================
+       |00   |01   |02   |03   |
+       |0miX |1miX |2miX |3miX |    == miX 0
+       -------------------------
+       |04   |05   |06   |07   |
+       |0maX |1maX |2maX |3maX |    == maX 1
+       =========================
+       |08   |09   |10   |11   |
+       |0miY |1miY |2miY |3miY |    == miY 2
+       -------------------------
+       |12   |13   |14   |15   |
+       |0maY |1maY |2maY |3maY |    == maY 3
+       =========================
+       |16   |17   |18   |19   |
+       |0miZ |1miZ |2miZ |3miZ |    == miZ 4
+       -------------------------
+       |20   |21   |22   |23   |
+       |0maZ |1maZ |2maZ |3maZ |    == maZ 5
+       ========================= )
 
 (defun int/make-stackless! (new-nodes)
   (declare #.*opt* (veq:pvec new-nodes))
-  (veq:xlet ((stack (list 0)))
-   (declare (list stack) (veq:pvec new-nodes))
-   (labels ((gt (i &optional (j 0)) (declare (veq:pn i j)) (aref new-nodes (+ i j)))
-            (stack-peek () (when stack (elt stack 0)))
-            (stack-add (i) (push i stack))
-            (stack-nxt () (pop stack)))
-    (loop while stack for i of-type veq:pn = (stack-nxt)
-          for pk = (stack-peek)
-          do (typecase pk (veq:pn (setf (aref new-nodes (+ i 3)) pk)))
-             (when (and (zerop (gt i)) (not (zerop (gt i 1))))
-                   (stack-add (+ (gt i 1) 4))
-                   (stack-add (gt i 1)))))
-   new-nodes))
-
+  (let ((stack (list 0)))
+    (declare (list stack))
+    (labels ((gt (i &optional (j 0)) (declare (veq:pn i j)) (aref new-nodes (+ i j)))
+             (stack-peek () (when stack (elt stack 0)))
+             (stack-add (i) (push i stack))
+             (stack-nxt () (pop stack)))
+     (loop while stack for i of-type veq:pn = (stack-nxt) for pk = (stack-peek)
+           do (typecase pk (veq:pn (setf (aref new-nodes (+ i 3)) pk)))
+              (when (and (zerop (gt i)) (not (zerop (gt i 1))))
+                    (stack-add (+ (gt i 1) 4))
+                    (stack-add (gt i 1)))))
+    new-nodes))
 
 (veq:fvdef int/build-int-nodes (nodes num-nodes
                                   &key set-lvl (leap 8)
@@ -86,8 +80,8 @@
              (new-mima (veq:f$zero (* 4 (length mima))))) ; TODO: this seems incorrect
     (declare (list stack) (veq:ivec new-nodes) (veq:fvec new-mima))
     (labels ((get-free-index () (incf ni) (1- ni))
-             (out-leap (i) (* 8 i)) (out-ind (i) (/ i 8))
-             (in-leap (i) (* 4 i)) (in-ind (i) (/ i 4))
+             (out-leap (i) (* 8 i))
+             ; (out-ind (i) (/ i 8)) (in-leap (i) (* 4 i)) (in-ind (i) (/ i 4))
              (stack-add (subnodes) (push subnodes stack))
              (stack-nxt () (pop stack))
              (leaf? (i) (declare (veq:in i)) (and (> i -1) (> (gt i) 0)))
@@ -153,7 +147,9 @@
               (declare (veq:svec mat))
               (loop for (s r g b a) in matpar for i from 0
                     do (setf (veq:4$ par* i) (veq:f4 r g b a)))
-              (values (i4%@$fx! mat* ((i (:va 4 x)) (veq:~ (m@do-mat (veq:2$ mat i)) 0 0)))
+              (values (i4%@$fx! mat* ((i (:va 4 x))
+                                      (declare (ignorable x))
+                                      (veq:~ (m@do-mat (veq:2$ mat i)) 0 0)))
                       par*))
            (pck-mima (mima &aux (mima* (veq:f$copy mima)))
              (loop for i from 0 below (length mima) by 8
@@ -166,8 +162,8 @@
                    if (zerop (aref nodes* (+ i 3))) do (setf (aref nodes* (+ i 3)) -4))
              nodes*))
    (auxin:with-struct
-    (gmsh/bvh::bvh- nodes int-nodes polys mima polyfx normals mat) bvh
-    (veq:~ (veq:new-stride (3 4 ff) normals) (pck-mima mima)
-           (veq:new-stride (3 4 ff) polyfx)  (pck-nodes int-nodes)
-           (pck-mat mat)))))
+     (gmsh/bvh::bvh- nodes int-nodes polys mima polyfx normals mat) bvh
+     (veq:~ (veq:new-stride (3 4 ff) normals) (pck-mima mima)
+            (veq:new-stride (3 4 ff) polyfx)  (pck-nodes int-nodes)
+            (pck-mat mat)))))
 

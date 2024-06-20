@@ -36,7 +36,7 @@
     #:scene/make #:scene/load #:scene/save #:canv/save
     #:update-axis #:update-view #:make-vm #:make-pm
     #:gpu/do-pack-bvh
-    #:scene-msh #:scene-proj #:scene-program
+    #:scene-msh #:scene-proj #:scene-program #:scene-canv
     #:scene-matfx #:scene-matmap #:getmat #:setmat))
 
 (defpackage #:gmsh/xrend ; gmsh/xrend?

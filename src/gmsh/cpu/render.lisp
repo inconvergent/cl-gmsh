@@ -75,14 +75,14 @@
                              (srnd:3on-sphere *rs* *dstlim*)))
              (f!ao (abs (the veq:ff (rc-simple bvh hp* ldir)))))
     ; (f3!@+ (f3!@*. rgb (* 0.3 ao)) (sample-light bvh rs hp* dir hn 0.4f0))
-    (f3!@+ (f3!@.* 0.7 (f3!@+ (f3!@*. rgb (* 0.60 ao))
+    (f3!@+ (f3!@.* 0.7 (f3!@+ (f3!@*. rgb (* 0.80 ao))
                               (sample-light bvh hp* dir hn ))) ; scale, s was here
            (f3!@*. (f3!@* rgb (f@do-render (1+ depth) hp*
                                 (m@reflect dir
                                   (veq:f3norm (f3!@+ (srnd:3in-sphere *rs* 0.1) hn)))))
                    0.4))))
 
-(veq:fvdef do-cr (bvh do-render depth (:va 3 rgb pt dir hn))
+(veq:fvdef do-cr (bvh do-render depth (:va 3 rgb pt dir hn)) ; reflection
   (declare #.*opt1* (gmsh/bvh:bvh bvh) (veq:ff pt dir hn)
                    (veq:pn depth) (ignorable bvh))
   (veq:xlet ((f3!hp* (veq:f3from pt hn 0.001)))
@@ -114,7 +114,9 @@
                                     (:ao (m@do-ao bvh #'do-render depth rgb pt d (get-normal bvh hi d)))
                                     (:cr (m@do-cr bvh #'do-render depth rgb pt d (get-normal bvh hi d)))
                                     ((:ll :c) (veq:f3 rgb))
-                                    (otherwise (veq:f3val (srnd:rndrng *rs* 0.95 1.0))))))
+                                    ; (otherwise (veq:f3val (srnd:rndrng *rs* 0.95 1.0)))
+                                    (otherwise (veq:f3val (srnd:rndrng *rs* 0.0 0.05))) ; miss
+                                    )))
                          (if t ; (< depth 1)
                              (f3!@+! res (sample-volume bvh hi p (f3!@+ p (f3!@*. ll hs))
                                            (veq:f3norm (f3!@+ (srnd:3in-sphere *rs* 0.1) d))

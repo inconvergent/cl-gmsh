@@ -1,12 +1,12 @@
 (in-package :gmsh/xrend)
 
+(declaim (inline reflect pixel-shift symbol-rgb get-normal hitmat))
+
 (defmacro init (k &key (context #'gmsh/xrend::xrend-worker-context)
-                  (bindings '((gmsh/bvh::*stck* . (gmsh::make-fast-stack :n 2048)))))
-  `(progn
-    (format t "~&██ starting ~a threads~&" ,k)
-    (setf lparallel:*kernel* (lparallel:make-kernel ,k
-                               :context ,context
-                               :bindings ',bindings))))
+                       (bindings '((gmsh/bvh::*stck* . (gmsh::make-fast-stack :n 2048)))))
+  `(progn (format t "~&██ starting ~a threads~&" ,k)
+          (setf lparallel:*kernel* (lparallel:make-kernel ,k
+                                     :context ,context :bindings ',bindings))))
 
 (defmacro rc-simple (&rest rest) "simple raycast using current raycaster."
   `(gmsh/bvh:simd4/simple-raycast ,@rest))
@@ -23,6 +23,7 @@
                (f!ascale (/ (veq:ff aa))) (p!blocks (floor size bs))
                (f2!xy (veq:f2scale (veq:f2$ (ortho::ortho-xy proj)) -1f0))
                (f3!vpn* (f3.@- (veq:f3$ (ortho::ortho-vpn proj))))
+               ; (f3!vpn* (veq:f3$ (ortho::ortho-vpn proj)))
                (f3!u (su proj)) (f3!v (sv proj)))
       (declare (ortho::ortho proj) (canvas::canvas canv))
       (progn ,@body))))
@@ -34,11 +35,9 @@
                      (the fixnum (* 19997 (the (unsigned-byte 6)
                                             (lparallel:kernel-worker-index)))))))))
 
-(declaim (inline reflect))
 (veq:fvdef reflect ((:va 3 d n)) (declare #.*opt1* (veq:ff d n))
   (f3!@- d (f3!@*. n (* 2f0 (veq:f3dot d n)))))
 
-(declaim (inline pixel-shift))
 (veq:vdef pixel-shift (rs (veq:varg 3 u v p) &optional (s 0.25f0))
   (declare #.*opt1* (srnd:srnd rs) (veq:ff u v p s) )
   (veq:f3from (veq:f3from p u (srnd:rnd* rs s)) v (srnd:rnd* rs s)))
@@ -46,19 +45,14 @@
 (veq:fvdef su (proj) (f3!@/. (veq:f3$s proj ortho::ortho- :u) (ortho::ortho-s proj)))
 (veq:fvdef sv (proj) (f3!@/. (veq:f3$s proj ortho::ortho- :v) (ortho::ortho-s proj)))
 
-; Y = 0.299 R + 0.587 G + 0.114 B
-; (declaim (inline %clamp-rgb))
-; (veq:fvdef* clamp-rgb ((:va 3 rgb))
-;   (declare #.*opt1* (veq:ff rgb))
+; (veq:fvdef* clamp-rgb ((:va 3 rgb)) (declare #.*opt1* (veq:ff rgb))
 ;   (veq:f3 (veq:fclamp (:vr rgb 0)) (veq:fclamp (:vr rgb 1)) (veq:fclamp (:vr rgb 2))))
-; (veq:fvdef* scale-rgb ((:va 3 rgb))
-;   (declare (veq:ff rgb))
+; (veq:fvdef* scale-rgb ((:va 3 rgb)) (declare (veq:ff rgb))
 ;   (veq:xlet ((f3!rgb* (clamp-rgb rgb))
 ;              (f!i (+ (* 0.299 (:vr rgb* 0)) (* 0.587 (:vr rgb* 1)) (* 0.114 (:vr rgb* 2)))))
 ;    (if (> i 0.95) (clamp-rgb (f3!@+ rgb* (veq:f3val (rnd:rnd* 0.05))))
 ;                   (veq:f3 rgb*))))
 
-(declaim (inline symbol-rgb get-normal hitmat))
 (veq:fvdef symbol-rgb (s)  ; TODO: adapt to *color*
   (case s (:w (veq:f3rep 1f0))
           (:r (veq:f3 1f0 0f0 0f0)) (:g (veq:f3 0f0 1f0 0f0)) (:b (veq:f3 0f0 0f0 1f0))
