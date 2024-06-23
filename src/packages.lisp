@@ -33,7 +33,7 @@
   (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:wrn)
   (:export #:scene
     #:get-s #:set-s #:get-pm #:get-vm
-    #:scene/make #:scene/load #:scene/save #:canv/save
+    #:scene/make #:scene/load #:scene/save #:canv/save #:scene/new-canv
     #:update-axis #:update-view #:make-vm #:make-pm
     #:gpu/do-pack-bvh
     #:scene-msh #:scene-proj #:scene-program #:scene-canv

@@ -10,8 +10,7 @@
   (proj (ortho:make) :type ortho::ortho :read-only t)
   (look (veq:f3$point 0f0 0f0 0f0) :type veq:fvec :read-only nil)
   (axis-state #.(veq:f_ '(0f0 0f0 0f0 0f0 0f0 0f0 0f0)) :type veq:fvec :read-only t)
-  (size 1000 :type fixnum :read-only t)
-  ; (canv (canvas:make :size 2000) :type canvas::canvas :read-only t)
+  (size 1000 :type fixnum :read-only nil)
   (canv nil :read-only nil)
   (lim 0.00001f0 :type veq:ff :read-only t)
   (matfx #'identity :type function :read-only nil)
@@ -79,6 +78,26 @@
   (gmsh/bvh:gpu/pack-bvh (gmsh:make-bvh (scene-msh sc) :num 7
                            :matfx (scene-matfx sc) :mode :bvh2-stackless)))
 
+(defun scene/new-canv (sc &key size) (declare (scene sc)) ; TODO: new name??
+  (when size (setf (scene-size sc) size))
+  (setf (scene-canv sc) (canvas:make :size (scene-size sc)))
+  sc)
+
+(veq:fvdef scene/make (&key (size 1000) (max-verts 2000000) (program :std)
+                            (msh (gmsh:gmsh :max-verts max-verts))
+                            (cam (veq:f3$point 401f0 400f0 101f0)) (look (veq:f3$zero))
+                            (s 1f0) (xy (veq:f2$point 1000f0 1000f0))
+                            (proj (ortho:make :cam cam :look look :xy xy :s s))
+                            (matmap (make-hash-table :test #'equal)) matfx)
+  (declare (veq:pn max-verts size) (veq:ff s) (veq:fvec look cam xy)
+           (keyword program) (hash-table matmap) (ortho:ortho proj))
+  (labels ((make-ortho () )
+           (matfx (p) (veq:mvb (m exists) (gethash p matmap '(:c :x))
+                        (unless exists (wrn :scene-matfx "poly missing matmap: ~a" p))
+                        (values-list m))))
+    (-make-scene :size size :program program :msh msh :proj proj :look look
+                 :matmap matmap :matfx (the function (or matfx #'matfx)))))
+
 (defun scene/save (sc fn &key matfx (colors gmsh:*matpar*) &aux (msh (scene-msh sc)))
   (declare (scene sc) (string fn))
   (lqn:out "~&████ exporting: ~a.~%████ fn: ~a~&" msh fn)
@@ -100,34 +119,14 @@
                                      :matfx (the function (or matfx #'matfx)))))
                     ".gmsh-scene")))
 
-; TODO: use fvec for keys?
-(veq:fvdef scene/make (&key (max-verts 2000000) (program :std)
-                            (msh (gmsh:gmsh :max-verts max-verts))
-                            (cam '(401f0 400f0 101f0)) (look '(0f0 0f0 0f0))
-                            proj canv
-                            (s 1f0) (xy '(500f0 500f0))
-                            (matmap (make-hash-table :test #'equal)) matfx)
-  (declare (list look cam xy) (keyword program) (hash-table matmap))
-  (labels ((make-ortho () (ortho:make :cam (veq:f3$point (veq:from-lst cam))
-                                      :look (veq:f3$point (veq:from-lst look))
-                                      :xy (veq:f2$point (veq:from-lst xy)) :s s))
-           (matfx (p) (veq:mvb (m exists) (gethash p matmap '(:c :x))
-                        (unless exists (wrn :scene-matfx "poly missing matmap: ~a" p))
-                        (values-list m))))
-    (-make-scene :program program :msh msh :proj (the ortho::ortho (or proj (make-ortho)))
-                 :canv canv
-                 :look (veq:f3$point (veq:from-lst look))
-                 :matmap matmap :matfx (the function (or matfx #'matfx)))))
-
 ; TODO: rescale scene camera/projection
-; TODO: incomplete
-(defun scene/load (fn &aux (o (lqn:dat-read-one fn))
+(defun scene/load (fn &aux (o (lqn:dat-read-one fn)) ; TODO: incomplete
                            (matmap (make-hash-table :test #'equal)))
   (declare (string fn) (hash-table matmap))
-  (labels ((matfx (p m c) (setf (gethash p matmap) `(,m ,c))))
-   (scene/make :max-verts (cdr (assoc :max-verts o))
-               :msh (gmsh/io:mimport (cdr (assoc :msh o)) :matfx #'matfx)
-               :proj (ortho:import-data (cdr (assoc :proj o)))
-               :matmap matmap
-               :canv (canvas:make :size 1000)))) ; import size
+  (labels ((gk (k) (cdr (assoc k o)))
+           (matfx (p m c) (setf (gethash p matmap) `(,m ,c))))
+   (let ((msh (gmsh/io:mimport (gk :msh) :matfx #'matfx)))
+    (scene/make :msh msh :max-verts (gmsh::gmsh-max-verts msh)
+                :proj (ortho:import-data (gk :proj))
+                :matmap matmap :size (gk :size))))) ; import size
 

@@ -136,7 +136,7 @@
  ;       Type: (OR KEYWORD STRING)
  ;       Initform: :STD
  ;     GMSH/SCENE::PROJ
- ;       Type: ORTHO::ORTHO
+ ;       Type: ORTHO:ORTHO
  ;       Initform: (ORTHO:MAKE)
  ;     GMSH/SCENE::LOOK
  ;       Type: VEQ:FVEC
@@ -165,6 +165,24 @@
  ;     GMSH/SCENE::VM
  ;       Type: VECTOR
  ;       Initform: #()
+```
+
+## `gmsh/scene:scene-canv`
+```
+:missing:
+
+ ; GMSH/SCENE:SCENE-CANV
+ ;   [symbol]
+ ; 
+ ; SCENE-CANV names a compiled function:
+ ;   Lambda-list: (INSTANCE)
+ ;   Derived type: (FUNCTION (GMSH/SCENE:SCENE) (VALUES T &OPTIONAL))
+ ;   Source file: /data/x/gmsh/src/gmsh/scene.lisp
+ ; 
+ ; (SETF SCENE-CANV) names a compiled function:
+ ;   Lambda-list: (VALUE INSTANCE)
+ ;   Derived type: (FUNCTION (T GMSH/SCENE:SCENE) (VALUES T &OPTIONAL))
+ ;   Source file: /data/x/gmsh/src/gmsh/scene.lisp
 ```
 
 ## `gmsh/scene:scene-matfx`
@@ -245,7 +263,7 @@
  ; SCENE-PROJ names a compiled function:
  ;   Lambda-list: (INSTANCE)
  ;   Derived type: (FUNCTION (GMSH/SCENE:SCENE)
- ;                  (VALUES ORTHO::ORTHO &OPTIONAL))
+ ;                  (VALUES ORTHO:ORTHO &OPTIONAL))
  ;   Source file: /data/x/gmsh/src/gmsh/scene.lisp
 ```
 
@@ -257,7 +275,8 @@
  ;   [symbol]
  ; 
  ; SCENE/LOAD names a compiled function:
- ;   Lambda-list: (FN &AUX (O (DAT-READ-ONE FN)))
+ ;   Lambda-list: (FN &AUX (O (DAT-READ-ONE FN))
+ ;                 (MATMAP (MAKE-HASH-TABLE TEST (FUNCTION EQUAL))))
  ;   Derived type: (FUNCTION (STRING) *)
  ;   Source file: /data/x/gmsh/src/gmsh/scene.lisp
 ```
@@ -270,16 +289,33 @@
  ;   [symbol]
  ; 
  ; SCENE/MAKE names a compiled function:
- ;   Lambda-list: (&KEY (MAX-VERTS 2000000) (PROGRAM STD)
+ ;   Lambda-list: (&KEY (SIZE 1000) (MAX-VERTS 2000000) (PROGRAM STD)
  ;                 (MSH (GMSH MAX-VERTS MAX-VERTS))
- ;                 (CAM (QUOTE (401.0 400.0 101.0)))
- ;                 (LOOK (QUOTE (0.0 0.0 0.0))) PROJ CANV (S 1.0)
- ;                 (XY (QUOTE (500.0 500.0)))
+ ;                 (CAM (F3$POINT 401.0 400.0 101.0)) (LOOK (F3$ZERO))
+ ;                 (S 1.0) (XY (F2$POINT 1000.0 1000.0))
+ ;                 (PROJ (MAKE CAM CAM LOOK LOOK XY XY S S))
  ;                 (MATMAP (MAKE-HASH-TABLE TEST (FUNCTION EQUAL))) MATFX)
  ;   Derived type: (FUNCTION
- ;                  (&KEY (:MAX-VERTS T) (:PROGRAM KEYWORD) (:MSH T)
- ;                   (:CAM LIST) (:LOOK LIST) (:PROJ T) (:CANV T) (:S T)
- ;                   (:XY LIST) (:MATMAP HASH-TABLE) (:MATFX T))
+ ;                  (&KEY (:SIZE (UNSIGNED-BYTE 32))
+ ;                   (:MAX-VERTS (UNSIGNED-BYTE 32)) (:PROGRAM KEYWORD)
+ ;                   (:MSH T) (:CAM (SIMPLE-ARRAY SINGLE-FLOAT))
+ ;                   (:LOOK (SIMPLE-ARRAY SINGLE-FLOAT)) (:S SINGLE-FLOAT)
+ ;                   (:XY (SIMPLE-ARRAY SINGLE-FLOAT)) (:PROJ ORTHO:ORTHO)
+ ;                   (:MATMAP HASH-TABLE) (:MATFX T))
+ ;                  (VALUES GMSH/SCENE:SCENE &OPTIONAL))
+ ;   Source file: /data/x/gmsh/src/gmsh/scene.lisp
+```
+
+## `gmsh/scene:scene/new-canv`
+```
+:missing:
+
+ ; GMSH/SCENE:SCENE/NEW-CANV
+ ;   [symbol]
+ ; 
+ ; SCENE/NEW-CANV names a compiled function:
+ ;   Lambda-list: (SC &KEY SIZE)
+ ;   Derived type: (FUNCTION (GMSH/SCENE:SCENE &KEY (:SIZE T))
  ;                  (VALUES GMSH/SCENE:SCENE &OPTIONAL))
  ;   Source file: /data/x/gmsh/src/gmsh/scene.lisp
 ```
@@ -292,11 +328,10 @@
  ;   [symbol]
  ; 
  ; SCENE/SAVE names a compiled function:
- ;   Lambda-list: (SC &KEY (FN (FN)) MATFX (COLORS *MATPAR*) &AUX
+ ;   Lambda-list: (SC FN &KEY MATFX (COLORS *MATPAR*) &AUX
  ;                 (MSH (SCENE-MSH SC)))
  ;   Derived type: (FUNCTION
- ;                  (GMSH/SCENE:SCENE &KEY (:FN STRING) (:MATFX T)
- ;                   (:COLORS T))
+ ;                  (GMSH/SCENE:SCENE STRING &KEY (:MATFX T) (:COLORS T))
  ;                  *)
  ;   Source file: /data/x/gmsh/src/gmsh/scene.lisp
 ```

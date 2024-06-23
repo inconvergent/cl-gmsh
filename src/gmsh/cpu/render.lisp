@@ -1,7 +1,7 @@
 (in-package :gmsh/xrend)
 
 (declaim (veq:ff *dstlim*)) ; TODO: this should be configurable
-(defvar *dstlim* 2000f0) (defvar *vdst* 40f0)
+(defvar *dstlim* 2000f0) (defvar *vdst* 600f0)
 (defvar *rs* (srnd:srnd 1))
 
 (declaim (inline sample-light do-ao do-cr %sample-volume
@@ -36,7 +36,7 @@
 (veq:fvdef* do-subsec-sample (bvh dst (:va 3 p delta) &optional (va 0.0009f0) (ve 1.74f0))
   (declare #.*opt1* (gmsh/bvh::bvh bvh) (veq:ff dst p delta) (ignorable va ve))
 
-   (f3!@.* 25f0 (subseq-sample 0.001 0.991
+   (f3!@.* 34f0 (subseq-sample 0.001 0.991
     (lambda (q)
       (declare (veq:ff q))
       (handler-case
@@ -59,7 +59,8 @@
                           ;       )
                           )
                   (veq:f3rep 0f0)))))
-        (division-by-zero (e) (declare (ignorable e)) (veq:f3rep 0f0))))
+        ; (division-by-zero (e) (declare (ignorable e)) (veq:f3rep 0f0))
+        ))
     (/ 6.0 dst))))
 
 (veq:fvdef*  sample-volume (bvh hi (:va 3 origin pt d)) ;pt = hit
@@ -106,6 +107,7 @@
          (veq:xlet ((f3!ll (veq:f3scale d raylen)))
            (veq:mvb (hi hs) (rc bvh p ll)
              (declare (veq:ff hs) (veq:in hi))
+             ; (print hs)
              (veq:mvb (flag (:va 3 rgb)) (hitmat bvh hi)
                (declare (symbol flag) (veq:ff rgb))
                (veq:xlet ((f3!pt (veq:f3from p ll hs))
@@ -117,12 +119,14 @@
                                     ; (otherwise (veq:f3val (srnd:rndrng *rs* 0.95 1.0)))
                                     (otherwise (veq:f3val (srnd:rndrng *rs* 0.0 0.05))) ; miss
                                     )))
-                         (if t ; (< depth 1)
-                             (f3!@+! res (sample-volume bvh hi p (f3!@+ p (f3!@*. ll hs))
+                         (progn ;if t ; (< depth 1)
+                             (f3!@+ res (sample-volume bvh hi p
+                                                        (f3!@+ p (f3!@*. ll hs)) ;
                                            (veq:f3norm (f3!@+ (srnd:3in-sphere *rs* 0.1) d))
                                           ; d
                                           ))
-                             (veq:f3 res)))))))
+                             ; (veq:f3 res)
+                             ))))))
        (do-row (yy &optional (xx 0) (repx size) (repy 1))
          (init-srnd)
          (loop for j of-type veq:pn from yy repeat repy

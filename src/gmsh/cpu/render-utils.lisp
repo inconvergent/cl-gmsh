@@ -24,7 +24,7 @@
                (f2!xy (veq:f2scale (veq:f2$ (ortho::ortho-xy proj)) -1f0))
                (f3!vpn* (f3.@- (veq:f3$ (ortho::ortho-vpn proj))))
                ; (f3!vpn* (veq:f3$ (ortho::ortho-vpn proj)))
-               (f3!u (su proj)) (f3!v (sv proj)))
+               (f3!u (f3.@- (su proj))) (f3!v (f3.@- (sv proj))))
       (declare (ortho::ortho proj) (canvas::canvas canv))
       (progn ,@body))))
 
