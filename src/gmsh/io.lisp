@@ -68,7 +68,7 @@
 
 ; MTL -------------- ; need this in obj file to enable mat files:
 ; mtllib tmp.mtl ; usemtl tmp
-(veq:fvdef obj/mat-save (msh fn mats &key (colors gmsh:*matpar*)
+(veq:fvdef obj/save-mtl (msh fn mats &key (colors gmsh:*matpar*)
                                      &aux (fn (auxin::ensure-filename fn ".mtl" t)))
   (declare (ignorable msh) (string fn))
   "export mtl file. see: obj/save."
@@ -104,7 +104,7 @@
   ; can we export vertices only once?
   ; assume the same for normals and uv.
   (declare (gmsh:gmsh msh) (string fn) (function matfx propfx))
-  "export obj file. see: obj/load, obj/load-model, obj/mat-save."
+  "export obj file. see: obj/load, obj/load-model, obj/save-mtl"
   (labels
     ((ns (s) (if s s "")) (1up (l) (mapcar #'1+ l))
      (remap-poly (inds)
@@ -150,8 +150,9 @@
 
 ; TODO: :uv, vn, vt normals?
 ; TODO: this is all rather inefficient
-(defun mexport (msh &key meta (matfx (lambda (p) (declare (ignore p)) '(:c :x))))
-  (declare (gmsh:gmsh msh) (list meta) (function matfx)) "serialize gmsh. see mimport."
+(defun export-data (msh &key meta (matfx (lambda (p) (declare (ignore p)) '(:c :x))))
+  (declare (gmsh:gmsh msh) (list meta) (function matfx))
+  "serialize gmsh. see gmsh/io:import-data"
   (labels ((do-poly (&aux (res (list))) (gmsh:itr-polys (msh p)
                                           (veq:dsb (m c) (funcall matfx p)
                                             (setf res `(,@p ,m ,c ,@res))))
@@ -163,9 +164,9 @@
        (:num-polys . ,(gmsh:get-num-polys msh))
        (:poly . ,(do-poly)) (:verts . ,(do-vert)))))
 
-(defun mimport (o &key matfx max-verts) ; TODO: count from existing verts, polys
+(defun import-data (o &key matfx max-verts) ; TODO: count from existing verts, polys
   (declare (list o)) "deserialize gmsh. matfx should accept two arguments, polygon
-and a list of (color material). see mexport."
+and a list of (color material). see gmsh/io:export-data"
   (labels ((gk (k) (declare (keyword k)) (cdr (assoc k o))))
     (let ((verts (gk :verts)) (nv (gk :num-verts)) (np (gk :num-polys))
           (msh (gmsh:gmsh :max-verts (the veq:pn (or max-verts (gk :max-verts))))))
@@ -176,8 +177,8 @@ and a list of (color material). see mexport."
       (loop for i from 0 below (veq:3$num verts)
         collect (gmsh:add-vert! msh (veq:3$ verts i)))
       (unless (= (gmsh:get-num-verts msh) nv)
-        (wrn :mimport "expected ~a verts, got: ~a." nv (gmsh:get-num-verts msh)))
+        (wrn :import-data "expected ~a verts, got: ~a." nv (gmsh:get-num-verts msh)))
       (unless (= (gmsh:get-num-polys msh) np)
-        (wrn :mimport "expected ~a polys, got: ~a." np (gmsh:get-num-polys msh)))
+        (wrn :import-data "expected ~a polys, got: ~a." np (gmsh:get-num-polys msh)))
       (values msh (the list (gk :meta))))))
 

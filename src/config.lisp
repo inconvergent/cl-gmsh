@@ -15,10 +15,11 @@
      (setf (gethash ,k gmsh:*wrncnt*) (1+ cnt))))
 
 (init-config
-  ((defvar *opt* '(optimize (safety 3) (speed 3) (debug 3) space)) ; dev
-   (defvar *opt1* '(optimize (safety 3) (speed 3) (debug 3)))
+  ((defvar *opt*  '(optimize (safety 3) (speed 3) (debug 3) (space 0))) ; dev
+   (defvar *opt1* '(optimize (safety 3) (speed 3) (debug 3) (space 0)))
    (defvar *dev* t))
-  ((defvar *opt* '(optimize (safety 3) (speed 3) (debug 1) (space 2))); prod
+
+  ((defvar *opt*  '(optimize (safety 1) (speed 3) (debug 1) (space 2))); prod
    (defvar *opt1* '(optimize (safety 0) (speed 3) (debug 0) (space 2)))
    (defvar *dev* nil)))
 

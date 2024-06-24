@@ -8,7 +8,7 @@
     #:gmsh #:make-bvh #:clear! #:center!
     #:get-connected-verts #:get-num-verts #:get-num-polys #:get-max-verts
     #:get-all-polys #:add-poly! #:add-vert! #:add-verts! #:add-polys!
-    #:add-plane! #:add-box! #:del-poly!
+    #:add-plane! #:add-box! #:del-poly! #:split-edge!
     #:tx! #:classify-vert-fx #:p/classify-verts
     #:norm-poly #:itr-polys
     #:get-vert #:get-verts #:get-uv #:get-uvs #:get-norm #:get-norms
@@ -18,7 +18,7 @@
 (defpackage #:gmsh/io
   (:use #:common-lisp)
   (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:wrn)
-  (:export #:mexport #:mimport #:obj/mat-save #:obj/load-model #:obj/load #:obj/save))
+  (:export #:export-data #:import-data #:obj/save-mtl #:obj/load-model #:obj/load #:obj/save))
 
 (defpackage #:gmsh/bvh
   (:use #:common-lisp)

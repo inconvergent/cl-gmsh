@@ -116,6 +116,7 @@
 (defun del-polys! (msh polys) (declare (gmsh msh) (list polys)) "delete these polys."
   (loop for p of-type list in polys collect (del-poly! msh p)))
 
+
 (veq:fvdef* add-vert! (msh (:va 3 x)) "add vert."
   (auxin:with-struct (gmsh- verts num-verts) msh
     (setf (veq:3$ verts num-verts) (veq:f3 x))
@@ -181,11 +182,11 @@
             (f3_@$cent! (?@ verts 0 num-verts)))
           (values mx wh s))))))
 
-(veq:fvdef make-bvh (msh &key (num 5) matfx (mode :bvh2-stackless))
-  (declare #.*opt1* (gmsh msh) (veq:pn num)) "construct bvh for rendering."
-  (gmsh/bvh::make (get-all-polys msh)
-    (lambda (verts) (declare (list verts)) (get-verts msh verts))
-    :matfx matfx :num num :mode mode))
+(veq:fvdef make-bvh (msh &rest rest)
+  (declare #.*opt1* (gmsh msh)) "construct bvh for rendering."
+  (apply #'gmsh/bvh::make (get-all-polys msh)
+         (lambda (verts) (declare (list verts)) (get-verts msh verts))
+         rest))
 
 
 (veq:fvdef add-verts-polys! (msh verts polys)
@@ -250,6 +251,12 @@
   "add tris from list of fvecs. returns tris"
   (add-vert-grid! msh (loop for pts in lpts collect (add-verts! msh pts))
                       closed))
+
+; (veq:vp e )
+; (unless (gethash poly polys) (return-from del-poly! nil))
+; (loop for (a b) in (poly-as-edges poly)
+;       do (-del-poly-edges poly (-edg a b)))
+; (remhash poly polys)
 
 ; TODO: generic back wall, generic plane?
 ; TODO: tx new-verts, using generic return format for new verts/polys?

@@ -15,7 +15,7 @@
   (loop for i from 1 below (* 2 n) by 2 do (setf (aref res i) :x)) res)
 
 ; objs list: ((2 3 4) #(xmi xma ...) #normal)
-(veq:fvdef make (input-objs vfx &key (num 5) matfx (mode :bvh2)
+(veq:fvdef make (input-objs vfx &key (num 5) matfx (mode :bvh2-stackless)
                                      (num-buckets 15) (sort-lvl 32) (sort-num 7))
   (declare #.*opt* (list input-objs) (function vfx) (symbol mode)
                    (veq:pn num sort-lvl sort-num num-buckets))
@@ -55,9 +55,10 @@
            (loop for o in objs do (do-poly o)))
 
          (split-axis (objs n lvl) (declare (list objs) (veq:pn n lvl))
-           (handler-case (progn (when (> lvl sort-lvl) (error "deep batch ~a" lvl))
-                                (when (< n sort-num) (error "small batch ~a" n))
-                                (sah-split-by-best-axis objs num-buckets))
+           (handler-case
+             (progn (when (> lvl sort-lvl) (error "deep batch ~a" lvl))
+                    (when (< n sort-num) (error "small batch ~a" n))
+                    (sah-split-by-best-axis objs num-buckets))
              (simple-error (e) (declare (ignorable e))
                (veq:xlet ((objs* (-axissort objs :ax (-longaxis objs)))
                           (p!mid (if (= n 1) 0 (round n 2))))

@@ -4,7 +4,7 @@
 (ql:quickload :auxin) (ql:quickload :gmsh)
 (setf lparallel:*kernel* (lparallel:make-kernel 1))
 (defvar *size* 1000) (defvar *pid* 0)
-; (rnd:set-rnd-state 113)
+(rnd:set-rnd-state 113)
 
 ; TODO: size export
 ; TODO: complete scene export/import -> cpu render pipeline
@@ -19,10 +19,11 @@
   (labels ((reset-mat () (clrhash (gmsh/scene::scene-matmap sc))
                          (gmsh:itr-polys (msh p)
                            (gmsh/scene:setmat sc p
-                             (rnd:rcond (0.1 '(:c :c)) (0.1 '(:c :y))
-                                        (0.1 '(:c :m)) (0.5 '(:c :k)))))))
+                             (rnd:rcond (0.1 '(:c :c)) (0.1 '(:c :m))
+                                        (0.1 '(:c :y)) (0.5 '(:c :k)))))))
     (gmsh:clear! msh)
-    (gmsh/io:obj/load-model :iso :msh msh)
+    (gmsh/io:obj/load-model :teapot :msh msh)
+    (gmsh::split-edge! msh '(1 2))
     (gmsh:center! msh :max-side 10f0)
     (reset-mat)
     (print sc)))

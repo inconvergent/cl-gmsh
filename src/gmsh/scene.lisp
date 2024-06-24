@@ -105,17 +105,17 @@
            (expfx (m &aux (m (second m))) `(,(mname m) :c ,m))
            (mname (m) (lqn:sdwn m 1))
            (propfx (mc) `(("mtllib" . ,(lqn:fmt "~a.mtl" fn))
-                          ("usemtl" . ,(mname (second mc)))))) ; TODO: usemtl is incomplete
-    (gmsh/io:obj/mat-save msh fn
+                          ("usemtl" . ,(mname (second mc)))))) ; TODO: usemtl could be better
+    (gmsh/io:obj/save-mtl msh fn
       (mapcar #'expfx (gmsh/io:obj/save msh fn :matfx (the function (or matfx #'matfx))
                                                :propfx #'propfx))
-                                               :colors colors)
+      :colors colors)
     (lqn:dat-export fn `((:fn . ,fn) (:now . ,(lqn:now))
                          (:true-name . ,*load-truename*) ; TODO: get this as input?
                          (:size . ,(scene-size sc))
                          (:programs . ,gmsh:*programs*) (:matpar . ,gmsh:*matpar*)
                          (:proj . ,(ortho:export-data (scene-proj sc)))
-                         (:msh . ,(gmsh/io:mexport msh
+                         (:msh . ,(gmsh/io:export-data msh
                                      :matfx (the function (or matfx #'matfx)))))
                     ".gmsh-scene")))
 
@@ -125,8 +125,8 @@
   (declare (string fn) (hash-table matmap))
   (labels ((gk (k) (cdr (assoc k o)))
            (matfx (p m c) (setf (gethash p matmap) `(,m ,c))))
-   (let ((msh (gmsh/io:mimport (gk :msh) :matfx #'matfx)))
+   (let ((msh (gmsh/io:import-data (gk :msh) :matfx #'matfx)))
     (scene/make :msh msh :max-verts (gmsh::gmsh-max-verts msh)
                 :proj (ortho:import-data (gk :proj))
-                :matmap matmap :size (gk :size))))) ; import size
+                :matmap matmap :size (gk :size))))) ; TODO: import colors,, other?
 

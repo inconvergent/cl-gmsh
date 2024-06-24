@@ -1,31 +1,31 @@
-## `gmsh/io:mexport`
+## `gmsh/io:export-data`
 ```
- ; GMSH/IO:MEXPORT
+ ; GMSH/IO:EXPORT-DATA
  ;   [symbol]
  ; 
- ; MEXPORT names a compiled function:
+ ; EXPORT-DATA names a compiled function:
  ;   Lambda-list: (MSH &KEY META
  ;                 (MATFX (LAMBDA (P) (DECLARE (IGNORE P)) (QUOTE (C X)))))
  ;   Derived type: (FUNCTION
  ;                  (GMSH:GMSH &KEY (:META LIST) (:MATFX FUNCTION))
  ;                  (VALUES CONS &OPTIONAL))
  ;   Documentation:
- ;     serialize gmsh. see mimport.
+ ;     serialize gmsh. see gmsh/io:import-data
  ;   Source file: /data/x/gmsh/src/gmsh/io.lisp
 ```
 
-## `gmsh/io:mimport`
+## `gmsh/io:import-data`
 ```
- ; GMSH/IO:MIMPORT
+ ; GMSH/IO:IMPORT-DATA
  ;   [symbol]
  ; 
- ; MIMPORT names a compiled function:
+ ; IMPORT-DATA names a compiled function:
  ;   Lambda-list: (O &KEY MATFX MAX-VERTS)
  ;   Derived type: (FUNCTION (LIST &KEY (:MATFX T) (:MAX-VERTS T))
  ;                  (VALUES T LIST &OPTIONAL))
  ;   Documentation:
  ;     deserialize gmsh. matfx should accept two arguments, polygon
- ;     and a list of (color material). see mexport.
+ ;     and a list of (color material). see gmsh/io:export-data
  ;   Source file: /data/x/gmsh/src/gmsh/io.lisp
 ```
 
@@ -67,21 +67,6 @@
  ;   Source file: /data/x/gmsh/src/gmsh/io.lisp
 ```
 
-## `gmsh/io:obj/mat-save`
-```
- ; GMSH/IO:OBJ/MAT-SAVE
- ;   [symbol]
- ; 
- ; OBJ/MAT-SAVE names a compiled function:
- ;   Lambda-list: (MSH FN MATS &KEY (COLORS *MATPAR*) &AUX
- ;                 (FN (ENSURE-FILENAME FN .mtl T)))
- ;   Derived type: (FUNCTION (T STRING T &KEY (:COLORS T))
- ;                  (VALUES NULL &OPTIONAL))
- ;   Documentation:
- ;     export mtl file. see: obj/save.
- ;   Source file: /data/x/gmsh/src/gmsh/io.lisp
-```
-
 ## `gmsh/io:obj/save`
 ```
  ; GMSH/IO:OBJ/SAVE
@@ -98,7 +83,22 @@
  ;                             (:PROPFX FUNCTION))
  ;                  (VALUES LIST &OPTIONAL))
  ;   Documentation:
- ;     export obj file. see: obj/load, obj/load-model, obj/mat-save.
+ ;     export obj file. see: obj/load, obj/load-model, obj/save-mtl
+ ;   Source file: /data/x/gmsh/src/gmsh/io.lisp
+```
+
+## `gmsh/io:obj/save-mtl`
+```
+ ; GMSH/IO:OBJ/SAVE-MTL
+ ;   [symbol]
+ ; 
+ ; OBJ/SAVE-MTL names a compiled function:
+ ;   Lambda-list: (MSH FN MATS &KEY (COLORS *MATPAR*) &AUX
+ ;                 (FN (ENSURE-FILENAME FN .mtl T)))
+ ;   Derived type: (FUNCTION (T STRING T &KEY (:COLORS T))
+ ;                  (VALUES NULL &OPTIONAL))
+ ;   Documentation:
+ ;     export mtl file. see: obj/save.
  ;   Source file: /data/x/gmsh/src/gmsh/io.lisp
 ```
 

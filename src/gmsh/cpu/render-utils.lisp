@@ -8,12 +8,13 @@
           (setf lparallel:*kernel* (lparallel:make-kernel ,k
                                      :context ,context :bindings ',bindings))))
 
-(defmacro rc-simple (&rest rest) "simple raycast using current raycaster."
-  `(gmsh/bvh:simd4/simple-raycast ,@rest))
-(defmacro rc (&rest rest) "raycast using current raycaster."
-  `(gmsh/bvh:simd4/raycast ,@rest))
-; (defmacro rc-simple (&rest rest) `(gmsh/bvh:int/simple-raycast ,@rest))
-; (defmacro rc (&rest rest) `(gmsh/bvh:int/raycast ,@rest))
+; (defmacro rc-simple (&rest rest) "simple raycast using current raycaster."
+;   `(gmsh/bvh:simd4/simple-raycast ,@rest))
+; (defmacro rc (&rest rest) "raycast using current raycaster."
+;   `(gmsh/bvh:simd4/raycast ,@rest))
+
+(defmacro rc-simple (&rest rest) `(gmsh/bvh:int/simple-raycast ,@rest))
+(defmacro rc (&rest rest) `(gmsh/bvh:int/raycast ,@rest))
 
 
 ; TODO: make this cleaner

@@ -54,7 +54,7 @@
                                 (max (veq:$ curr 5) (veq:$ new 5)))))
 
 ; TODO: this is kinda messy
-(veq:fvdef sah-estimate-axis (objs ax &rest rest &aux (nb 15))
+(veq:fvdef sah-estimate-axis (objs ax &rest rest &aux (nb 13))
   (declare #.*opt* (ignore rest) (list objs) (veq:pn ax nb))
   (veq:xlet ((buckets (init-sah-buckets nb))
              (f2!centmima (get-objs-ax-centroid-mima objs ax)))
@@ -86,19 +86,23 @@
       (sah-find-min-node buckets)))))
 
 ; TODO: fix buckets init to nil
-(veq:fvdef sah-split-by-best-axis (objs nb &aux (imin 0)
+; TODO: fix very general handler-case
+(veq:fvdef sah-split-by-best-axis (objs nb &aux (imin -1)
                                                 (mincost 9999999999f0) buckets)
   (loop for ax from 0 below 3
-        do (veq:mvb (buckets* imin* mincost*) (sah-estimate-axis objs ax :nb nb)
-             (when (< mincost* mincost)
-                   (setf mincost mincost* buckets buckets* imin imin*))))
+        do (handler-case
+             (veq:mvb (buckets* imin* mincost*) (sah-estimate-axis objs ax :nb nb)
+               (when (< mincost* mincost)
+                     (setf mincost mincost* buckets buckets* imin imin*)))
+             (simple-error (e) (declare (ignorable e))))) ; ignores bad range error
+
+  (when (< imin 0) (error "tiny box"))
   ; TODO: make this an alternative?
   ; (let ((ax (-longaxis objs)))
   ;   (veq:mvb (buckets* imin*) (sah-estimate-axis objs ax :nb nb)
   ;            (setf imin imin* buckets buckets*)))
-  ; (veq:vpr  (length objs) imin mincost)
   (handler-case (sah-do-split-axis objs buckets imin)
-                (error (e) (error "sah err: ~a" e))))
+                (error (e) (error "split err: ~a" e))))
 
 ; TODO: fix mix of mi mi mi, ma ma ma, mi ma, mi ma mappings
 (declaim (inline -longaxis))

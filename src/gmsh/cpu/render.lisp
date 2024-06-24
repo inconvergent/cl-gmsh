@@ -19,49 +19,41 @@
                                       (rc-simple bvh hp (f3!@- (srnd:2on-circ *rs* 3f0) 1f0 hp))))))
      (f3!@*. v 0.1)))
 
-
 (veq:fvdef* subseq-sample (a* b* fx &optional (lim 0.1))
   (declare #.*opt1* (function fx) (veq:ff a* b* lim))
   (labels
-    ((rec (a b (:va 3 fa fb))
-       (declare (veq:ff a b fa fb))
+    ((rec (lvl a b (:va 3 fa fb) &aux (num (1+ lvl)))
+       (declare (veq:ff a b fa fb) (veq:pn lvl num))
        (veq:xlet ((f!d (- b a)))
-         (when (< d lim) (return-from rec (f3!@*. (f3!@+ fa fb) (* 0.5 d)))))
-       (veq:xlet ((f!mid (srnd:rndrng *rs* a b)) (f3!fm (f@fx mid)))
-         (f3!@+ (rec a mid fa fm) (rec mid b fm fb)))))
-    (m@rec a* b* (f@fx a*) (f@fx b*))))
+         (when (or (< d lim) (> num 6))
+               (return-from rec (f3!@*. (f3!@+ fa fb) (* 0.5 d)))))
+
+       (veq:xlet ((f!mid (srnd:rndrng *rs* a b))
+                  (f3!fm (f@fx mid)))
+         (f3!@+ (rec num a mid fa fm) (rec num mid b fm fb)))))
+    (m@rec 0 a* b* (f@fx a*) (f@fx b*))))
 
 (defmacro falloff (b e) `(exp (- (expt (abs ,b) ,e))))
 
-(veq:fvdef* do-subsec-sample (bvh dst (:va 3 p delta) &optional (va 0.0009f0) (ve 1.74f0))
-  (declare #.*opt1* (gmsh/bvh::bvh bvh) (veq:ff dst p delta) (ignorable va ve))
-
-   (f3!@.* 34f0 (subseq-sample 0.001 0.991
-    (lambda (q)
-      (declare (veq:ff q))
-      (handler-case
-        (veq:xlet ((f3!php (veq:f3from p delta q))
-                   (f3!lray (srnd:3on-sphere *rs* 1f0))
-                   )
-          (veq:mvb (hi hs) (rc bvh php (f3!@+ php (f3!@*. lray *vdst*)))
-            (declare (fixnum hi) (veq:ff hs))
-            (veq:mvb (flag (:va 3 rgb)) (hitmat bvh hi)
-              (declare (symbol flag) (veq:ff rgb))
-              ; (print flag)
-              ; (veq:vpr lray d)
-              (if (and (eq flag :ll) (< veq:*eps* hs))
-                  (f3!@*. rgb
-                         ; (* 1000 (print hs))
-                          ; (falloff (* (* *vdst* hs) va) ve)
-                          1f0
-                          ; (expt (- 1f0 (abs (veq:f3dot lray d)))
-                          ;       0.5
-                          ;       )
-                          )
-                  (veq:f3rep 0f0)))))
-        ; (division-by-zero (e) (declare (ignorable e)) (veq:f3rep 0f0))
-        ))
-    (/ 6.0 dst))))
+(veq:fvdef* do-subsec-sample (bvh dst (:va 3 p delta) &optional (ve 0.8f0))
+  (declare #.*opt1* (gmsh/bvh::bvh bvh) (veq:ff dst p delta ve))
+          ; exposure/brightness
+   (labels ((sample (q) (declare (veq:ff q))
+             (progn ;handler-case
+               (veq:xlet ((f3!php (veq:f3from p delta q)))
+                 (veq:mvb (hi hs)
+                          (rc bvh php (f3!@+ php (srnd:3on-sphere *rs* *vdst*)))
+                          (declare (fixnum hi) (veq:ff hs))
+                   (veq:mvb (flag (:va 3 rgb)) (hitmat bvh hi)
+                            (declare (symbol flag) (veq:ff rgb))
+                            ; (expt (- 1f0 (abs (veq:f3dot lray d))) 0.5)
+                            (if (and (eq flag :ll) (< #.veq:*eps* hs))
+                                (f3!@*. rgb (falloff hs ve))
+                                (veq:f3rep 0f0))))))))
+               ; (division-by-zero (e) (declare (ignorable e)) (veq:f3rep 0f0))
+             ; brightness
+     (f3!@.* 13f0 (subseq-sample 0.001 0.991 #'sample (/ 7.0 dst)))))
+                                                         ; larger factor is faster
 
 (veq:fvdef*  sample-volume (bvh hi (:va 3 origin pt d)) ;pt = hit
    (declare #.*opt1* (fixnum hi) (veq:ff origin pt d))
@@ -97,7 +89,7 @@
 ; TODO: pass in ambient light sampler
 (veq:vdef render (sc bvh &key (aa 1) (par t) (size 1000) (bs 1) (raylen 2000f0))
   (declare #.*opt1* (gmsh/scene:scene sc) (gmsh/bvh:bvh bvh)
-                    (veq:pn bs aa size bs) (boolean par) (veq:ff raylen))
+                    (veq:pn bs aa size) (boolean par) (veq:ff raylen))
   "render scene from this scene/bvh."
   (render-wrap ; NOTE: requires scene: sc
     (labels

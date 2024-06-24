@@ -39,18 +39,18 @@
   (auxin:with-struct (gmsh- verts uv vt edges->poly) msh
     (labels ((getlrp (a b)
                (declare (veq:pn a b))
-               (auxin:dsb (a* b*) (-edg a b)
+               (auxin:dsb (a* b*) (-edg a b) (declare (veq:pn a* b*))
                  (if (= a a*) (gethash (list a* b*) lerps)
-                   (- 1f0 (gethash (list a* b*) lerps)))))
+                   (- 1f0 (the veq:ff (gethash (list a* b*) lerps))))))
              (setlerp (a b s)
                 (declare (veq:pn a b) (veq:ff s))
-                (auxin:dsb (a* b*) (-edg a b)
+                (auxin:dsb (a* b*) (-edg a b) (declare (veq:pn a* b*))
                   (setf (gethash (list a* b*) lerps) (if (= a a*) s (- 1f0 s)))))
              (nilpos (x y z)
                 (declare (veq:pn x y z))
                 (let ((np (mapcar (lambda (e) (grph:@prop g e :cut))
                                   `((,x ,y) (,y ,z) (,z ,x)))))
-                  (when (= 2 (loop for n in np if n summing 1))
+                  (when (= 2 (loop for n in np if n summing (the veq:pn 1)))
                         (position nil np))))
              (get-srt-edge-cache (a b p)
                 (declare (veq:pn a b) (keyword p))
@@ -163,4 +163,22 @@
       ; when something has been delete, otherwise the plane missed
       (when dels (del-side dels)
                  (mapc #'sym-poly (get-all-polys msh))))))
+
+(veq:fvdef split-edge! (msh e &key matfx)
+  (declare #.*opt* (gmsh msh) (list e)) "split this edge"
+  (auxin:with-struct (gmsh- edges->poly) msh
+    (declare (hash-table edges->poly))
+    ; TODO: unless edge exists, exit
+    ; TODO: textures
+    ; TODO: inject edge
+    (unless (gethash e edges->poly) (return-from split-edge! nil))
+    (dsb (a b) e
+     (let ((nv (add-vert! msh (veq:f3mid (veq:f3$ (get-verts msh e) 0 1)))))
+       (labels ((mat (from to) (when matfx (f@matfx from to)) from)
+                (do-split (p &aux (c (car (set-difference p e))))
+                  (list (mat p (add-poly! msh `(,a ,nv ,c)))
+                        (mat p (add-poly! msh `(,nv ,b ,c))))))
+         (loop for p in (del-polys! msh (gethash e edges->poly))
+               nconc (do-split p)))))))
+
 

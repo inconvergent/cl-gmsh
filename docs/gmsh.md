@@ -69,7 +69,8 @@
  ;   [symbol]
  ; 
  ; *OPT* names a special variable:
- ;   Value: (OPTIMIZE (SAFETY . #1=(3)) (SPEED . #1#) (DEBUG . #1#) SPACE)
+ ;   Value: (OPTIMIZE (SAFETY . #1=(3)) (SPEED . #1#) (DEBUG . #1#)
+ ;           (SPACE 0))
 ```
 
 ## `gmsh:*opt1*`
@@ -80,7 +81,8 @@
  ;   [symbol]
  ; 
  ; *OPT1* names a special variable:
- ;   Value: (OPTIMIZE (SAFETY . #1=(3)) (SPEED . #1#) (DEBUG . #1#))
+ ;   Value: (OPTIMIZE (SAFETY . #1=(3)) (SPEED . #1#) (DEBUG . #1#)
+ ;           (SPACE 0))
 ```
 
 ## `gmsh:*programs*`
@@ -104,7 +106,7 @@
  ; 
  ; *WRNCNT* names a special variable:
  ;   Declared type: HASH-TABLE
- ;   Value: #<HASH-TABLE :TEST EQL :COUNT 0 {10C2EB7D13}>
+ ;   Value: #<HASH-TABLE :TEST EQL :COUNT 0 {101D160FC3}>
 ```
 
 ## `gmsh:add-box!`
@@ -524,11 +526,8 @@
  ;   [symbol]
  ; 
  ; MAKE-BVH names a compiled function:
- ;   Lambda-list: (MSH &KEY (NUM 5) MATFX (MODE BVH2-STACKLESS))
- ;   Derived type: (FUNCTION
- ;                  (GMSH:GMSH &KEY (:NUM (UNSIGNED-BYTE 32)) (:MATFX T)
- ;                             (:MODE T))
- ;                  *)
+ ;   Lambda-list: (MSH &REST REST)
+ ;   Derived type: (FUNCTION (GMSH:GMSH &REST T) *)
  ;   Documentation:
  ;     construct bvh for rendering.
  ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
@@ -612,6 +611,20 @@
  ;            (SIDE-IDX (MAKE-HASH-TABLE TEST #'EQ)) (VFX (CLASSIFY-VERT-FX PT NORM)))
  ;     DOCSTRING: cut and make mesh symmetric around plane.
  ;     defined via veq:FVDEF*
+ ;   Source file: /data/x/gmsh/src/gmsh/isect.lisp
+```
+
+## `gmsh:split-edge!`
+```
+ ; GMSH:SPLIT-EDGE!
+ ;   [symbol]
+ ; 
+ ; SPLIT-EDGE! names a compiled function:
+ ;   Lambda-list: (MSH E &KEY MATFX)
+ ;   Derived type: (FUNCTION (GMSH:GMSH LIST &KEY (:MATFX T))
+ ;                  (VALUES LIST &OPTIONAL))
+ ;   Documentation:
+ ;     split this edge
  ;   Source file: /data/x/gmsh/src/gmsh/isect.lisp
 ```
 
