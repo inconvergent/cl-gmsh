@@ -22,7 +22,7 @@
                              (rnd:rcond (0.1 '(:c :c)) (0.1 '(:c :m))
                                         (0.1 '(:c :y)) (0.5 '(:c :k)))))))
     (gmsh:clear! msh)
-    (gmsh/io:obj/load-model :ico :msh msh)
+    (gmsh/io:obj/load-model :teapot :msh msh)
     (gmsh:center! msh :max-side 14.0)
     (reset-mat)
     (print sc)))

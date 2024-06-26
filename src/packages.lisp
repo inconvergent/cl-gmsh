@@ -39,10 +39,10 @@
     #:scene-msh #:scene-proj #:scene-program #:scene-canv
     #:scene-matfx #:scene-matmap #:getmat #:setmat))
 
-(defpackage #:gmsh/xrend ; gmsh/xrend?
+(defpackage #:gmsh/xrend
   (:use #:common-lisp)
   (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:blurb #:wrn)
-  (:export #:render #:init #:iter-timer #:get-info-fx))
+  (:export #:xrend #:init #:iter-timer #:get-info-fx))
 
 (defpackage #:gmsh/gl
   (:use #:common-lisp)

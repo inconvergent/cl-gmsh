@@ -4,9 +4,17 @@
          (veq:ff *dstlim*))
 
 (defvar *dstlim* 2000.0) ; TODO: this should be configurable
-(defvar *vdst* 600.0)
 (defvar *rs*)
 
+(defun xrend-worker-context (worker-loop)
+  (let ((*rs*)) (funcall worker-loop)))
+
+(defmacro p/init-srnd ()
+  `(unless *rs*
+     (setf *rs* (srnd:make (+ (get-internal-real-time)
+                              (the fixnum (* (the (unsigned-byte 6)
+                                                  (lparallel:kernel-worker-index))
+                                             19997)))))))
 (defmacro init (k &key (context #'gmsh/xrend::xrend-worker-context)
                        (bindings '((gmsh/bvh::*stck* . (gmsh::make-fast-stack :n 2048)))))
   `(progn (format t "~&██ starting ~a threads~&" ,k)
@@ -35,15 +43,6 @@
       (declare (ortho::ortho proj) (canvas::canvas canv))
       (progn ,@body))))
 
-(defmacro init-srnd ()
-  `(unless *rs*
-     (setf *rs* (srnd:make
-                  (+ (get-internal-real-time)
-                     (the fixnum (* 19997 (the (unsigned-byte 6)
-                                            (lparallel:kernel-worker-index)))))))))
-
-(defun xrend-worker-context (worker-loop) ; TODO: why bind rs here?
-  (let ((*rs*)) (funcall worker-loop)))
 
 (veq:fvdef reflect ((:va 3 d n)) (declare #.*opt1* (veq:ff d n))
   (f3!@- d (f3!@*. n (* 2.0 (veq:f3dot d n)))))
@@ -55,13 +54,6 @@
 (veq:fvdef su (proj) (f3!@/. (veq:f3$s proj ortho::ortho- :u) (ortho::ortho-s proj)))
 (veq:fvdef sv (proj) (f3!@/. (veq:f3$s proj ortho::ortho- :v) (ortho::ortho-s proj)))
 
-; (veq:fvdef* clamp-rgb ((:va 3 rgb)) (declare #.*opt1* (veq:ff rgb))
-;   (veq:f3 (veq:fclamp (:vr rgb 0)) (veq:fclamp (:vr rgb 1)) (veq:fclamp (:vr rgb 2))))
-; (veq:fvdef* scale-rgb ((:va 3 rgb)) (declare (veq:ff rgb))
-;   (veq:xlet ((f3!rgb* (clamp-rgb rgb))
-;              (f!i (+ (* 0.299 (:vr rgb* 0)) (* 0.587 (:vr rgb* 1)) (* 0.114 (:vr rgb* 2)))))
-;    (if (> i 0.95) (clamp-rgb (f3!@+ rgb* (veq:f3val (rnd:rnd* 0.05))))
-;                   (veq:f3 rgb*))))
 
 (veq:fvdef symbol-rgb (s)  ; TODO: adapt to *color*
   (case s (:w (veq:f3rep 1.0))

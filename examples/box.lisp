@@ -21,7 +21,7 @@
       (gmsh:itr-polys (msh p) (gmsh/scene:setmat sc p '(:cr :k)))
       (auxin:mvb (_ meta) (box :s (veq:f3$point rr rr rr))
         (loop for p in (cdr (assoc :polys meta))
-              do (gmsh/scene:setmat sc p '(:ll :m))))
+              do (gmsh/scene:setmat sc p '(:ll :w))))
 
       (loop for lim in '(15f0 15f0) do (gmsh/scene::split-edges sc lim) (print msh))
       (gmsh/scene:scene/new-canv sc :size 2000)
@@ -36,18 +36,20 @@
   (declare (optimize speed (safety 0)))
   (let* ((sc (load-scene))
          (msh (gmsh/scene:scene-msh sc))
-         (bvh (gmsh:make-bvh msh :num 8 :mode :bvh2-stackless
+         (bvh (gmsh:make-bvh msh :num 4
+                             :mode :bvh2-stackless
+                             ; :mode :bvh2
                 :matfx (lambda (p) (veq:from-lst (gmsh/scene:getmat sc p))))))
     (print msh) (print bvh)
-    (sb-sprof:with-profiling (:max-samples 200000
-                            :mode :cpu
-                            ; :mode :alloc
-                            ; :mode :time
-                            :report :graph)
-    (time (gmsh/xrend:render sc bvh
-                             :size 2000 :raylen 2000.0
-                             :vol t :par t :aa 40))
-    )
+    ; (veq:4$print (gmsh/bvh::bvh-int-nodes bvh))
+    ; (sb-sprof:with-profiling (:max-samples 200000
+    ;                         :mode :cpu
+    ;                         ; :mode :alloc
+    ;                         ; :mode :time
+    ;                         :report :graph)
+    (time (gmsh/xrend:xrend sc bvh :size 2000 :raylen 2000.0
+                                   :vol t :par t :aa 2))
+    ; )
     (gmsh/scene:canv/save sc "tmp2" :gamma 1.1)))
 
 (main 1000)

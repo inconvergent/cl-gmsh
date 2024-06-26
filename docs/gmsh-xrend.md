@@ -33,15 +33,15 @@
  ;   [symbol]
 ```
 
-## `gmsh/xrend:render`
+## `gmsh/xrend:xrend`
 ```
- ; GMSH/XREND:RENDER
+ ; GMSH/XREND:XREND
  ;   [symbol]
  ; 
- ; RENDER names a compiled function:
+ ; XREND names a compiled function:
  ;   Lambda-list: (SC BVH &KEY (AA 1) (PAR T) (SIZE 1000) (BS 1)
- ;                 (RAYLEN 2000.0) VOL (VMULT 134.0) (VEXPT 0.3)
- ;                 (VLIM 0.01) (VREC 7)
+ ;                 (RAYLEN 2000.0) VOL (VMULT 64.0) (VEXPT 0.3)
+ ;                 (VDST 600.0) (VLIM 0.01) (VREC 7)
  ;                 (VDEPTH
  ;                  (IF VOL
  ;                      1
@@ -52,7 +52,8 @@
  ;                   (:SIZE (UNSIGNED-BYTE 32)) (:BS (UNSIGNED-BYTE 32))
  ;                   (:RAYLEN SINGLE-FLOAT) (:VOL BOOLEAN)
  ;                   (:VMULT SINGLE-FLOAT) (:VEXPT SINGLE-FLOAT)
- ;                   (:VLIM SINGLE-FLOAT) (:VREC (UNSIGNED-BYTE 32))
+ ;                   (:VDST SINGLE-FLOAT) (:VLIM SINGLE-FLOAT)
+ ;                   (:VREC (UNSIGNED-BYTE 32))
  ;                   (:VDEPTH (UNSIGNED-BYTE 32)))
  ;                  (VALUES NULL &OPTIONAL))
  ;   Documentation:
@@ -62,14 +63,15 @@
  ;     
  ;     keywords:
  ;      - aa     : rendering fidelity. higher is slower.
- ;      - raylen : use this ray length for sampling. not volume sampling.
- ;      - vmult  : volume light brightness. [:ll material]
+ ;      - raylen : ray length for sampling. not volume sampling.
+ ;      - vdst   : ray length for sampling volume light. [:ll mat]
+ ;      - vmult  : volume light brightness. [:ll mat]
  ;      - vexpt  : volume light distance falloff. lower is brighter.
  ;      - vdepth : disable volume sampling after vdepth ray bounces.
  ;      - vrec   : max recursive depth in volume sampling. higher is more detailed.
  ;      - vlim   : volume sampling min recursive sampling step size.
  ;                 lower is more detailed. [0.0, 1.0]
- ;      - vol    : enable disable volumetric light. [:ll material]
+ ;      - vol    : enable disable volumetric light. [:ll mat]
  ;      - par    : use parallelism.
  ; 
  ;   Source file: /data/x/gmsh/src/gmsh/cpu/render.lisp
