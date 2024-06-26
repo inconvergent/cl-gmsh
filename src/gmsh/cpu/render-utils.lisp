@@ -1,11 +1,11 @@
 (in-package :gmsh/xrend)
 
 (declaim (inline reflect pixel-shift symbol-rgb get-normal hitmat)
-         (veq:ff *dstlim*)
-         (srnd::srnd *rs*)) ; TODO: this should be configurable
+         (veq:ff *dstlim*))
 
-(defvar *dstlim* 2000.0) (defvar *vdst* 600.0)
-(defvar *rs* (srnd:srnd 1))
+(defvar *dstlim* 2000.0) ; TODO: this should be configurable
+(defvar *vdst* 600.0)
+(defvar *rs*)
 
 (defmacro init (k &key (context #'gmsh/xrend::xrend-worker-context)
                        (bindings '((gmsh/bvh::*stck* . (gmsh::make-fast-stack :n 2048)))))
@@ -43,7 +43,7 @@
                                             (lparallel:kernel-worker-index)))))))))
 
 (defun xrend-worker-context (worker-loop) ; TODO: why bind rs here?
-  (let ((*rs* (srnd::srnd 1))) (funcall worker-loop)))
+  (let ((*rs*)) (funcall worker-loop)))
 
 (veq:fvdef reflect ((:va 3 d n)) (declare #.*opt1* (veq:ff d n))
   (f3!@- d (f3!@*. n (* 2.0 (veq:f3dot d n)))))

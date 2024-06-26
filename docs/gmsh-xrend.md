@@ -57,6 +57,21 @@
  ;                  (VALUES NULL &OPTIONAL))
  ;   Documentation:
  ;     render scene from this scene/bvh.
+ ;     
+ ;     use (gmsh/xrend:init 4) before calling render to initialize parallel cores:
+ ;     
+ ;     keywords:
+ ;      - aa     : rendering fidelity. higher is slower.
+ ;      - raylen : use this ray length for sampling. not volume sampling.
+ ;      - vmult  : volume light brightness. [:ll material]
+ ;      - vexpt  : volume light distance falloff. lower is brighter.
+ ;      - vdepth : disable volume sampling after vdepth ray bounces.
+ ;      - vrec   : max recursive depth in volume sampling. higher is more detailed.
+ ;      - vlim   : volume sampling min recursive sampling step size.
+ ;                 lower is more detailed. [0.0, 1.0]
+ ;      - vol    : enable disable volumetric light. [:ll material]
+ ;      - par    : use parallelism.
+ ; 
  ;   Source file: /data/x/gmsh/src/gmsh/cpu/render.lisp
 ```
 

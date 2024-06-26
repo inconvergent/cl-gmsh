@@ -55,8 +55,7 @@
 
 (veq:fvdef obj/load-model (fn
     &key (max-verts 100000) (msh (gmsh:gmsh :max-verts max-verts))
-         (center nil) (s  (veq:f3$point 1f0 1f0 1f0))
-                    (xy (veq:f3$zero))
+         (center nil) (s  (veq:f3$val 1f0)) (xy (veq:f3$zero))
     &aux (fn (obj/fn fn)))
   (declare ((or string keyword) fn) (gmsh:gmsh msh) (veq:pn max-verts) (veq:fvec s xy))
   "load this obj file. optional shift, scale, center. see obj/load, obj/save."

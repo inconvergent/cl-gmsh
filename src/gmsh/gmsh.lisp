@@ -183,8 +183,16 @@
           (values mx wh s))))))
 
 (veq:fvdef make-bvh (msh &rest rest)
-  (declare #.*opt1* (gmsh msh)) "construct bvh for rendering."
-  (apply #'gmsh/bvh::make (get-all-polys msh)
+  (declare #.*opt1* (gmsh msh)) "
+construct bvh for rendering.
+
+keywords:
+ - num         : smallest number of polys in a node.
+ - mode        : acceleration structure.
+ - num-buckets : SAH estimation buckets.
+ - sort-lvl    : no SAH estimation below this level.
+ - sort-num    : no SAH estimation when less than sort-num polys.
+" (apply #'gmsh/bvh::make (get-all-polys msh)
          (lambda (verts) (declare (list verts)) (get-verts msh verts))
          rest))
 

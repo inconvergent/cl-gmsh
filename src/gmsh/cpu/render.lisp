@@ -73,8 +73,22 @@
                     (veq:pn bs aa size vrec vdepth)
                     (veq:ff raylen vmult vlim vexpt)
                     (boolean vol par))
-  "render scene from this scene/bvh."
-  (render-wrap ; NOTE: requires scene: sc ; TODO: rewrite/make this explict
+  "render scene from this scene/bvh.
+
+use (gmsh/xrend:init 4) before calling render to initialize parallel cores:
+
+keywords:
+ - aa     : rendering fidelity. higher is slower.
+ - raylen : use this ray length for sampling. not volume sampling.
+ - vmult  : volume light brightness. [:ll material]
+ - vexpt  : volume light distance falloff. lower is brighter.
+ - vdepth : disable volume sampling after vdepth ray bounces.
+ - vrec   : max recursive depth in volume sampling. higher is more detailed.
+ - vlim   : volume sampling min recursive sampling step size.
+            lower is more detailed. [0.0, 1.0]
+ - vol    : enable disable volumetric light. [:ll material]
+ - par    : use parallelism.
+" (render-wrap ; NOTE: requires scene: sc ; TODO: rewrite/make this explict
     (labels
       ((do-render (depth (:va 3 p d))
          (declare (veq:ff p d) (veq:pn depth))

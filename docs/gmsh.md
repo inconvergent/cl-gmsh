@@ -528,7 +528,16 @@
  ;   Lambda-list: (MSH &REST REST)
  ;   Derived type: (FUNCTION (GMSH:GMSH &REST T) *)
  ;   Documentation:
+ ;     
  ;     construct bvh for rendering.
+ ;     
+ ;     keywords:
+ ;      - num         : smallest number of polys in a node.
+ ;      - mode        : acceleration structure.
+ ;      - num-buckets : SAH estimation buckets.
+ ;      - sort-lvl    : no SAH estimation below this level.
+ ;      - sort-num    : no SAH estimation when less than sort-num polys.
+ ; 
  ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
 ```
 

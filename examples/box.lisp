@@ -21,7 +21,7 @@
       (gmsh:itr-polys (msh p) (gmsh/scene:setmat sc p '(:cr :k)))
       (auxin:mvb (_ meta) (box :s (veq:f3$point rr rr rr))
         (loop for p in (cdr (assoc :polys meta))
-              do (gmsh/scene:setmat sc p '(:ll :w))))
+              do (gmsh/scene:setmat sc p '(:ll :m))))
 
       (loop for lim in '(15f0 15f0) do (gmsh/scene::split-edges sc lim) (print msh))
       (gmsh/scene:scene/new-canv sc :size 2000)

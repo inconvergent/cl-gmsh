@@ -55,8 +55,7 @@
  ; OBJ/LOAD-MODEL names a compiled function:
  ;   Lambda-list: (FN &KEY (MAX-VERTS 100000)
  ;                 (MSH (GMSH MAX-VERTS MAX-VERTS)) (CENTER NIL)
- ;                 (S (F3$POINT 1.0 1.0 1.0)) (XY (F3$ZERO)) &AUX
- ;                 (FN (OBJ/FN FN)))
+ ;                 (S (F3$VAL 1.0)) (XY (F3$ZERO)) &AUX (FN (OBJ/FN FN)))
  ;   Derived type: (FUNCTION
  ;                  ((OR STRING KEYWORD) &KEY
  ;                   (:MAX-VERTS (UNSIGNED-BYTE 32)) (:MSH GMSH:GMSH)
