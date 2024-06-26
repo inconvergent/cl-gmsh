@@ -83,6 +83,15 @@
   (setf (scene-canv sc) (canvas:make :size (scene-size sc)))
   sc)
 
+(veq:fvdef split-edges (sc lim) (declare (scene sc) (veq:ff lim))
+  "split edges longer than lim. sometimes this makes faster raycasting (with bvh)."
+  (loop with msh = (gmsh/scene:scene-msh sc)
+        for e across (lqn:keys? (gmsh::gmsh-edges->poly msh))
+        if  (> (veq:f3dst (veq:f3$ (gmsh:get-verts msh e) 0 1)) lim)
+        do (gmsh::split-edge! msh e :matfx (lambda (old new)
+                                             (gmsh/scene:setmat sc new
+                                               (gmsh/scene:getmat sc old))))))
+
 (veq:fvdef scene/make (&key (size 1000) (max-verts 2000000) (program :std)
                             (msh (gmsh:gmsh :max-verts max-verts))
                             (cam (veq:f3$point 401f0 400f0 101f0)) (look (veq:f3$zero))

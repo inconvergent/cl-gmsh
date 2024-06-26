@@ -40,12 +40,20 @@
  ; 
  ; RENDER names a compiled function:
  ;   Lambda-list: (SC BVH &KEY (AA 1) (PAR T) (SIZE 1000) (BS 1)
- ;                 (RAYLEN 2000.0))
+ ;                 (RAYLEN 2000.0) VOL (VMULT 134.0) (VEXPT 0.3)
+ ;                 (VLIM 0.01) (VREC 7)
+ ;                 (VDEPTH
+ ;                  (IF VOL
+ ;                      1
+ ;                      0)))
  ;   Derived type: (FUNCTION
  ;                  (GMSH/SCENE:SCENE GMSH/BVH:BVH &KEY
  ;                   (:AA (UNSIGNED-BYTE 32)) (:PAR BOOLEAN)
  ;                   (:SIZE (UNSIGNED-BYTE 32)) (:BS (UNSIGNED-BYTE 32))
- ;                   (:RAYLEN SINGLE-FLOAT))
+ ;                   (:RAYLEN SINGLE-FLOAT) (:VOL BOOLEAN)
+ ;                   (:VMULT SINGLE-FLOAT) (:VEXPT SINGLE-FLOAT)
+ ;                   (:VLIM SINGLE-FLOAT) (:VREC (UNSIGNED-BYTE 32))
+ ;                   (:VDEPTH (UNSIGNED-BYTE 32)))
  ;                  (VALUES NULL &OPTIONAL))
  ;   Documentation:
  ;     render scene from this scene/bvh.

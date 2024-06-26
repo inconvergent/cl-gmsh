@@ -14,14 +14,14 @@
 (defun compare-norm-edges (a b c d) (declare #.*opt* (veq:pn a b c d))
   (= 2 (length (intersection (list a b) (list c d)))))
 
-(defun make-ht (&optional (tst #'equal) (s 20) (r 2f0)) (declare (number s r))
+(defun make-ht (&optional (tst #'equal) (s 20) (r 2.0)) (declare (number s r))
   (make-hash-table :test tst :size s :rehash-size r))
 
 (veq:fvdef -poly-normal (v) (declare #.*opt* (veq:fvec v))
   (handler-case (veq:xlet ((f3!a (veq:f3$ v 0)))
                   (veq:f3norm (veq:f3cross (f3!@- (veq:f3$ v 1) a)
                                            (f3!@- (veq:f3$ v 2) a))))
-    (error (e) (declare (ignore e)) (rnd:3on-sphere 1f0))))
+    (error (e) (declare (ignore e)) (rnd:3on-sphere 1.0))))
 
 (defun -print-gmsh (o s) (declare (notinline  gmsh-polys gmsh-num-uvs gmsh-num-verts))
   (auxin:with-struct (gmsh- num-verts polys num-uvs) o
@@ -35,9 +35,9 @@
   (edges->poly (make-ht #'equal 5000) :type hash-table)
   (num-uvs 0 :type veq:pn) (num-verts 0 :type veq:pn) (max-verts 100000 :type veq:pn)
   (verts nil) (norms nil) ; 3d fvec
-  (uv nil)    ; 2d fvec
-  (vn nil)    ; ht (poly) -> (n0 n1 n2)
-  (vt nil))   ; ht (poly) -> (uv0 uv1 uv2)
+  (uv nil)                ; 2d fvec
+  (vn nil)                ; ht (poly) -> (n0 n1 n2)
+  (vt nil))               ; ht (poly) -> (uv0 uv1 uv2)
 
 ; TODO: unify constructor with grph
 (defun gmsh (&key (max-verts 100000) props) (declare (veq:pn max-verts) (list props))
@@ -51,7 +51,7 @@
   (clrhash (gmsh-vt gmsh))          (clrhash (gmsh-vn gmsh))
   (clrhash (gmsh-edges->poly gmsh)) (clrhash (gmsh-polys gmsh))
   (setf (gmsh-obj-props gmsh) (list)
-        (gmsh-num-uvs gmsh) 0
+        (gmsh-num-uvs gmsh)   0
         (gmsh-num-verts gmsh) 0)
   gmsh)
 
@@ -116,7 +116,6 @@
 (defun del-polys! (msh polys) (declare (gmsh msh) (list polys)) "delete these polys."
   (loop for p of-type list in polys collect (del-poly! msh p)))
 
-
 (veq:fvdef* add-vert! (msh (:va 3 x)) "add vert."
   (auxin:with-struct (gmsh- verts num-verts) msh
     (setf (veq:3$ verts num-verts) (veq:f3 x))
@@ -160,7 +159,8 @@
 
 ; TODO:
 ; (veq:fvdef move-vert (msh v &optional (relative t)))
-(veq:fvdef center! (msh &key max-side (connected t)) (declare (gmsh msh) (boolean connected))
+(veq:fvdef center! (msh &key max-side (connected t))
+  (declare (gmsh msh) (boolean connected))
   "center gmsh. optionally scale max side t, only affect connected verts."
   (labels ((safe/ (a b) (if (< (abs b) veq:*eps*)
                           (progn (wrn :center! "/0 for (/ ~a ~b)." a b) a)
@@ -175,9 +175,9 @@
         (if connected (veq:f3$mima verts :inds (get-connected-verts msh))
                       (veq:f3$mima verts :n (gmsh-num-verts msh)))
         (declare (veq:ff xmi xma ymi yma zmi zma))
-        (veq:xlet ((f3!mx (f3!@*. (f3!@+ xmi ymi zmi xma yma zma) 0.5f0))
+        (veq:xlet ((f3!mx (f3!@*. (f3!@+ xmi ymi zmi xma yma zma) 0.5))
                    (f3!wh (f3!@- xma yma zma xmi ymi zmi))
-                   (f!s (if max-side (scale-by wh) 1f0)))
+                   (f!s (if max-side (scale-by wh) 1.0)))
           (labels ((cent ((:va 3 x)) (f3!@*. (f3!@- x mx) s)))
             (f3_@$cent! (?@ verts 0 num-verts)))
           (values mx wh s))))))
@@ -203,11 +203,11 @@
   (veq:f$~ (#.(* 3 4)) (f3!@+ xy (f3!@+ u v)) (f3!@+ xy (f3!@- u v))
                        (f3!@+ xy (f3.@- (f3!@+ u v))) (f3!@+ xy (f3!@- v u))))
 
-(veq:fvdef* add-plane! (msh (:va 3 xy) &optional (sx 1f0) (sy sx))
+(veq:fvdef* add-plane! (msh (:va 3 xy) &optional (sx 1.0) (sy sx))
   (declare (gmsh msh) (veq:ff xy sy sx))
   "add plane centered at xy with size (sx sy). retunrns list with 2 tris"
   (veq:xlet ((f2!s (f2!@*. sx sy 0.5)))
-    (add-verts-polys! msh ($shape/rect xy (:vr s 0) 0f0 0f0 0f0 (:vr s 1) 0f0)
+    (add-verts-polys! msh ($shape/rect xy (:vr s 0) 0.0 0.0 0.0 (:vr s 1) 0.0)
                       `((0 1 2) (2 3 0)))))
 
 (veq:fvdef $shape/box ((:va 3 xy u v w)) (declare (veq:ff xy u v))
@@ -218,12 +218,12 @@
     (f3!@+ (f3!@+ xy w) (f3!@+ u v)) (f3!@+ (f3!@+ xy w) (f3!@- u v))
     (f3!@+ (f3!@+ xy w) (f3.@- (f3!@+ u v))) (f3!@+ (f3!@+ xy w) (f3!@- v u))))
 
-(veq:fvdef* add-box! (msh (:va 3 xy) &optional (sx 1f0) (sy sx) (sz sy))
+(veq:fvdef* add-box! (msh (:va 3 xy) &optional (sx 1.0) (sy sx) (sz sy))
   (declare (gmsh msh) (veq:ff xy sx sy sz))
   "add box centered at xy, with size (sx sy sz). returns polys"
   (veq:xlet ((f3!s (f3!@*. sx sy sz 0.5)))
     (add-verts-polys! msh
-      ($shape/box xy (:vr s 0) 0f0 0f0 0f0 (:vr s 1) 0f0 0f0 0f0 (:vr s 2))
+      ($shape/box xy (:vr s 0) 0.0 0.0 0.0 (:vr s 1) 0.0 0.0 0.0 (:vr s 2))
       '#.(group `(1 2 3 7 6 5 4 5 1 5 6 2 2 6 7 0 3 7
                         0 1 3 4 7 5 0 4 1 1 5 2 3 2 7 4 0 7) 3))))
 
@@ -252,31 +252,24 @@
   (add-vert-grid! msh (loop for pts in lpts collect (add-verts! msh pts))
                       closed))
 
-; (veq:vp e )
-; (unless (gethash poly polys) (return-from del-poly! nil))
-; (loop for (a b) in (poly-as-edges poly)
-;       do (-del-poly-edges poly (-edg a b)))
-; (remhash poly polys)
-
 ; TODO: generic back wall, generic plane?
 ; TODO: tx new-verts, using generic return format for new verts/polys?
 ; just use somthing like: ((verts . #(1 2 3)) (polys . ((...) (...))))
 ; can we make it chainable?
-
 ; (veq:fvdef add-back-wall (msh proj)
 ;   (auxin:with-struct (ortho::ortho- cam u v vpn) proj
 ;     (veq:xlet ((f3!cam* (f3!@+ (veq:f3$ cam)
-;                                (f3!@*. (veq:f3$ vpn) -870f0)))
+;                                (f3!@*. (veq:f3$ vpn) -870.0)))
 ;                (f3!u* (veq:f3$ u)) (f3!v* (veq:f3$ v))
 ;                (v (gmsh::add-verts! msh
-;                     (veq:f$~ (12) (f3!@+ (rnd:3in-sphere 3f0)
-;                                          (veq:f3from cam* (f3!@+ u* v*) 30f0))
-;                                   (f3!@+ (rnd:3in-sphere 3f0)
-;                                          (veq:f3from cam* (f3!@- u* v*) 30f0))
-;                                   (f3!@+ (rnd:3in-sphere 3f0)
-;                                          (veq:f3from cam* (f3.@- (f3!@+ v* u*)) 30f0))
-;                                   (f3!@+ (rnd:3in-sphere 3f0)
-;                                          (veq:f3from cam* (f3!@- v* u*) 30f0))))))
+;                     (veq:f$~ (12) (f3!@+ (rnd:3in-sphere 3.0)
+;                                          (veq:f3from cam* (f3!@+ u* v*) 30.0))
+;                                   (f3!@+ (rnd:3in-sphere 3.0)
+;                                          (veq:f3from cam* (f3!@- u* v*) 30.0))
+;                                   (f3!@+ (rnd:3in-sphere 3.0)
+;                                          (veq:f3from cam* (f3.@- (f3!@+ v* u*)) 30.0))
+;                                   (f3!@+ (rnd:3in-sphere 3.0)
+;                                          (veq:f3from cam* (f3!@- v* u*) 30.0))))))
 ;       ; (gmsh:add-polys! msh (list (list (first v) (third v) (second v))
 ;       ;                            (list (first v) (third v) (fourth v)))))))
 

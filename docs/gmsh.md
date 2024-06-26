@@ -57,8 +57,7 @@
  ;           (:M 1.0 . #4=(0.0 . #3#))
  ;           (:Y 1.0 . #5=(1.0 . #6=(0.0 . #1#)))
  ;           (:R 1.0 . #7=(0.0 . #6#)) (:G 0.0 . #5#) (:B 0.0 . #4#)
- ;           (:K 0.0 . #7#) (:KK 0.1 0.1 0.1 . #1#) (:W 1.0 . #2#)
- ;           (:WW 0.9 0.9 0.9 . #1#))
+ ;           (:K 0.0 . #7#) (:W 1.0 . #2#))
 ```
 
 ## `gmsh:*opt*`
@@ -106,7 +105,7 @@
  ; 
  ; *WRNCNT* names a special variable:
  ;   Declared type: HASH-TABLE
- ;   Value: #<HASH-TABLE :TEST EQL :COUNT 0 {101D160FC3}>
+ ;   Value: #<HASH-TABLE :TEST EQL :COUNT 0 {101D1B9533}>
 ```
 
 ## `gmsh:add-box!`

@@ -54,13 +54,14 @@
  ; 
  ; OBJ/LOAD-MODEL names a compiled function:
  ;   Lambda-list: (FN &KEY (MAX-VERTS 100000)
- ;                 (MSH (GMSH MAX-VERTS MAX-VERTS)) (CENTER T)
- ;                 (S (QUOTE (1.0 1.0 1.0))) (XY (QUOTE (0.0 0.0 0.0)))
- ;                 &AUX (FN (OBJ/FN FN)))
+ ;                 (MSH (GMSH MAX-VERTS MAX-VERTS)) (CENTER NIL)
+ ;                 (S (F3$POINT 1.0 1.0 1.0)) (XY (F3$ZERO)) &AUX
+ ;                 (FN (OBJ/FN FN)))
  ;   Derived type: (FUNCTION
  ;                  ((OR STRING KEYWORD) &KEY
  ;                   (:MAX-VERTS (UNSIGNED-BYTE 32)) (:MSH GMSH:GMSH)
- ;                   (:CENTER T) (:S LIST) (:XY LIST))
+ ;                   (:CENTER T) (:S (SIMPLE-ARRAY SINGLE-FLOAT))
+ ;                   (:XY (SIMPLE-ARRAY SINGLE-FLOAT)))
  ;                  (VALUES T LIST &OPTIONAL))
  ;   Documentation:
  ;     load this obj file. optional shift, scale, center. see obj/load, obj/save.

@@ -113,12 +113,12 @@
                (declare (veq:pn ni si ni*))
                (setf (aref new-nodes (+ si ni*))   0  ; num
                      (aref new-nodes (+ si ni* 4)) 0) ; ref
-               (setf (veq:$ new-mima    mm   )   1f0
-                     (veq:$ new-mima (+ mm 4))  -1f0
-                     (veq:$ new-mima (+ mm 8))   1f0
-                     (veq:$ new-mima (+ mm 12)) -1f0
-                     (veq:$ new-mima (+ mm 16))  1f0
-                     (veq:$ new-mima (+ mm 20)) -1f0)))
+               (setf (veq:$ new-mima    mm   )   1.0
+                     (veq:$ new-mima (+ mm 4))  -1.0
+                     (veq:$ new-mima (+ mm 8))   1.0
+                     (veq:$ new-mima (+ mm 12)) -1.0
+                     (veq:$ new-mima (+ mm 16))  1.0
+                     (veq:$ new-mima (+ mm 20)) -1.0)))
       (stack-add (list (get-free-index) (gt4 (/ (gt 0 1) 4))))
       (loop while stack for (ni subnodes) = (stack-nxt)
             do (loop for i of-type veq:in in subnodes
@@ -131,7 +131,6 @@
                      else do (set-dummy-node ni si)))
       (values new-nodes new-mima ni))))
 
-; TODO: make something general for wrncnt?
 (veq:fvdef gpu/pack-bvh (bvh &key (mats gmsh::*mats*) (matpar gmsh::*matpar*))
   (declare (bvh bvh) (list matpar mats))
   "return packed bvh arrays for gpu rendering."
@@ -154,8 +153,8 @@
            (pck-mima (mima &aux (mima* (veq:f$copy mima)))
              (loop for i from 0 below (length mima) by 8
                    do (veq:$nvset (mima* 8 i)
-                        (veq:~ (veq:$ mima (+ i 0) (+ i 2) (+ i 4)) 0f0
-                        (veq:$ mima (+ i 1) (+ i 3) (+ i 5)) 0f0)))
+                        (veq:~ (veq:$ mima (+ i 0) (+ i 2) (+ i 4)) 0.0
+                        (veq:$ mima (+ i 1) (+ i 3) (+ i 5)) 0.0)))
              mima*)
            (pck-nodes (nodes &aux (nodes* (veq:i$coerce nodes)))
              (loop for i from 0 below (length nodes) by 4

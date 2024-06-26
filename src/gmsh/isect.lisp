@@ -1,6 +1,6 @@
 (in-package :gmsh)
 
-(veq:fvdef* classify-vert-fx ((:va 3 pt n) &aux (lim #.(* -2f0 *eps*)))
+(veq:fvdef* classify-vert-fx ((:va 3 pt n) &aux (lim #.(* -2.0 *eps*)))
   (declare (veq:ff pt n lim))
   (lambda ((:va 3 p))
     (declare (veq:ff p))
@@ -41,11 +41,11 @@
                (declare (veq:pn a b))
                (auxin:dsb (a* b*) (-edg a b) (declare (veq:pn a* b*))
                  (if (= a a*) (gethash (list a* b*) lerps)
-                   (- 1f0 (the veq:ff (gethash (list a* b*) lerps))))))
+                   (- 1.0 (the veq:ff (gethash (list a* b*) lerps))))))
              (setlerp (a b s)
                 (declare (veq:pn a b) (veq:ff s))
                 (auxin:dsb (a* b*) (-edg a b) (declare (veq:pn a* b*))
-                  (setf (gethash (list a* b*) lerps) (if (= a a*) s (- 1f0 s)))))
+                  (setf (gethash (list a* b*) lerps) (if (= a a*) s (- 1.0 s)))))
              (nilpos (x y z)
                 (declare (veq:pn x y z))
                 (let ((np (mapcar (lambda (e) (grph:@prop g e :cut))
@@ -81,7 +81,7 @@
               for (ea eb) of-type (veq:pn veq:pn) = e
               do (veq:mvb (isect d) (veq:f3planex norm pt (veq:f3$ verts ea eb))
                    (declare (boolean isect) (veq:ff d))
-                   (when (and isect (< 0f0 d 1f0))
+                   (when (and isect (< 0.0 d 1.0))
                          (setlerp ea eb d)
                          (mp (gethash e edges->poly) p*
                              (mp (poly-as-edges p*) (pa pb)
@@ -145,7 +145,7 @@
      (sym (v) (veq:xlet ((f3!p (get-vert msh v))
                          (f3!pp (f3!@- p (veq:f3scale norm
                                            (veq:f3dot norm (f3!@- p pt))))))
-                (add-vert! msh (f3!@- (veq:f3scale pp 2f0) p))))
+                (add-vert! msh (f3!@- (veq:f3scale pp 2.0) p))))
      (vrt (v &aux (h (gethash v side-idx)))
        (cond ((eq :ign h) v)
              ((numberp h) h)

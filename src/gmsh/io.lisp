@@ -55,13 +55,14 @@
 
 (veq:fvdef obj/load-model (fn
     &key (max-verts 100000) (msh (gmsh:gmsh :max-verts max-verts))
-         (center t) (s '(1f0 1f0 1f0)) (xy '(0f0 0f0 0f0))
+         (center nil) (s  (veq:f3$point 1f0 1f0 1f0))
+                    (xy (veq:f3$zero))
     &aux (fn (obj/fn fn)))
-  (declare ((or string keyword) fn) (gmsh:gmsh msh) (veq:pn max-verts) (list s xy))
+  (declare ((or string keyword) fn) (gmsh:gmsh msh) (veq:pn max-verts) (veq:fvec s xy))
   "load this obj file. optional shift, scale, center. see obj/load, obj/save."
   (auxin:mvb (msh ores) (obj/load fn :max-verts max-verts :msh msh)
     (when center (gmsh:center! msh))
-    (veq:xlet ((f3!pxy (veq:from-lst xy)) (f3!ps (veq:from-lst s)))
+    (veq:xlet ((f3!pxy (veq:f3$ xy)) (f3!ps (veq:f3$ s)))
       (gmsh:tx! msh (cdr (assoc :verts ores))
                     (lambda ((:va 3 lxy)) (f3!@+ pxy (f3!@* lxy ps)))))
     (values msh ores)))
