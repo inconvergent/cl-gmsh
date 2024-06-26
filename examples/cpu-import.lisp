@@ -3,7 +3,7 @@
 (load "/home/anders/quicklisp/setup.lisp")
 (ql:quickload :auxin) (ql:quickload :gmsh)
 ; (rnd:set-rnd-state 107)
-(gmsh/xrend:init 64)
+(gmsh/xrend:init 69)
 
 (require :sb-sprof)
 
@@ -23,7 +23,7 @@
   sc)
 
 (veq:fvdef main (size)
-  (declare (optimize speed (safety 0)))
+  ; (declare (optimize speed (safety 0)))
   (let* ((sc (load-scene))
          (msh (gmsh/scene:scene-msh sc))
          (bvh (gmsh:make-bvh msh :num 8 :mode
@@ -47,9 +47,9 @@
 
     (time (gmsh/xrend:xrend sc bvh :size 2000
                                    :par t :vol t
-                                              :aa 2
-                                              :vmult 30.0
-                                              :vrec 8 :vlim 0.08
+                                              :aa 50
+                                              :vmult 65.0
+                                              :vrec 6 :vlim 0.1
                                               :vdepth 1
                                               :raylen 2000.0))
 ; )

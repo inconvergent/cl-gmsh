@@ -2,12 +2,11 @@
 
 (load "~/quicklisp/setup.lisp")
 (ql:quickload :auxin) (ql:quickload :gmsh)
-(setf lparallel:*kernel* (lparallel:make-kernel 1))
+(setf lparallel:*kernel* (lparallel:make-kernel 10))
 (defvar *size* 1000) (defvar *pid* 0)
 (rnd:set-rnd-state 113)
 
-; TODO: size export
-; TODO: complete scene export/import -> cpu render pipeline
+; TODO: size export. partially fixed. normalize ortho scaling properly
 
 ; TODO: fix failing tests
 ; TODO: volume gpu raytracer
