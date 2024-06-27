@@ -3,7 +3,7 @@
 (load "/home/anders/quicklisp/setup.lisp")
 (ql:quickload :auxin) (ql:quickload :gmsh)
 ; (rnd:set-rnd-state 107)
-(gmsh/xrend:init 69)
+(gmsh/xrend:init 64)
 
 (require :sb-sprof)
 
@@ -18,7 +18,7 @@
                 ; :look (veq:f3$point 0.0 0.0 0.0)
                 )
   (print (gmsh/scene:scene-msh sc))
-  (loop for lim in '(25.0 25.0 15f0)
+  (loop for lim in '(15.0 15.0 10f0)
         do (gmsh/scene::split-edges sc lim) (print (gmsh/scene:scene-msh sc)))
   sc)
 
@@ -33,26 +33,27 @@
                 :matfx (lambda (p &aux (mc (gmsh/scene:getmat sc p)))
                         ; (veq:from-lst mc)
                         (case (second mc)
-                           (:c (values :ll :c)) (:m (values :ll :m)) (:y (values :ll :y))
-                           (:w (values :ll :w)) (:k (values :cr :k)))))))
+                           (:c (values :ao :c)) (:m (values :ao :m)) (:y (values :ao :y))
+                           (:w (values :ao :w)) (:k (values :ao :w)))))))
 
     (print :-----) (print msh) (print bvh)
 
 
-; (sb-sprof:with-profiling (:max-samples 200000
-;                         :mode :cpu
-;                         ; :mode :alloc
-;                         ; :mode :time
-;                         :report :graph)
+(sb-sprof:with-profiling (:max-samples 200000
+                        :mode :cpu
+                        ; :mode :alloc
+                        ; :mode :time
+                        :report :graph)
 
     (time (gmsh/xrend:xrend sc bvh :size 2000
-                                   :par t :vol t
-                                              :aa 50
-                                              :vmult 65.0
+                                   :par t :vol nil
+                                              :aa 15
+                                              :vmult 15.0
+                                              :ao-rep 5
                                               :vrec 6 :vlim 0.1
-                                              :vdepth 1
-                                              :raylen 2000.0))
-; )
+                                              :raylen 2000.0
+                                              :raylen2 50f0
+                                              )))
 
     (gmsh/scene:canv/save sc (fn:fn) :gamma 1.1)
     ; (print sc)

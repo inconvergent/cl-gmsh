@@ -39,22 +39,26 @@
  ;   [symbol]
  ; 
  ; XREND names a compiled function:
- ;   Lambda-list: (SC BVH &KEY (AA 1) (PAR T) (SIZE 1000) (BS 1)
- ;                 (RAYLEN 2000.0) VOL (VMULT 64.0) (VEXPT 0.3)
- ;                 (VDST 600.0) (VLIM 0.01) (VREC 7)
+ ;   Lambda-list: (SC BVH &KEY (PAR T) (SIZE 1000) (BS 1) (AA 1)
+ ;                 (RAYLEN 2000.0) (MAX-DEPTH 13) (AO-REP 4) (VOL NIL)
+ ;                 (VMULT 64.0) (VEXPT 0.3) (VDST 600.0) (VLIM 0.01)
+ ;                 (VREC 7)
  ;                 (VDEPTH
  ;                  (IF VOL
  ;                      1
- ;                      0)))
+ ;                      0))
+ ;                 (RAYLEN2 (* 0.5 RAYLEN)) (AO-MULT (FF (/ AO-REP))))
  ;   Derived type: (FUNCTION
- ;                  (GMSH/SCENE:SCENE GMSH/BVH:BVH &KEY
- ;                   (:AA (UNSIGNED-BYTE 32)) (:PAR BOOLEAN)
+ ;                  (GMSH/SCENE:SCENE GMSH/BVH:BVH &KEY (:PAR BOOLEAN)
  ;                   (:SIZE (UNSIGNED-BYTE 32)) (:BS (UNSIGNED-BYTE 32))
- ;                   (:RAYLEN SINGLE-FLOAT) (:VOL BOOLEAN)
+ ;                   (:AA (UNSIGNED-BYTE 32)) (:RAYLEN SINGLE-FLOAT)
+ ;                   (:MAX-DEPTH (UNSIGNED-BYTE 32))
+ ;                   (:AO-REP (UNSIGNED-BYTE 32)) (:VOL BOOLEAN)
  ;                   (:VMULT SINGLE-FLOAT) (:VEXPT SINGLE-FLOAT)
  ;                   (:VDST SINGLE-FLOAT) (:VLIM SINGLE-FLOAT)
  ;                   (:VREC (UNSIGNED-BYTE 32))
- ;                   (:VDEPTH (UNSIGNED-BYTE 32)))
+ ;                   (:VDEPTH (UNSIGNED-BYTE 32)) (:RAYLEN2 SINGLE-FLOAT)
+ ;                   (:AO-MULT SINGLE-FLOAT))
  ;                  (VALUES NULL &OPTIONAL))
  ;   Documentation:
  ;     render scene from this scene/bvh.

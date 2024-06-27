@@ -1,8 +1,6 @@
 (in-package :gmsh/bvh)
 
-(declaim (inline polyx bvh2/bbox-test
-                 int/bbox-test simd/bvh4/bbox-test
-                 ))
+(declaim (inline polyx bvh2/bbox-test int/bbox-test simd/bvh4/bbox-test))
 
 (defmacro 3cross (ax ay az bx by bz) `(values (- (* ,ay ,bz) (* ,az ,by)) (- (* ,az ,bx) (* ,ax ,bz)) (- (* ,ax ,by) (* ,ay ,bx))))
 (defmacro 3dot (ax ay az bx by bz) `(+ (* ,ax ,bx) (* ,ay ,by) (* ,az ,bz)))
@@ -111,7 +109,7 @@
         (do-dim 0  (:vr iorg 0) (:vr inv 0))
         (do-dim 8  (:vr iorg 1) (:vr inv 1))
         (do-dim 16 (:vr iorg 2) (:vr inv 2))
-        (veq:mvb (n1 n2 n3 n4) 
+        (veq:mvb (n1 n2 n3 n4)
           (sb-simd-avx2:u32.4-values
             (.and (.and (.or (.<= 0f0 hi) (.<= lo 1f0)) (.<= lo hi))
                   (sb-simd-avx2:make-u32.4 1 2 4 8)))

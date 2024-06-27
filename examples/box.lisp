@@ -48,7 +48,10 @@
     ;                         ; :mode :time
     ;                         :report :graph)
     (time (gmsh/xrend:xrend sc bvh :size 2000 :raylen 2000.0
-                                   :vol t :par t :aa 2))
+                                   :vol t :par t :aa 12
+                                   :ao-rep 4
+                                   :vmult 150f0
+                                   ))
     ; )
     (gmsh/scene:canv/save sc "tmp2" :gamma 1.1)))
 

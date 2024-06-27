@@ -1,7 +1,7 @@
 (in-package :gmsh/xrend)
 
-(declaim (inline reflect pixel-shift symbol-rgb get-normal hitmat)
-         (veq:ff *dstlim*))
+; (declaim (inline reflect pixel-shift symbol-rgb get-normal hitmat)
+;          (veq:ff *dstlim*))
 
 (defvar *dstlim* 2000.0) ; TODO: this should be configurable
 (defvar *rs*)

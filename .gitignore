@@ -15,3 +15,4 @@ system-index.txt
 tmp.*
 *delete-me.*
 log
+perf.data
