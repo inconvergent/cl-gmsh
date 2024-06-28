@@ -47,7 +47,8 @@
  ;                  (IF VOL
  ;                      1
  ;                      0))
- ;                 (RAYLEN2 (* 0.5 RAYLEN)) (AO-MULT (FF (/ AO-REP))))
+ ;                 (MISS BGK) (WORLD MISS) (RAYLEN2 (* 0.5 RAYLEN))
+ ;                 (AO-MULT (FF (/ AO-REP))))
  ;   Derived type: (FUNCTION
  ;                  (GMSH/SCENE:SCENE GMSH/BVH:BVH &KEY (:PAR BOOLEAN)
  ;                   (:SIZE (UNSIGNED-BYTE 32)) (:BS (UNSIGNED-BYTE 32))
@@ -57,7 +58,8 @@
  ;                   (:VMULT SINGLE-FLOAT) (:VEXPT SINGLE-FLOAT)
  ;                   (:VDST SINGLE-FLOAT) (:VLIM SINGLE-FLOAT)
  ;                   (:VREC (UNSIGNED-BYTE 32))
- ;                   (:VDEPTH (UNSIGNED-BYTE 32)) (:RAYLEN2 SINGLE-FLOAT)
+ ;                   (:VDEPTH (UNSIGNED-BYTE 32)) (:MISS KEYWORD)
+ ;                   (:WORLD KEYWORD) (:RAYLEN2 SINGLE-FLOAT)
  ;                   (:AO-MULT SINGLE-FLOAT))
  ;                  (VALUES NULL &OPTIONAL))
  ;   Documentation:

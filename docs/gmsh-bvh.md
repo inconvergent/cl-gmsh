@@ -74,6 +74,7 @@
  ;                  (VALUES SYMBOL SYMBOL &OPTIONAL))
  ;   Documentation:
  ;     get this material from bvh.
+ ;   Inline proclamation: INLINE (inline expansion available)
  ;   Source file: /data/x/gmsh/src/gmsh/bvh.lisp
 ```
 
@@ -89,6 +90,7 @@
  ;                          &OPTIONAL))
  ;   Documentation:
  ;     get this normal from bvh
+ ;   Inline proclamation: INLINE (inline expansion available)
  ;   Source file: /data/x/gmsh/src/gmsh/bvh.lisp
 ```
 
@@ -104,6 +106,7 @@
  ;                          (UNSIGNED-BYTE 32) &OPTIONAL))
  ;   Documentation:
  ;     get this poly from bvh.
+ ;   Inline proclamation: INLINE (inline expansion available)
  ;   Source file: /data/x/gmsh/src/gmsh/bvh.lisp
 ```
 

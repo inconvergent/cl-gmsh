@@ -1,13 +1,20 @@
 (in-package :gmsh/xrend)
 
-; (declaim (inline reflect pixel-shift symbol-rgb get-normal hitmat)
-;          (veq:ff *dstlim*))
+(declaim (inline reflect pixel-shift symbol-rgb get-normal))
 
-(defvar *dstlim* 2000.0) ; TODO: this should be configurable
 (defvar *rs*)
+(defmacro rndrng     (&rest rest) `(srnd:rndrng *rs* ,@rest))
+(defmacro 3in-sphere (&rest rest) `(srnd:3in-sphere *rs* ,@rest))
+(defmacro 3on-sphere (&rest rest) `(srnd:3on-sphere *rs* ,@rest))
+(defun xrend-worker-context (worker-loop) (let ((*rs*)) (funcall worker-loop)))
 
-(defun xrend-worker-context (worker-loop)
-  (let ((*rs*)) (funcall worker-loop)))
+; (defmacro rc-simple (&rest rest) "simple raycast using current raycaster."
+;   `(gmsh/bvh:simd4/simple-raycast ,@rest))
+; (defmacro rc (&rest rest) "raycast using current raycaster."
+;   `(gmsh/bvh:simd4/raycast ,@rest))
+
+(defmacro rc-simple (&rest rest) `(gmsh/bvh:int/simple-raycast ,@rest))
+(defmacro rc (&rest rest) `(gmsh/bvh:int/raycast ,@rest))
 
 (defmacro p/init-srnd ()
   `(unless *rs*
@@ -21,19 +28,9 @@
           (setf lparallel:*kernel* (lparallel:make-kernel ,k
                                      :context ,context :bindings ',bindings))))
 
-; (defmacro rc-simple (&rest rest) "simple raycast using current raycaster."
-;   `(gmsh/bvh:simd4/simple-raycast ,@rest))
-; (defmacro rc (&rest rest) "raycast using current raycaster."
-;   `(gmsh/bvh:simd4/raycast ,@rest))
-
-(defmacro rc-simple (&rest rest) `(gmsh/bvh:int/simple-raycast ,@rest))
-(defmacro rc (&rest rest) `(gmsh/bvh:int/raycast ,@rest))
-
-
 (defmacro render-wrap (&body body)
-  ; TODO: make this cleaner ;
-  ; TODO: or convert to generic render macro
-  `(veq:fvprogn
+                ; TODO: make this cleaner ;
+  `(veq:fvprogn ; TODO: or convert to generic render macro
     (veq:xlet ((canv (gmsh/scene::scene-canv sc)) (proj (gmsh/scene::scene-proj sc))
                (f!ascale (/ (veq:ff aa))) (p!blocks (floor size bs))
                (f2!xy (veq:f2scale (veq:f2$ (ortho::ortho-xy proj)) -1.0))
@@ -42,7 +39,6 @@
                (f3!u (f3.@- (su proj))) (f3!v (f3.@- (sv proj))))
       (declare (ortho::ortho proj) (canvas::canvas canv))
       (progn ,@body))))
-
 
 (veq:fvdef reflect ((:va 3 d n)) (declare #.*opt1* (veq:ff d n))
   (f3!@- d (f3!@*. n (* 2.0 (veq:f3dot d n)))))
@@ -54,8 +50,7 @@
 (veq:fvdef su (proj) (f3!@/. (veq:f3$s proj ortho::ortho- :u) (ortho::ortho-s proj)))
 (veq:fvdef sv (proj) (f3!@/. (veq:f3$s proj ortho::ortho- :v) (ortho::ortho-s proj)))
 
-
-(veq:fvdef symbol-rgb (s)  ; TODO: adapt to *color*
+(veq:fvdef symbol-rgb (s) ; TODO: adapt to *color*
   (case s (:w (veq:f3rep 1.0))
           (:r (veq:f3 1.0 0.0 0.0)) (:g (veq:f3 0.0 1.0 0.0)) (:b (veq:f3 0.0 0.0 1.0))
           (:gray (veq:f3val 0.4))
@@ -68,11 +63,12 @@
   (veq:xlet ((f3!n (gmsh/bvh::get-norm bvh i)))
     (if (< (veq:f3dot n d) 0.0) (veq:f3 n) (f3.@- n))))
 
-(veq:fvdef hitmat (bvh i) (declare #.*opt1* (gmsh/bvh:bvh bvh) (veq:in i))
-  (when (< i 0) (return-from hitmat (veq:~ :bg (veq:f3rep 0.0))))
-  (veq:mvb (flag rgbflag) (gmsh/bvh::get-mat bvh i)
-    (declare (symbol flag rgbflag))
-    (veq:~ flag (symbol-rgb rgbflag))))
+; (veq:fvdef hitmat (bvh i default) ; embedded in xrend for the time being
+;   (declare #.*opt1* (gmsh/bvh:bvh bvh) (veq:in i) (keyword default))
+;   (when (< i 0) (return-from hitmat (veq:~ default (veq:f3rep 0.0))))
+;   (veq:mvb (flag rgbflag) (gmsh/bvh::get-mat bvh i)
+;     (declare (symbol flag rgbflag))
+;     (veq:~ flag (symbol-rgb rgbflag))))
 
 (defun get-info-fx (size aa) (declare (veq:pn size aa))
   (lambda (i progr) (declare (veq:pn i) (veq:ff progr))

@@ -9,8 +9,8 @@
                `(if (> (the veq:ff (abs (the veq:ff ,x))) #.*eps*)
                     (the veq:ff (/ ,x)) #.*eps*))))
 
-(veq:fvdef default-mat (n &aux (n (+ n 10)) ; :c :x or 0 0
-                               (res (veq:$make :n n :dim 2 :v :c :type symbol)))
+(veq:fvdef default-mat (n &aux  ; :c :x or 0 0
+                               (res (veq:$make :n n :dim 2 :v :c :type keyword)))
   "make n default materials"
   (loop for i from 1 below (* 2 n) by 2 do (setf (aref res i) :x)) res)
 
@@ -40,7 +40,7 @@
            (int-nodes (veq:p4$zero 0)) ; TODO: make this with leap 2, not 3
            (simd-nodes (veq:i4$zero 0))) ; TODO: make this pvec
       (declare (veq:pn ni npolys max-node-num polyind) (veq:pvec polys int-nodes)
-               (bvh-node-vec nodes) (veq:svec mat) (veq:fvec polyfx normals))
+               (bvh-node-vec nodes) (veq:kvec mat) (veq:fvec polyfx normals))
       (labels
         ((nxt-index () (incf ni) (1- ni))
          (do-poly (o &aux (p (car o)))
@@ -101,12 +101,13 @@
                    :mima mima :simd-mima simd-mima
                    :num-leaves num :time (auxin:now t0) :mode mode)))))
 
-; (declaim (inline get-norm get-poly get-mat))
+(declaim (inline get-norm get-poly get-mat))
 (veq:fvdef get-norm (bvh i) (declare #.*opt* (bvh bvh) (veq:in i))
   "get this normal from bvh" (veq:f3$ (bvh-normals bvh) i))
+
 (veq:fvdef get-poly (bvh i) (declare #.*opt* (bvh bvh) (veq:in i))
   "get this poly from bvh." (veq:3$ (bvh-polys bvh) i))
+
 (veq:fvdef get-mat (bvh i) (declare #.*opt* (bvh bvh) (veq:in i))
   "get this material from bvh." (veq:2$ (bvh-mat bvh) i))
-
 
