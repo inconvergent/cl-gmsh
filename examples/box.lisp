@@ -2,7 +2,7 @@
 
 (load "/home/anders/quicklisp/setup.lisp") (require :sb-sprof)
 (ql:quickload :auxin) (ql:quickload :gmsh)
-(gmsh/xrend:init 70)
+(gmsh/xrend:init 64)
 
 (veq:fvdef load-scene ()
   (declare (optimize speed (safety 1)))
@@ -18,7 +18,7 @@
       (box :xy (veq:f3$point    z (- w) z) :s (veq:f3$point q x q))
       (box :xy (veq:f3$point z z    w)     :s (veq:f3$point ww ww x))  ; caps
       (box :xy (veq:f3$point z z (- w))    :s (veq:f3$point ww ww x))
-      (gmsh:itr-polys (msh p) (gmsh/scene:setmat sc p '(:cr :k)))
+      (gmsh:itr-polys (msh p) (gmsh/scene:setmat sc p '(:cc :k)))
       (auxin:mvb (_ meta) (box :s (veq:f3$point rr rr rr))
         (loop for p in (cdr (assoc :polys meta))
               do (gmsh/scene:setmat sc p '(:ll :w))))
@@ -42,18 +42,21 @@
                 :matfx (lambda (p) (veq:from-lst (gmsh/scene:getmat sc p))))))
     (print msh) (print bvh)
     ; (veq:4$print (gmsh/bvh::bvh-int-nodes bvh))
-    ; (sb-sprof:with-profiling (:max-samples 200000
-    ;                         :mode :cpu
-    ;                         ; :mode :alloc
-    ;                         ; :mode :time
-    ;                         :report :graph)
+    (sb-sprof:with-profiling (:max-samples 200000 :report :graph
+                                           ; :mode :alloc
+                                           ; :mode :time
+                                           :mode :cpu
+                                           )
     (time (gmsh/xrend:xrend sc bvh :size 2000 :raylen 2000.0
-                                   :vol t :par t :aa 12
-                                   :ao-rep 4
-                                   :vmult 150f0
-                                   ))
-    ; )
-    (gmsh/scene:canv/save sc "tmp2" :gamma 1.1)))
+                                   :vol t :par t :aa 100
+                                   :vrec 5
+                                   :vdst 1000f0
+                                   ; :miss :bgrr
+                                   ; :world :bgkk
+                                   :vexpt 2.25
+                                   :ao-rep 5
+                                   :vmult 150f0)))
+    (gmsh/scene:canv/save sc "tmp" :gamma 1.1)))
 
 (main 1000)
 

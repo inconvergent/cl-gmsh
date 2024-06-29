@@ -105,7 +105,7 @@
  ; 
  ; *WRNCNT* names a special variable:
  ;   Declared type: HASH-TABLE
- ;   Value: #<HASH-TABLE :TEST EQL :COUNT 0 {101D328FC3}>
+ ;   Value: #<HASH-TABLE :TEST EQL :COUNT 0 {101D2E1063}>
 ```
 
 ## `gmsh:add-box!`

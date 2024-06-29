@@ -1,7 +1,7 @@
 (in-package :gmsh/bvh)
 
-(declaim (inline raycast %int/raycast %int/simple-raycast
-                         simd4/raycast* simd4/simple-raycast*))
+; (declaim (inline raycast %int/raycast %int/simple-raycast
+;                          simd4/raycast* simd4/simple-raycast*))
 
  (veq:fvdef raycast (bvh (:va 3 org ll))
    (declare #.*opt1* (bvh bvh) (veq:ff org ll)) "raycast from org along ll."

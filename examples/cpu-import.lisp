@@ -6,7 +6,7 @@
 ; (rnd:set-rnd-state 107)
 (gmsh/xrend:init 64)
 
-(defvar *size* 1000)
+(defvar *size* 2000)
 
 (veq:fvdef load-scene ( &aux (sc (gmsh/scene:scene/load "_gpu-export.gmsh-scene")))
   (print (gmsh/scene:scene-proj sc))
@@ -50,7 +50,7 @@
 ;                         :report :graph)
 
     (time (gmsh/xrend:xrend sc bvh :size *size*
-                                   :par t :vol nil :aa 1
+                                   :par t :vol nil :aa 3
                                   :vmult 40.0
                                   :ao-rep 7
                                   :miss :bgr
@@ -59,6 +59,7 @@
                                   :raylen 2000.0
                                   :raylen2 30f0
                                   ))
+    ; )
 
     (gmsh/scene:canv/save sc (fn:fn) :gamma 1.1)
     ))

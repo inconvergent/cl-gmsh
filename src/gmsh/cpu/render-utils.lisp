@@ -1,20 +1,12 @@
 (in-package :gmsh/xrend)
 
-(declaim (inline reflect pixel-shift symbol-rgb get-normal))
+(declaim (inline reflect pixel-shift symbol-rgb get-normal hitmat-simple))
 
 (defvar *rs*)
 (defmacro rndrng     (&rest rest) `(srnd:rndrng *rs* ,@rest))
 (defmacro 3in-sphere (&rest rest) `(srnd:3in-sphere *rs* ,@rest))
 (defmacro 3on-sphere (&rest rest) `(srnd:3on-sphere *rs* ,@rest))
 (defun xrend-worker-context (worker-loop) (let ((*rs*)) (funcall worker-loop)))
-
-; (defmacro rc-simple (&rest rest) "simple raycast using current raycaster."
-;   `(gmsh/bvh:simd4/simple-raycast ,@rest))
-; (defmacro rc (&rest rest) "raycast using current raycaster."
-;   `(gmsh/bvh:simd4/raycast ,@rest))
-
-(defmacro rc-simple (&rest rest) `(gmsh/bvh:int/simple-raycast ,@rest))
-(defmacro rc (&rest rest) `(gmsh/bvh:int/raycast ,@rest))
 
 (defmacro p/init-srnd ()
   `(unless *rs*
@@ -28,17 +20,6 @@
           (setf lparallel:*kernel* (lparallel:make-kernel ,k
                                      :context ,context :bindings ',bindings))))
 
-(defmacro render-wrap (&body body)
-                ; TODO: make this cleaner ;
-  `(veq:fvprogn ; TODO: or convert to generic render macro
-    (veq:xlet ((canv (gmsh/scene::scene-canv sc)) (proj (gmsh/scene::scene-proj sc))
-               (f!ascale (/ (veq:ff aa))) (p!blocks (floor size bs))
-               (f2!xy (veq:f2scale (veq:f2$ (ortho::ortho-xy proj)) -1.0))
-               (f3!vpn* (f3.@- (veq:f3$ (ortho::ortho-vpn proj))))
-               ; (f3!vpn* (veq:f3$ (ortho::ortho-vpn proj)))
-               (f3!u (f3.@- (su proj))) (f3!v (f3.@- (sv proj))))
-      (declare (ortho::ortho proj) (canvas::canvas canv))
-      (progn ,@body))))
 
 (veq:fvdef reflect ((:va 3 d n)) (declare #.*opt1* (veq:ff d n))
   (f3!@- d (f3!@*. n (* 2.0 (veq:f3dot d n)))))
@@ -63,14 +44,98 @@
   (veq:xlet ((f3!n (gmsh/bvh::get-norm bvh i)))
     (if (< (veq:f3dot n d) 0.0) (veq:f3 n) (f3.@- n))))
 
-; (veq:fvdef hitmat (bvh i default) ; embedded in xrend for the time being
-;   (declare #.*opt1* (gmsh/bvh:bvh bvh) (veq:in i) (keyword default))
-;   (when (< i 0) (return-from hitmat (veq:~ default (veq:f3rep 0.0))))
-;   (veq:mvb (flag rgbflag) (gmsh/bvh::get-mat bvh i)
-;     (declare (symbol flag rgbflag))
-;     (veq:~ flag (symbol-rgb rgbflag))))
+(veq:fvdef hitmat-simple (bvh i default) ; embedded in xrend for the time being
+  (declare #.*opt1* (gmsh/bvh:bvh bvh) (veq:in i) (keyword default))
+  (if (> i -1) (veq:mvb (flag rgbflag) (gmsh/bvh::get-mat bvh i)
+                 (declare (symbol flag rgbflag))
+                 (veq:~ flag (symbol-rgb rgbflag)))
+               (veq:~ default (veq:f3rep 0.0))))
 
 (defun get-info-fx (size aa) (declare (veq:pn size aa))
   (lambda (i progr) (declare (veq:pn i) (veq:ff progr))
     (format nil "λ~06,2f" (auxin:me (* aa size (/ i progr))))))
 
+
+(defmacro render-wrap (labels*)
+               ; TODO: make this cleaner ;
+ `(veq:fvprogn ; TODO: or convert to generic render macro
+  (veq:xlet ((canv (gmsh/scene::scene-canv sc))
+             (proj (gmsh/scene::scene-proj sc))
+             (f2!xy (veq:f2scale (veq:f2$ (ortho::ortho-xy proj)) -1.0))
+             (f3!vpn* (f3.@- (veq:f3$ (ortho::ortho-vpn proj))))
+             (f3!cam (veq:f3$ (ortho::ortho-cam proj)))
+             (f3!u (f3.@- (su proj)))
+             (f3!v (f3.@- (sv proj))))
+    (declare (ortho::ortho proj) (canvas::canvas canv))
+    (labels (,@labels*
+              (do-row (yy xx repx repy)
+                (declare (veq:pn yy xx repx repy))
+                (p/init-srnd) ; create srnd state *rs* if thread does not have it
+                (loop for j of-type veq:pn from yy repeat repy
+                  do (veq:xlet ((f3!uv (veq:f3from cam v (+ (:vr xy 1) (veq:ff j)))))
+                       (loop for i of-type veq:pn from xx repeat repx
+                         do (veq:xlet ((f3!p (veq:f3from uv u (+ (:vr xy 0) (veq:ff i))))
+                                       (f3!res (veq:f3val 0.0)))
+                              (loop repeat aa
+                                do (f3!@+! res
+                                     (m@do-render 0
+                                       (pixel-shift *rs* u v p 0.75) vpn*)))
+                              (canvas::m@set-pix canv i j
+                                (f3!@*. res aa-mult)))))))
+              (hitmat (i depth)
+                (declare (veq:in i) (veq:pn depth))
+                (if (and (< i 0) (< depth 1)) (values miss 0f0 0f0 0f0)
+                                              (hitmat-simple bvh i world)))
+
+               (do-render (depth (:va 3 p dir)) (declare (veq:pn depth) (veq:ff p dir))
+                 (when (> depth max-depth) (return-from do-render (veq:f3val 0.0)))
+                 (veq:xlet ((f3!ll (veq:f3scale dir raylen)))
+                   (veq:mvb (hi hs) (rc bvh p ll)
+                     (declare (veq:ff hs) (veq:in hi))
+                     ; hitmat returns eg: (~ (if (> hi 0) :ao :miss) 1f0 1f0 1f0)
+                     (veq:mvb (flag (:va 3 rgb)) (hitmat hi depth)
+                       (declare (keyword flag) (veq:ff rgb))
+                       (when (null flag) (error "oh no ~a ~a" flag hi))
+                       (veq:xlet ((f3!pt (veq:f3from p ll hs))
+                                  (f3!res (ecase flag ; TODO: process input shaders
+                                             (:ao  (f3!@*. rgb (m@do-ao hi pt dir))) ; hits
+                                             (:rr  (m@do-rr depth hi rgb pt dir))
+                                             (:ro  (m@do-ro depth hi rgb pt dir))
+                                             ((:ll :cc) (veq:f3 rgb))
+
+                                             (:bgw (veq:f3val (rndrng 0.95  1.0)))
+                                             (:bgk (veq:f3val (rndrng 0.0   0.05)))
+                                             (:bgkk (veq:f3val 0f0))
+                                             (:bgww (veq:f3val 1f0))
+
+                                             (:bgrr (veq:f3 1f0 0f0 0f0))
+                                             (:bggg (veq:f3 0f0 1f0 0f0))
+                                             )))
+
+                        (when (and vol (< depth vdepth)) ; [:ll-mat] volume sampling
+                            (f3!@+! res
+                              (f3!@*. (m@do-ll  hi p
+                                        (f3!@+ p (f3!@*. ll hs))
+                                        (veq:f3norm (f3!@+ (3in-sphere 0.05) dir)))
+                                      vmult)))
+                        (veq:f3 res)))))))
+
+  (veq:xlet (
+             (p!blocks (floor size bs)) ; TODO: blocks do not work properly
+             (p!interval (max 1 200))
+             (timer (auxin:iter-timer blocks
+                      :int interval :infofx (get-info-fx size aa)
+                      :prefx (lambda (&rest rest) (declare (ignore rest))"██ "))))
+
+    (format t "~&██ rendering pix: ~d; blocks: ~d; bs: ~d; aa: ~d~&" size blocks bs aa)
+
+    (if par (let ((chan (lparallel:make-channel)))
+              (loop for k from 0 repeat blocks
+                    do (veq:xlet ((p!k* k))
+                         (labels ((row () (do-row k* 0 size 1)))
+                           (lparallel:submit-task chan #'row))))
+              (loop for k from 0 repeat blocks
+                    do (lparallel:receive-result chan) (f@timer)))
+            (loop for k of-type veq:pn from 0 repeat blocks
+                  do (do-row k 0 size 1) (f@timer)))
+    (f@timer) (format t "~&██~&"))))))
