@@ -4,8 +4,8 @@
 
 (defvar *rs*)
 (defmacro rndrng     (&rest rest) `(srnd:rndrng *rs* ,@rest))
-(defmacro 3in-sphere (&rest rest) `(srnd:3in-sphere *rs* ,@rest))
-(defmacro 3on-sphere (&rest rest) `(srnd:3on-sphere *rs* ,@rest))
+(defmacro rnd3in-sphere (&rest rest) `(srnd:3in-sphere *rs* ,@rest))
+(defmacro rnd3on-sphere (&rest rest) `(srnd:3on-sphere *rs* ,@rest))
 (defun xrend-worker-context (worker-loop) (let ((*rs*)) (funcall worker-loop)))
 
 (defmacro p/init-srnd ()
@@ -20,6 +20,7 @@
           (setf lparallel:*kernel* (lparallel:make-kernel ,k
                                      :context ,context :bindings ',bindings))))
 
+; (defmacro falloff (b e) `(exp (- (expt (abs ,b) ,e))))
 
 (veq:fvdef reflect ((:va 3 d n)) (declare #.*opt1* (veq:ff d n))
   (f3!@- d (f3!@*. n (* 2.0 (veq:f3dot d n)))))
@@ -31,7 +32,7 @@
 (veq:fvdef su (proj) (f3!@/. (veq:f3$s proj ortho::ortho- :u) (ortho::ortho-s proj)))
 (veq:fvdef sv (proj) (f3!@/. (veq:f3$s proj ortho::ortho- :v) (ortho::ortho-s proj)))
 
-(veq:fvdef symbol-rgb (s) ; TODO: adapt to *color*
+(veq:fvdef symbol-rgb (s) ; TODO: adapt to *color* and *rs*
   (case s (:w (veq:f3rep 1.0))
           (:r (veq:f3 1.0 0.0 0.0)) (:g (veq:f3 0.0 1.0 0.0)) (:b (veq:f3 0.0 0.0 1.0))
           (:gray (veq:f3val 0.4))
@@ -86,7 +87,6 @@
                 (declare (veq:in i) (veq:pn depth))
                 (if (and (< i 0) (< depth 1)) (values miss 0f0 0f0 0f0)
                                               (hitmat-simple bvh i world)))
-
                (do-render (depth (:va 3 p dir)) (declare (veq:pn depth) (veq:ff p dir))
                  (when (> depth max-depth) (return-from do-render (veq:f3val 0.0)))
                  (veq:xlet ((f3!ll (veq:f3scale dir raylen)))
@@ -95,7 +95,6 @@
                      ; hitmat returns eg: (~ (if (> hi 0) :ao :miss) 1f0 1f0 1f0)
                      (veq:mvb (flag (:va 3 rgb)) (hitmat hi depth)
                        (declare (keyword flag) (veq:ff rgb))
-                       (when (null flag) (error "oh no ~a ~a" flag hi))
                        (veq:xlet ((f3!pt (veq:f3from p ll hs))
                                   (f3!res (ecase flag ; TODO: process input shaders
                                              (:ao  (f3!@*. rgb (m@do-ao hi pt dir))) ; hits
@@ -103,31 +102,31 @@
                                              (:ro  (m@do-ro depth hi rgb pt dir))
                                              ((:ll :cc) (veq:f3 rgb))
 
-                                             (:bgw (veq:f3val (rndrng 0.95  1.0)))
-                                             (:bgk (veq:f3val (rndrng 0.0   0.05)))
+                                             (:bgw (veq:f3val (rndrng 0.95 1.0)))
+                                             (:bgk (veq:f3val (rndrng 0.0  0.05)))
                                              (:bgkk (veq:f3val 0f0))
                                              (:bgww (veq:f3val 1f0))
-
+                                             (:bgvv (veq:f3val 0.5))
                                              (:bgrr (veq:f3 1f0 0f0 0f0))
                                              (:bggg (veq:f3 0f0 1f0 0f0))
-                                             )))
+                                             (:bgbb (veq:f3 0f0 0f0 1f0))
+                                             (:bgmm (veq:f3 1f0 0f0 1f0))
+                                             (:bgcc (veq:f3 0f0 1f0 1f0))
+                                             (:bgyy (veq:f3 1f0 1f0 0f0)))))
 
                         (when (and vol (< depth vdepth)) ; [:ll-mat] volume sampling
-                            (f3!@+! res
-                              (f3!@*. (m@do-ll  hi p
-                                        (f3!@+ p (f3!@*. ll hs))
-                                        (veq:f3norm (f3!@+ (3in-sphere 0.05) dir)))
-                                      vmult)))
+                          (f3!@+! res (m@do-ll  hi p (f3!@+ p (f3!@*. ll hs)) dir)))
                         (veq:f3 res)))))))
 
-  (veq:xlet (
-             (p!blocks (floor size bs)) ; TODO: blocks do not work properly
+  (veq:xlet ((p!blocks (floor size bs)) ; TODO: blocks do not work properly
              (p!interval (max 1 200))
              (timer (auxin:iter-timer blocks
                       :int interval :infofx (get-info-fx size aa)
                       :prefx (lambda (&rest rest) (declare (ignore rest))"██ "))))
 
-    (format t "~&██ rendering pix: ~d; blocks: ~d; bs: ~d; aa: ~d~&" size blocks bs aa)
+    (lqn:out "~&██ rendering scene at ~d pix (~d * ~d)~&" size blocks bs)
+    (lqn:out "~&██   aa: ~a;  ao-rep: ~a; vlim: ~a~&" aa ao-rep vlim)
+    (lqn:out "~&██   raylen: ~a;  max-depth: ~d~&" raylen max-depth)
 
     (if par (let ((chan (lparallel:make-channel)))
               (loop for k from 0 repeat blocks

@@ -19,9 +19,7 @@
                 ; :look (veq:f3$point 0.0 0.0 0.0)
                 )
   (print (gmsh/scene:scene-msh sc))
-  (loop for lim in '(25.0 25.0
-                          20f0
-                          )
+  (loop for lim in '(10.0 5.0)
         do (gmsh/scene::split-edges sc lim) (print (gmsh/scene:scene-msh sc)))
   sc)
 
@@ -38,8 +36,8 @@
                 :matfx (lambda (p &aux (mc (gmsh/scene:getmat sc p)))
                         ; (veq:from-lst mc)
                         (case (second mc)
-                           (:c (values :ao :c)) (:m (values :ao :m)) (:y (values :ao :y))
-                           (:w (values :ao :w)) (:k (values :ro :w)))))))
+                           (:c (values :ll :c)) (:m (values :ll :m)) (:y (values :ll :y))
+                           (:w (values :ll :w)) (:k (values :ao :k)))))))
 
     (print :-----) (print msh) (print bvh)
 
@@ -50,14 +48,16 @@
 ;                         :report :graph)
 
     (time (gmsh/xrend:xrend sc bvh :size *size*
-                                   :par t :vol nil :aa 3
-                                  :vmult 40.0
-                                  :ao-rep 7
-                                  :miss :bgr
-                                  :world :bgg
-                                  :vrec 6 :vlim 0.1
-                                  :raylen 2000.0
-                                  :raylen2 30f0
+                                   :par t :vol t :aa 55
+                                  :vmult 100.0
+                                  :ao-rep 6
+                                  :miss :bgkk
+                                  :vdst 600f0
+                                  :world :bgkk
+                                  :vrec 6
+                                  :vdst 1000f0
+                                  :raylen 1200.0
+                                  :raylen2 50f0
                                   ))
     ; )
 

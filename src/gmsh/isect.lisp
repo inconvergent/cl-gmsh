@@ -181,4 +181,97 @@
          (loop for p in (del-polys! msh (gethash e edges->poly))
                nconc (do-split p)))))))
 
+(defmacro reorder (a &rest rest)
+  (declare (symbol a))
+  `(concatenate 'vector
+    ,@(loop for ind in rest
+            collect (typecase ind (number `(list (aref ,a ,ind)))
+                                  (symbol `(list (aref ,a ,ind)))
+                                  (cons (case (length ind)
+                                          (1 `(list (aref ,a ,@ind)))
+                                          (2 `(subseq ,a ,@ind))))))))
+
+; (veq:fvdef 3triangulate (wer edge-set &key (fx '-idxy))
+;   (declare (weir wer) (list edge-set))
+;   "triangulate the hull defined by edge set, using the projection provided
+; by fx where fx: R3 -> R2. default projection is xyz -> xy."
+;   (let ((path (weird:tv (graph:edge-set->path edge-set)))
+;         (res (list)))
+;     (declare (vector path))
+;     (labels ((gv (i) (declare (veq:pn i)) (veq:mvcgrp (3 fx) (3gv wer i)))
+;              (ypos (v) (declare (veq:pn v)) (veq:fsel (:y) (gv v)))
+;              (ind-rotate (path ymost)
+;                (declare (vector path) (veq:pn ymost))
+;                (weird:reorder path (ymost nil) (0 ymost)))
+;              (y-most (path &aux (ypos (ypos (aref path 0))) (cv 0) )
+;                (loop for v across (subseq path 1)
+;                      for i from 1
+;                      if (< (ypos v) ypos)
+;                      do (setf ypos (ypos v) cv i))
+;                cv)
+;              (cross (path &aux (n (length path)))
+;                 "does any segment in path cross the line (aref path 1) (aref path -1)."
+;                 (veq:f2let ((a (gv (aref path 1)))
+;                             (b (gv (weird:vl path))))
+;                   (loop for i from 0 below n
+;                         do ; weird precision issue. override veq eps
+;                            ; TODO: can we fix this somehow?
+;                            (let ((veq::*eps* (* 1000f0 veq::*eps*)))
+;                              (when (veq:f2segx a b (veq:mvcgrp (3 fx)
+;                                                      (3$verts wer (aref path i)
+;                                                        (aref path (mod (1+ i) n)))))
+;                                (return-from cross t)))))
+;                 nil)
+;              (uw-farthest (path &aux (n (length path)) dst (curr -1))
+;               "find the vertex in triangle ((aref path 1) (aref path 0) (aref path -1))
+;                that is the farthest away from (aref path 1) (aref path -1)."
+;                (loop for i from 2 below (1- n)
+;                      if ; TODO: this feels very sketchy
+;                        (let ((veq::*eps* (* 1000f0 veq::*eps*)))
+;                           (veq:f2in-triangle
+;                             (veq:mvcgrp (3 fx)
+;                               (3$verts wer (aref path 0) (aref path 1)
+;                                (weird:vl path) (aref path i)))))
+
+;                      do (let ((d (veq:f2segdst
+;                                    (veq:mvcgrp (3 fx)
+;                                      (3$verts wer (aref path 1) (weird:vl path)
+;                                                   (aref path i))))))
+;                           (when (or (= curr -1) (> d dst))
+;                                 (setf curr i dst d))))
+;                (values curr dst))
+;              (split-diag (path i)
+;                "split into two paths by introducing a new edge that divides
+;                 path in two loops."
+;                (when (= i -1) (error "bad split (-1) at: ~a" path))
+;                (when (< (length path) 3) (error "diag: too few elements in ~a" path))
+;                (when (>= i (length path)) (error "diag bad ind: ~a ~a" path i))
+;                (do-step (weird:reorder path (i) (0 i)))
+;                (do-step (weird:reorder path (0) (i nil))))
+;              (split-tri (path)
+;                "split path into a triangle and a new path."
+;                (do-step (weird:reorder path ((1- (length path))) (0 2)))
+;                (do-step (subseq path 1)))
+;              (do-step (path &aux (n (length path)))
+;                "recursively subdived the path into triangles and/or new loops."
+;                ; (when (< n 3) (error "do-step: too few elements in ~a" path))
+;                (when (< n 3) (return-from do-step nil))
+;                (when (< n 4) (push (add-poly! wer (weird:tl path)) res)
+;                              (return-from do-step t))
+
+;                ; this is confusing, but i was unable to find a better way. the
+;                ; problem is that sometimes cross path detects an intersection,
+;                ; but uw-farthest is unable to find a valid candidate. this is
+;                ; probably due to precision issues in either cross, uw-farthest,
+;                ; or both?
+;                (let ((path (ind-rotate path (y-most path))))
+;                  (if (not (cross path))
+;                      (split-tri path) ; -> no intersections
+;                      (let ((uw (uw-farthest path))) ; -> possible intersection
+;                        (if (> uw -1)
+;                            (split-diag path uw) ; intersection
+;                            (progn (warn "possble intersection, unable to detect farthest uw.")
+;                                   (split-tri path)))))))) ; unable to detect intersection
+;       (do-step path)
+;       res)))
 

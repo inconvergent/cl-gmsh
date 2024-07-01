@@ -105,7 +105,9 @@
 
 (veq:fvdef main ()
   (gmsh/gl:window-context (*size* *size*)
-    (let ((sc (gmsh/scene:scene/make :s 0.01 :xy (veq:f2$zero))) (itt 0))
+    (let ((sc (gmsh/scene:scene/make :s 0.1 :xy (veq:f2$zero)
+                                     :cam (veq:f3$point 70.0 70.0 20.0)))
+          (itt 0))
       (reset-mesh sc)
       (veq:mvb (render-init render render-clean program) (make-render sc)
         (funcall render-init)

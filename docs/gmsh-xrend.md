@@ -41,9 +41,9 @@
  ; XREND names a compiled function:
  ;   Lambda-list: (SC BVH &KEY (PAR T) (SIZE 1000) (BS 1) (AA 1) (VOL NIL)
  ;                 (RAYLEN 2000.0) (RAYLEN2 (* 0.5 RAYLEN)) (MAX-DEPTH 12)
- ;                 (AO-REP 4) (VMULT 64.0) (VEXPT 1.45) (VDST 1000.0)
- ;                 (VLIM 0.01) (VREC 6) (MISS BGK) (WORLD MISS)
- ;                 (AO-MULT (FF (/ AO-REP))) (AA-MULT (FF (/ AA)))
+ ;                 (AO-REP 4) (VMULT 64.0) (VDST 1000.0) (VLIM 100.0)
+ ;                 (MISS BGK) (WORLD MISS) (AO-MULT (FF (/ AO-REP)))
+ ;                 (AA-MULT (FF (/ AA))) (VLIM* (/ VLIM VDST))
  ;                 (VDEPTH
  ;                  (IF VOL
  ;                      1
@@ -55,11 +55,10 @@
  ;                   (:RAYLEN SINGLE-FLOAT) (:RAYLEN2 SINGLE-FLOAT)
  ;                   (:MAX-DEPTH (UNSIGNED-BYTE 32))
  ;                   (:AO-REP (UNSIGNED-BYTE 32)) (:VMULT SINGLE-FLOAT)
- ;                   (:VEXPT SINGLE-FLOAT) (:VDST SINGLE-FLOAT)
- ;                   (:VLIM SINGLE-FLOAT) (:VREC (UNSIGNED-BYTE 32))
+ ;                   (:VDST SINGLE-FLOAT) (:VLIM SINGLE-FLOAT)
  ;                   (:MISS KEYWORD) (:WORLD KEYWORD)
  ;                   (:AO-MULT SINGLE-FLOAT) (:AA-MULT T)
- ;                   (:VDEPTH (UNSIGNED-BYTE 32)))
+ ;                   (:VLIM* SINGLE-FLOAT) (:VDEPTH (UNSIGNED-BYTE 32)))
  ;                  (VALUES NULL &OPTIONAL))
  ;   Documentation:
  ;     render scene from this scene/bvh.
@@ -71,16 +70,11 @@
  ;      - raylen : ray length for sampling. not volume sampling.
  ;      - vdst   : ray length for sampling volume light. [:ll mat]
  ;      - vmult  : volume light brightness. [:ll mat]
- ;      - vexpt  : volume light distance falloff. higher is brighter.
  ;      - vdepth : disable volume sampling after vdepth ray bounces.
- ;      - vrec   : max recursive depth in volume sampling. higher is more detailed.
  ;      - vlim   : volume sampling min recursive sampling step size.
- ;                 lower is more detailed. [0.0, 1.0]
+ ;                 lower is more detailed.
  ;      - vol    : enable disable volumetric light. [:ll mat]
  ;      - par    : use parallelism.
- ;     
- ;       TODO: ; ve = 1.2 -> less fog; ve = 0.3 -> more
- ; 
  ;   Source file: /data/x/gmsh/src/gmsh/cpu/render.lisp
 ```
 
