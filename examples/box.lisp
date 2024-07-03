@@ -42,8 +42,8 @@
   (let* ((sc (load-scene))
          (msh (gmsh/scene:scene-msh sc))
          (bvh (gmsh:make-bvh msh :num 16
-                            :mode :bvh2-stackless
-                             ; :mode :bvh4-simd
+                            ; :mode :bvh2-stackless
+                             :mode :bvh4-simd
                              ; :mode :bvh2
                 :matfx (lambda (p) (veq:from-lst (gmsh/scene:getmat sc p))))))
     (veq:4$print (gmsh/bvh::bvh-int-nodes bvh))

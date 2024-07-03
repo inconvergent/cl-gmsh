@@ -173,7 +173,7 @@
  ;   Lambda-list: (BVH &REST REST)
  ;   Documentation:
  ;     raycast bvh from org alon ll using simd.
- ;   Source file: /data/x/gmsh/src/gmsh/bvh-raycast.lisp
+ ;   Source file: /data/x/gmsh/src/gmsh/bvh-raycast-simd.lisp
 ```
 
 ## `gmsh/bvh:simd4/simple-raycast`
@@ -186,6 +186,6 @@
  ;   Documentation:
  ;     raycast bvh from org alon ll using simd.
  ;     returns 0.0 if it hits anything; 1.0 otherwise
- ;   Source file: /data/x/gmsh/src/gmsh/bvh-raycast.lisp
+ ;   Source file: /data/x/gmsh/src/gmsh/bvh-raycast-simd.lisp
 ```
 

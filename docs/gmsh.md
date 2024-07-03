@@ -105,7 +105,7 @@
  ; 
  ; *WRNCNT* names a special variable:
  ;   Declared type: HASH-TABLE
- ;   Value: #<HASH-TABLE :TEST EQL :COUNT 0 {101D2D8FC3}>
+ ;   Value: #<HASH-TABLE :TEST EQL :COUNT 0 {10C3CDC9F3}>
 ```
 
 ## `gmsh:add-box!`
@@ -547,10 +547,6 @@
 
  ; GMSH:MAKE-FAST-STACK
  ;   [symbol]
- ; 
- ; MAKE-FAST-STACK names a macro:
- ;   Lambda-list: (&KEY (N 128) (SAFE-Z 8) (V 0))
- ;   Source file: /data/x/gmsh/src/utils.lisp
 ```
 
 ## `gmsh:norm-poly`
@@ -642,10 +638,6 @@
 
  ; GMSH:STACK
  ;   [symbol]
- ; 
- ; STACK names a type-specifier:
- ;   Lambda-list: ()
- ;   Expansion: (SIMPLE-ARRAY VEQ:PN)
 ```
 
 ## `gmsh:stack-ind`
@@ -654,10 +646,6 @@
 
  ; GMSH:STACK-IND
  ;   [symbol]
- ; 
- ; STACK-IND names a type-specifier:
- ;   Lambda-list: ()
- ;   Expansion: (INTEGER 0 128)
 ```
 
 ## `gmsh:tx!`
@@ -696,10 +684,6 @@
 
  ; GMSH:WITH-FAST-STACK
  ;   [symbol]
- ; 
- ; WITH-FAST-STACK names a macro:
- ;   Lambda-list: ((SYM &KEY (N 128) (V 0) (SAFE-Z 8) STACK) &REST BODY)
- ;   Source file: /data/x/gmsh/src/utils.lisp
 ```
 
 ## `gmsh:wrn`

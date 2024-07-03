@@ -15,8 +15,9 @@
   (loop for i from 1 below (* 2 n) by 2 do (setf (aref res i) :x)) res)
 
 ; objs list: ((2 3 4) #(xmi xma ...) #normal)
-(veq:fvdef make (input-objs vfx &key (num 5) matfx (mode :bvh2-stackless)
-                                     (num-buckets 15) (sort-lvl 32) (sort-num 7))
+(veq:fvdef make (input-objs vfx &key (num 5)  (mode :bvh2-stackless) matfx
+                                     (sort-num num) (num-buckets 25) (sort-lvl 100)
+                                     )
   (declare #.*opt* (list input-objs) (function vfx) (symbol mode)
                    (veq:pn num sort-lvl sort-num num-buckets))
   "build bvh from these objects"
@@ -96,7 +97,6 @@
                                 mima mima*))
                         (veq:mvb (simd-nodes* simd-mima*) (simd/build-int-nodes int-nodes mima)
                           (setf simd-nodes simd-nodes* simd-mima simd-mima*)
-                          ; (veq:$print simd-mima* :dim 8)
                           ; (simd/compress-int-nodes simd-nodes* simd-mima*)
                           )))
 

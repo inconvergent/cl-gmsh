@@ -20,8 +20,7 @@
  ;   [symbol]
  ; 
  ; INIT names a macro:
- ;   Lambda-list: (K &KEY (CONTEXT (FUNCTION XREND-WORKER-CONTEXT))
- ;                 (BINDINGS (QUOTE ((*STCK* MAKE-FAST-STACK N 2048)))))
+ ;   Lambda-list: (K &KEY (CONTEXT (FUNCTION XREND-WORKER-CONTEXT)))
  ;   Source file: /data/x/gmsh/src/gmsh/cpu/render-utils.lisp
 ```
 

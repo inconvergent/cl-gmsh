@@ -15,13 +15,15 @@
                                                   (lparallel:kernel-worker-index))
                                              19997)))))))
 (defmacro init (k &key (context #'gmsh/xrend::xrend-worker-context)
-                       (bindings '((gmsh/bvh::*stck* . (gmsh::make-fast-stack :n 2048)))))
+                       ; (bindings '((gmsh/bvh::*stck* . (gmsh::make-fast-stack :n 2048))))
+                       )
   `(progn (format t "~&██ starting ~a threads~&" ,k)
           (setf lparallel:*kernel* (lparallel:make-kernel ,k
-                                     :context ,context :bindings ',bindings))))
+                                     :context ,context
+                                     ; :bindings ',bindings
+                                     ))))
 
 ; (defmacro falloff (b e) `(exp (- (expt (abs ,b) ,e))))
-
 (veq:fvdef reflect ((:va 3 d n)) (declare #.*opt1* (veq:ff d n))
   (f3!@- d (f3!@*. n (* 2.0 (veq:f3dot d n)))))
 

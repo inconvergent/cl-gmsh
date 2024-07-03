@@ -109,10 +109,8 @@
         (do-dim 0  (:vr iorg 0) (:vr inv 0))
         (do-dim 8  (:vr iorg 1) (:vr inv 1))
         (do-dim 16 (:vr iorg 2) (:vr inv 2))
-        (veq:mvb (n1 n2 n3 n4)
+        (veq:mvc #'logior
           (sb-simd-avx2:u32.4-values
             (.and (.and (.or (.<= 0f0 hi) (.<= lo 1f0)) (.<= lo hi))
-                  (sb-simd-avx2:make-u32.4 1 2 4 8)))
-          (declare (veq:pn n1 n2 n3 n4))
-          (logior n1 n2 n3 n4)))))
+                  (sb-simd-avx2:make-u32.4 1 2 4 8)))))))
 

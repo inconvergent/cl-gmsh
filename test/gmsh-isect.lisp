@@ -35,7 +35,7 @@
           '(12 0.88235295))
       (is (veq:lst (gmsh/bvh::int/raycast bvh1 ; hit
                      (veq:f3 10.0 7f0 4f0) (veq:f3 -10.9 -7.1f0 -4.3)))
-          '(31 0.8359933))))))
+          '(30 0.8359933))))))
 
 (unless (finalize) (error "error in gmsh-isect"))
 

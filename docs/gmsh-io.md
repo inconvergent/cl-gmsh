@@ -36,7 +36,7 @@
  ; 
  ; OBJ/LOAD names a compiled function:
  ;   Lambda-list: (FN &KEY (MAX-VERTS 100000)
- ;                 (MSH (GMSH MAX-VERTS MAX-VERTS)) IGN SILENT &AUX
+ ;                 (MSH (GMSH MAX-VERTS MAX-VERTS)) IGN (SILENT T) &AUX
  ;                 (FN (ENSURE-FILENAME FN .obj T)))
  ;   Derived type: (FUNCTION
  ;                  (STRING &KEY (:MAX-VERTS (UNSIGNED-BYTE 32)) (:MSH T)

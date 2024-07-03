@@ -38,23 +38,22 @@
          (bvh (gmsh:make-bvh msh :num 8 :mode
                 ; :bvh2-stackless
               :bvh4-simd
-                :sort-lvl 32 :sort-num 8
                 :matfx (lambda (p &aux (mc (gmsh/scene:getmat sc p)))
                         ; (veq:from-lst mc)
                         (case (second mc)
-                           (:c (values :ro :c)) (:m (values :ro :m)) (:y (values :ro :y))
-                           (:w (values :ro :w)) (:k (values :ro :k)))))))
+                           (:c (values :cc :c)) (:m (values :cc :m)) (:y (values :cc :y))
+                           (:w (values :cc :w)) (:k (values :cc :k)))))))
 
     (print :-----) (print msh) (print bvh)
 
-; (sb-sprof:with-profiling (:max-samples 200000
-;                         :mode :cpu
-;                         ; :mode :alloc
-;                         ; :mode :time
-;                         :report :graph)
+(sb-sprof:with-profiling (:max-samples 200000
+                        ; :mode :cpu
+                        ; :mode :alloc
+                        :mode :time
+                        :report :graph)
 
     (time (gmsh/xrend:xrend sc bvh :size *size*
-                                   :par t :vol t :aa 1
+                                   :par t :vol t :aa 10
                                   :vmult 13.0
                                   :ao-rep 6
                                   :miss :bgkk
@@ -64,7 +63,7 @@
                                   :raylen 1200.0
                                   :raylen2 50f0
                                   ))
-    ; )
+    )
 
     ; (veq:vp :poly #1=gmsh/bvh::*poly*  (lqn:size? (lqn:str! #1#)))
     ; (veq:vp :bvh #2=gmsh/bvh::*bvh* (lqn:size? (lqn:str! #2#)))

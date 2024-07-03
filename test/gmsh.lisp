@@ -26,8 +26,8 @@
 (subtest "gmsh bvh nodes" (veq:fvprogn
    (let* ((msh (gmsh/io:obj/load-model :cube))
          (lmsh (gmsh/io:obj/load-model :teapot))
-         (bvh (gmsh:make-bvh msh :num 2 :mode :bvh2-stackless))
-         (bvh4-simd (gmsh:make-bvh lmsh :num 3 :mode :bvh4-simd)))
+         (bvh (gmsh:make-bvh msh :num 2 :mode :bvh2-stackless :sort-num 7))
+         (bvh4-simd (gmsh:make-bvh lmsh :num 3 :mode :bvh4-simd :sort-num 7)))
 
 (is-arr (gmsh:get-verts msh (list 2 1 2 4 7 6))
         #(-1.0 -1.0 1.0 1.0 -1.0 1.0 -1.0 -1.0 1.0 1.0 1.0 -1.0 -1.0 1.0 -1.0

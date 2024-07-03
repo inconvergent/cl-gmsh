@@ -87,7 +87,6 @@
                                     (set-subnode i ni si ninxt)
                                     (stack-add (list ninxt (gt4 (/ (gt i 1) 4)))))
                      else do (set-dummy-subnode ni si)))
-      (veq:vpr num-internal num-leaf num-dummy)
       (values new-nodes new-mima ni))))
 
 (veq:fvdef simd/compress-int-nodes (nodes mima)
