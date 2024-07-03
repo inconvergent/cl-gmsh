@@ -16,28 +16,7 @@
        =================================================
        |00   |01   |02   |03   |04   |05   |06   |07   |
        |0miX |0maX |1miY |1maY |2miZ |2maZ |pad  |pad  |
-       =================================================
-
-       BVH4 SIMD MIMA LAYOUT
-       =========================
-       |00   |01   |02   |03   |
-       |0miX |1miX |2miX |3miX |    == miX 0
-       -------------------------
-       |04   |05   |06   |07   |
-       |0maX |1maX |2maX |3maX |    == maX 1
-       =========================
-       |08   |09   |10   |11   |
-       |0miY |1miY |2miY |3miY |    == miY 2
-       -------------------------
-       |12   |13   |14   |15   |
-       |0maY |1maY |2maY |3maY |    == maY 3
-       =========================
-       |16   |17   |18   |19   |
-       |0miZ |1miZ |2miZ |3miZ |    == miZ 4
-       -------------------------
-       |20   |21   |22   |23   |
-       |0maZ |1maZ |2maZ |3maZ |    == maZ 5
-       ========================= )
+       ================================================= )
 
 (defun int/make-stackless! (new-nodes)
   (declare #.*opt* (veq:pvec new-nodes))
@@ -69,67 +48,11 @@
              (veq:$nvset (mima 6 (* i leap)) (veq:f$ bbox 0 3 1 4 2 5))))
   (values res mima))
 
-(veq:fvdef simd/build-int-nodes (nodes mima)
-  (declare #.*opt* (veq:pvec nodes) (veq:fvec mima))
-  ; (old: gt == num, gt 1 == poly, gt 2 == lft)
-  ; NEW SIMD4 NODE LAYOUT: LEAP 4*3 = 12
-  ; new: num 1 2 3 4 ; ref (poly/nxt) 1 2 3 4 ; pad 1 2 3 4
-  ; TODO: reduce simd int node size to 2?
-  (veq:xlet ((stack (list)) (p!ni 0)
-             (new-nodes (veq:i$val -1 (* 4 (veq:4$num nodes))))
-             (new-mima (veq:f$zero (* 4 (length mima))))) ; TODO: this seems incorrect
-    (declare (list stack) (veq:ivec new-nodes) (veq:fvec new-mima))
-    (labels ((get-free-index () (incf ni) (1- ni))
-             (out-leap (i) (* 8 i))
-             ; (out-ind (i) (/ i 8)) (in-leap (i) (* 4 i)) (in-ind (i) (/ i 4))
-             (stack-add (subnodes) (push subnodes stack))
-             (stack-nxt () (pop stack))
-             (leaf? (i) (declare (veq:in i)) (and (> i -1) (> (gt i) 0)))
-             (gt (i &optional (j 0)) (declare (veq:pn i) (veq:pn j))
-               (aref nodes (+ (* 4 i) j)))
-             (gtx (i) (declare (veq:pn i))
-               (if (leaf? i) (list i 0) (list (/ (gt i 1) 4) (1+ (/ (gt i 1) 4)))))
-             (gt4 (i) (declare (veq:in i)) (concatenate 'list (gtx i) (gtx (1+ i))))
-             (set-mima (i ni si &aux (mm (+ (* +simd-int-leap+ ni) si)) (8i (* 8 i)))
-               (declare (veq:pn i ni si mm 8i))
-               (setf (veq:$ new-mima (+ mm   )) (aref mima    8i   )
-                     (veq:$ new-mima (+ mm  4)) (aref mima (+ 8i 1))
-                     (veq:$ new-mima (+ mm  8)) (aref mima (+ 8i 2))
-                     (veq:$ new-mima (+ mm 12)) (aref mima (+ 8i 3))
-                     (veq:$ new-mima (+ mm 16)) (aref mima (+ 8i 4))
-                     (veq:$ new-mima (+ mm 20)) (aref mima (+ 8i 5))))
-             (set-leaf-node (i ni si &aux (ni* (out-leap ni)))
-               (declare (veq:pn i ni si))
-               (setf (aref new-nodes (+ si ni*  )) (gt i)    ; num
-                     (aref new-nodes (+ si ni* 4)) (gt i 1)) ; ref/poly
-               (set-mima i ni si))
-             (set-node (i ni si ninxt &aux (ni* (out-leap ni)))
-               (declare (veq:pn i ni si ninxt ni*))
-               (setf (aref new-nodes (+ si ni*  )) 0      ; num
-                     (aref new-nodes (+ si ni* 4)) ninxt) ; ref/nxt
-               (set-mima i ni si))
-             (set-dummy-node (ni si &aux (ni* (out-leap ni))
-                                         (mm (+ (* +simd-int-leap+ ni) si)))
-               (declare (veq:pn ni si ni*))
-               (setf (aref new-nodes (+ si ni*))   0  ; num
-                     (aref new-nodes (+ si ni* 4)) 0) ; ref
-               (setf (veq:$ new-mima    mm   )   1.0
-                     (veq:$ new-mima (+ mm 4))  -1.0
-                     (veq:$ new-mima (+ mm 8))   1.0
-                     (veq:$ new-mima (+ mm 12)) -1.0
-                     (veq:$ new-mima (+ mm 16))  1.0
-                     (veq:$ new-mima (+ mm 20)) -1.0)))
-      (stack-add (list (get-free-index) (gt4 (/ (gt 0 1) 4))))
-      (loop while stack for (ni subnodes) = (stack-nxt)
-            do (loop for i of-type veq:in in subnodes
-                     for si of-type veq:pn from 0 ; sub node index [0 4)
-                     if (leaf? i) do (set-leaf-node i ni si)
-                     else if (plusp i)
-                     do (veq:xlet ((p!ninxt (get-free-index)))
-                          (set-node i ni si ninxt)
-                          (stack-add (list ninxt (gt4 (/ (gt i 1) 4)))))
-                     else do (set-dummy-node ni si)))
-      (values new-nodes new-mima ni))))
+; do we already collapse chained boxes with less than 4 subnodes
+; do they exist?
+; HAVE TO UNDERSTAND HOW GT4/GTX COLLAPSES SUBNODES...
+
+; ()
 
 (veq:fvdef gpu/pack-bvh (bvh &key (mats gmsh::*mats*) (matpar gmsh::*matpar*))
   (declare (bvh bvh) (list matpar mats))

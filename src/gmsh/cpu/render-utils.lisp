@@ -1,6 +1,6 @@
 (in-package :gmsh/xrend)
 
-(declaim (inline reflect pixel-shift symbol-rgb get-normal hitmat-simple))
+; (declaim (inline reflect pixel-shift symbol-rgb get-normal hitmat-simple))
 
 (defvar *rs*)
 (defmacro rndrng     (&rest rest) `(srnd:rndrng *rs* ,@rest))

@@ -2,7 +2,7 @@
 
 ; used in bvh-raycast
 (defun int/bbox-leap ()   (floor (- (log +int-mima-leap+ 2) (log +int-leap+))))
-(defun simd4/bbox-leap () (floor (log +simd-int-leap+ 2)))
+(defun simd4/bbox-leap () (floor (log +simd-mima-leap+ 2)))
 
 (defmacro -eps-div (&rest rest)
   `(values ,@(loop for x in rest collect
@@ -60,10 +60,12 @@
                     (when (< n sort-num) (error "small batch ~a" n))
                     (sah-split-by-best-axis objs num-buckets))
              (simple-error (e) (declare (ignorable e))
-               (veq:xlet ((objs* (-axissort objs :ax (-longaxis objs)))
+               (veq:xlet ((ax (-longaxis objs))
+                          (objs* (-axissort objs :ax ax))
                           (p!mid (if (= n 1) 0 (round n 2))))
                  (values (subseq objs* 0 mid)
-                         (subseq objs* mid))))))
+                         (subseq objs* mid)
+                         ax)))))
 
          (build (ni objs &optional (lvl 0) &aux (n (length objs)))
            (declare (veq:pn ni n) (list objs))
@@ -71,12 +73,12 @@
            (when (< (length objs) 1) (wrn :make "empty node"))
            (veq:$nvset (($ ni :bbox) 6) (-objs-list-bbox objs))
            (if (<= n num)
-               (set-leaf-node n ni objs)        ; set leaf node
-               (veq:xlet ((2!llrr (split-axis objs n lvl))
-                          (p!l (nxt-index)) (p!r (nxt-index)))
-                 (setf ($ ni :ref) l ($ ni :ax) 3) ; TODO: 99 should be ax
-                 (build l (:vr llrr 0) (1+ lvl))
-                 (build r (:vr llrr 1) (1+ lvl))))))
+               (set-leaf-node n ni objs)
+               (veq:mvb (ll rr ax) (split-axis objs n lvl)
+                 (veq:xlet ((p!l (nxt-index)) (p!r (nxt-index)))
+                   (setf ($ ni :ref) l ($ ni :ax) ax)
+                   (build l ll (1+ lvl))
+                   (build r rr (1+ lvl)))))))
 
         (build (nxt-index) all-objs)
 
@@ -93,7 +95,10 @@
                           (setf int-nodes (int/make-stackless! int-nodes*)
                                 mima mima*))
                         (veq:mvb (simd-nodes* simd-mima*) (simd/build-int-nodes int-nodes mima)
-                          (setf simd-nodes simd-nodes* simd-mima simd-mima*))))
+                          (setf simd-nodes simd-nodes* simd-mima simd-mima*)
+                          ; (veq:$print simd-mima* :dim 8)
+                          ; (simd/compress-int-nodes simd-nodes* simd-mima*)
+                          )))
 
         (-make-bvh :nodes nodes :polys polys :lvl numlvls :polyfx polyfx
                    :normals normals :mat mat :num-polys (1- polyind) :num-nodes ni

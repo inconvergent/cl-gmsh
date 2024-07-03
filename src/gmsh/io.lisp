@@ -1,7 +1,7 @@
 (in-package :gmsh/io)
 
 (veq:fvdef obj/load (fn &key (max-verts 100000) (msh (gmsh:gmsh :max-verts max-verts))
-                             ign silent
+                             ign (silent t)
                         &aux (fn (auxin::ensure-filename fn ".obj" t)))
   (declare (string fn) (veq:pn max-verts) (list ign))
   ; (v1 vt1 vn1 v2 vt2 vn2 v3 vt3 vn3)

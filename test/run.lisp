@@ -18,7 +18,7 @@
                           (sb-ext:quit :unix-status 7)))))
 
 (defun run-tests ()
-  (-run-tests '(#P"test/gmsh.lisp" #P"test/gmsh-isect.lisp")))
+  (-run-tests '(#P"test/gmsh.lisp" #P"test/gmsh-rc.lisp" #P"test/gmsh-isect.lisp")))
 
 (defmacro is-arr (&rest rest) `(is ,@rest :test #'equalp))
 

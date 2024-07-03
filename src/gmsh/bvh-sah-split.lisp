@@ -87,13 +87,16 @@
 
 ; TODO: fix buckets init to nil
 ; TODO: fix very general handler-case
-(veq:fvdef sah-split-by-best-axis (objs nb &aux (imin -1)
+(veq:fvdef sah-split-by-best-axis (objs nb &aux (imin -1) (axis -1)
                                                 (mincost 9999999999f0) buckets)
   (loop for ax from 0 below 3
         do (handler-case
              (veq:mvb (buckets* imin* mincost*) (sah-estimate-axis objs ax :nb nb)
                (when (< mincost* mincost)
-                     (setf mincost mincost* buckets buckets* imin imin*)))
+                     (setf mincost mincost*
+                           buckets buckets*
+                           imin imin*
+                           axis ax)))
              (simple-error (e) (declare (ignorable e))))) ; ignores bad range error
 
   (when (< imin 0) (error "tiny box"))
@@ -101,7 +104,7 @@
   ; (let ((ax (-longaxis objs)))
   ;   (veq:mvb (buckets* imin*) (sah-estimate-axis objs ax :nb nb)
   ;            (setf imin imin* buckets buckets*)))
-  (handler-case (sah-do-split-axis objs buckets imin)
+  (handler-case (veq:~ (sah-do-split-axis objs buckets imin) axis)
                 (error (e) (error "split err: ~a" e))))
 
 ; TODO: fix mix of mi mi mi, ma ma ma, mi ma, mi ma mappings

@@ -4,7 +4,7 @@
 (ql:quickload :auxin) (ql:quickload :gmsh)
 (setf lparallel:*kernel* (lparallel:make-kernel 10))
 (defvar *size* 1000) (defvar *pid* 0)
-(rnd:set-rnd-state 113)
+; (rnd:set-rnd-state 113)
 
 ; TODO: size export. partially fixed. normalize ortho scaling properly
 
@@ -21,8 +21,8 @@
                              (rnd:rcond (0.1 '(:c :c)) (0.1 '(:c :m))
                                         (0.1 '(:c :y)) (0.5 '(:c :k)))))))
     (gmsh:clear! msh)
-    (gmsh/io:obj/load-model :teapot :msh msh)
-    (gmsh:center! msh :max-side 5.0)
+    (gmsh/io:obj/load-model :cube :msh msh)
+    (gmsh:center! msh :max-side 15.0)
     (reset-mat)
     (print sc)))
 
@@ -41,7 +41,7 @@
                (veq:xlet ((f3!pt (f@wp 3.3))
                           (f3!n (veq:f3norm (veq:fsel (:xyz) (f@wn (rnd:prob 0.5 2.1 0.1)))))
                           (inds (gmsh:plane-split msh pt n :matfx #'polymatfx))
-                          (f!s (rnd:rndrng -10.0 10.0)))
+                          (f!s (rnd:rndrng -1.0 20.0)))
                  (gmsh:tx! msh ; TODO p/tx
                    (set-difference (gmsh:p/classify-verts msh
                                      (lambda ((:va 3 pos)) (> (veq:f3dot (f3!@- pos pt) n) 0.0)))
@@ -105,7 +105,7 @@
 
 (veq:fvdef main ()
   (gmsh/gl:window-context (*size* *size*)
-    (let ((sc (gmsh/scene:scene/make :s 0.1 :xy (veq:f2$zero)
+    (let ((sc (gmsh/scene:scene/make :s 0.05 :xy (veq:f2$zero)
                                      :cam (veq:f3$point 70.0 70.0 20.0)))
           (itt 0))
       (reset-mesh sc)

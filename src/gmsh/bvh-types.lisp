@@ -4,8 +4,9 @@
 (defun -print-bvh-node (o s)
   (declare (notinline bvh-node-num bvh-node-ref bvh-node-ax bvh-node-lvl bvh-node-bbox))
   (auxin:with-struct (bvh-node- num ref ax lvl bbox) o
-    (format s "<@bvh/n ~a ↳~2<~d~> | ~a ~4@<~d~>~a  □~{ ~05,2f~}>"
-            (aref #("x" "y" "z") ax) lvl (if (> num 0) "∇" "↙")
+    (format s "<@bvh/n ~d ↳~2<~d~> | ~a ~4@<~d~>~a  □~{ ~05,2f~}>"
+            (aref #("x" "y" "z" "na") ax)
+            lvl (if (> num 0) "∇" "↙")
             ref (if (> num 0) (format nil "❦~1<~d~>" num) "  ")
             (coerce bbox 'list))))
 
