@@ -25,15 +25,15 @@
 
     (let ((bvh1 (gmsh:make-bvh msh :num 2 :mode :bvh2-stackless)))
 
-      (is (gmsh/bvh::int/simple-raycast bvh1 ; hit
+      (is (gmsh/bvh::m@int/simple-raycast bvh1 ; hit
             (veq:f3 10.0 7f0 4f0) (veq:f3 -10.2 -7f0 -4.1)) 0f0)
-      (is (gmsh/bvh::int/simple-raycast bvh1 ; hit
+      (is (gmsh/bvh::m@int/simple-raycast bvh1 ; hit
             (veq:f3 10.1 7.3f0 4.0f0) (veq:f3 -10.2 -7f0 -4.1)) 0f0)
 
-      (is (veq:lst (gmsh/bvh::int/raycast bvh1 ; hit
+      (is (veq:lst (gmsh/bvh::m@int/raycast bvh1 ; hit
                      (veq:f3 10.0 7f0 4f0) (veq:f3 -10.2 -7f0 -4.1)))
           '(12 0.88235295))
-      (is (veq:lst (gmsh/bvh::int/raycast bvh1 ; hit
+      (is (veq:lst (gmsh/bvh::m@int/raycast bvh1 ; hit
                      (veq:f3 10.0 7f0 4f0) (veq:f3 -10.9 -7.1f0 -4.3)))
           '(30 0.8359933))))))
 

@@ -31,9 +31,9 @@
              (num-dummy 0)
              (num-internal 0)
              (stack (list)) (p!ni 0)
-             (new-nodes (veq:i$val -1 (* 4 (veq:4$num nodes))))
+             (new-nodes (veq:p$val 0 (* 4 (veq:4$num nodes))))
              (new-mima (veq:f$zero (* 4 (length mima))))) ; TODO: this seems incorrect
-    (declare (list stack) (veq:ivec new-nodes) (veq:fvec new-mima))
+    (declare (list stack) (veq:pvec new-nodes) (veq:fvec new-mima))
     (labels ((get-free-index () (incf ni) (1- ni))
              (out-leap (i) (* 8 i))
              ; (out-ind (i) (/ i 8)) (in-leap (i) (* 4 i)) (in-ind (i) (/ i 4))
@@ -90,7 +90,7 @@
       (values new-nodes new-mima ni))))
 
 (veq:fvdef simd/compress-int-nodes (nodes mima)
-  (declare #.*opt* (veq:ivec nodes) (veq:fvec mima))
+  (declare #.*opt* (veq:pvec nodes) (veq:fvec mima))
   (veq:xlet ((num-leaf 0) (num-dummy 0) (num-internal 0) (num-moved 0)
              (stack (list)) (p!ni 0))
     (declare (list stack))

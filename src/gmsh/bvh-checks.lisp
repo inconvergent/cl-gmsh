@@ -78,8 +78,13 @@
             (when (< tymax tmax) (setf tmax tymax))
             ; (setf tmin (max tymin tmin) tmax (min tymax tmax))
             (-bound ((:vr org 2) (:vr inv 2) ($ 4) ($ 5) tzmin tzmax)
-              (and (<= tmin tzmax) (<= tmin 1f0) (>= tmax 0f0)
-                   (<= tzmin 1f0) (<= tzmin tmax) (>= tzmax 0f0)))))))))
+              (and
+                   (<= tmin tzmax)
+                   (<= tmin 1f0)
+                   (>= tmax 0f0)
+                   (<= tzmin 1f0)
+                   (<= tzmin tmax)
+                   (>= tzmax 0f0)))))))))
 
 ; ----- SIMD ---------------------------------------------------------
 
@@ -93,6 +98,7 @@
            (.min (&rest rest) `(sb-simd-avx2:f32.4-min ,@rest))
            (.max (&rest rest) `(sb-simd-avx2:f32.4-max ,@rest))
            (.<= (&rest rest) `(sb-simd-avx2:f32.4<= ,@rest))
+           (.>= (&rest rest) `(sb-simd-avx2:f32.4>= ,@rest))
            (.and (&rest rest) `(sb-simd-avx2:u32.4-and ,@rest))
            (.or (&rest rest) `(sb-simd-avx2:u32.4-or ,@rest))
            (do-dim (8d iorg* inv*)
@@ -109,8 +115,21 @@
         (do-dim 0  (:vr iorg 0) (:vr inv 0))
         (do-dim 8  (:vr iorg 1) (:vr inv 1))
         (do-dim 16 (:vr iorg 2) (:vr inv 2))
-        (veq:mvc #'logior
+        (veq:mvc #'logxor
           (sb-simd-avx2:u32.4-values
-            (.and (.and (.or (.<= 0f0 hi) (.<= lo 1f0)) (.<= lo hi))
-                  (sb-simd-avx2:make-u32.4 1 2 4 8)))))))
+            (.and
+
+              (.and
+                    (.or (.<= 0f0 hi) (.<= lo 1f0))
+                    (.<= lo hi)
+                    (.<= 0f0 hi)
+                    )
+                    ; (.or (.and (.<= lo 0f0) (.<= 0f0 hi))
+                    ;      (.and (.<= 1f0 hi) (.<= lo 1f0))
+                    ;      (.and (.<= 0f0 lo) (.<= hi 1f0))
+                    ;      )
+                  (sb-simd-avx2:make-u32.4 1 2 4 8))
+
+
+            )))))
 

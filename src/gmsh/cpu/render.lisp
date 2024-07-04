@@ -2,12 +2,12 @@
 
 
 (defmacro rc-simple (&rest rest) "simple raycast using current raycaster."
-  `(gmsh/bvh:simd4/simple-raycast ,@rest))
+  `(veq:mvc #'gmsh/bvh:simd4/simple-raycast ,@rest))
 (defmacro rc (&rest rest) "raycast using current raycaster."
-  `(gmsh/bvh:simd4/raycast ,@rest))
+  `(veq:mvc #'gmsh/bvh:simd4/raycast ,@rest))
 
-; (defmacro rc-simple (&rest rest) `(gmsh/bvh:int/simple-raycast ,@rest))
-; (defmacro rc (&rest rest) `(gmsh/bvh:int/raycast ,@rest))
+; (defmacro rc-simple (&rest rest) `(veq:mvc #'gmsh/bvh:int/simple-raycast ,@rest))
+; (defmacro rc (&rest rest) `(veq:mvc #'gmsh/bvh::int/raycast ,@rest))
 
 ; TODO: config object?
 (veq:vdef xrend (sc bvh &key (par t) (size 1000) (bs 1) (aa 1) (vol nil)

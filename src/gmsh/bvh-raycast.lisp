@@ -1,7 +1,9 @@
 (in-package :gmsh/bvh)
 
-(declaim (inline raycast %int/raycast %int/simple-raycast
-                         simd4/raycast* simd4/simple-raycast*))
+(declaim (inline raycast int/raycast int/simple-raycast
+                 simd4/raycast simd4/simple-raycast))
+
+(defvar *int/cnt-pol* 0)
 
  (veq:fvdef raycast (bvh (:va 3 org ll))
    (declare #.*opt1* (bvh bvh) (veq:ff org ll)) "raycast from org along ll."
@@ -32,7 +34,7 @@
 
  ; ----- INT NODES ---------------------------------------------------------
 
- (veq:fvdef* int/raycast (bvh (:va 3 org ll))
+ (veq:fvdef int/raycast (bvh (:va 3 org ll))
    (declare  #.*opt1* (bvh bvh) (veq:ff org ll))
    "raycast from org along ll. returns (values i s), where
   - i is the index (in the bvh) of the closest polygon, or -1,
@@ -53,22 +55,23 @@
                       ; check nodes, depends on num
                       (progn
                         (loop repeat (the veq:pn (nodes- 0)) ; is it faster with different repeat order?
-                                   for i3 of-type veq:pn from (nodes- 1) by 9
-                                   for s of-type veq:ff = (polyx polyfx i3 org ll)
-                                   if  (and (< #.*eps* s 1.0)
-                                            (< s hs))
-                                   do (setf hs s hi i3))
-                             ; traverse left
-                             (if (> (nodes- 0) 0) (setf curr (nodes- 3))
-                                                  (setf curr (nodes- 1)))
-                             (when (< curr 1) (return-from lp)))
+                               ; for x = (incf *int/cnt-pol*)
+                               for i3 of-type veq:pn from (nodes- 1) by 9
+                               for s of-type veq:ff = (polyx polyfx i3 org ll)
+                               if  (and (< #.*eps* s 1.0)
+                                        (< s hs))
+                               do (setf hs s hi i3))
+                         ; traverse left
+                         (if (> (nodes- 0) 0) (setf curr (nodes- 3))
+                                              (setf curr (nodes- 1)))
+                         (when (< curr 1) (return-from lp)))
                       ; traverse right
                       (progn (setf curr (nodes- 3))
                              (when (< curr 1) (return-from lp)))))
          (values (if (< hi #.(1- (expt 2 32))) (the veq:pn (floor hi #.+polyleap+)) -1)
                  hs)))))
 
- (veq:fvdef* int/simple-raycast (bvh (:va 3 org ll))
+ (veq:fvdef int/simple-raycast (bvh (:va 3 org ll))
    (declare  #.*opt1* (bvh bvh) (veq:ff org ll))
    "raycast from org along ll. returns (values i s), where
   - i is the index (in the bvh) of the closest polygon, or -1,
@@ -85,7 +88,9 @@
                with curr of-type veq:pn = 0
                do (if (int/bbox-test mima (the veq:pn (ash curr #.(int/bbox-leap))) inv org)
                       (progn (loop repeat (the veq:pn (nodes- 0)) ; is it faster with different repeat order?
+                                   ; for x = (incf *int/cnt-pol*)
                                    for i3 of-type veq:pn from (nodes- 1) by 9
+
                                    if  (and (< #.*eps* (polyx polyfx i3 org ll) 1.0))
                                    do (return-from int/simple-raycast 0.0))
 

@@ -79,7 +79,7 @@
                         (veq:~ (veq:$ mima (+ i 0) (+ i 2) (+ i 4)) 0.0
                         (veq:$ mima (+ i 1) (+ i 3) (+ i 5)) 0.0)))
              mima*)
-           (pck-nodes (nodes &aux (nodes* (veq:i$coerce nodes)))
+           (pck-nodes (nodes &aux (nodes* (veq:p$coerce nodes)))
              (loop for i from 0 below (length nodes) by 4
                    if (zerop (aref nodes* (+ i 3))) do (setf (aref nodes* (+ i 3)) -4))
              nodes*))

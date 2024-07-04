@@ -36,7 +36,7 @@
   (time 0.0 :type veq:ff :read-only t)
   (nodes (init-bvh-node-vec 1) :type bvh-node-vec :read-only nil)
   (int-nodes (veq:p4$zero 0) :type veq:pvec :read-only nil)
-  (simd-nodes (veq:i4$zero 0) :type veq:ivec :read-only nil)
+  (simd-nodes (veq:p4$zero 0) :type veq:pvec :read-only nil)
   (polys (veq:p3$zero 0) :type veq:pvec :read-only t)
   (polyfx (veq:f3$zero 0) :type veq:fvec :read-only t)
   (normals (veq:f3$zero 0) :type veq:fvec :read-only t)

@@ -6,7 +6,7 @@
 ; (rnd:set-rnd-state 107)
 (gmsh/xrend:init 64)
 
-(defvar *size* 1000)
+(defvar *size* 2000)
 
 (veq:fvdef load-scene ( &aux (sc (gmsh/scene:scene/load "_gpu-export.gmsh-scene")))
   (print (gmsh/scene:scene-proj sc))
@@ -19,7 +19,7 @@
                 ; :look (veq:f3$point 0.0 0.0 0.0)
                 )
   (print (gmsh/scene:scene-msh sc))
-  (loop for lim in '(35.0 35.0)
+  (loop for lim in '(25.0 20.0)
         do (gmsh/scene::split-edges sc lim) (print (gmsh/scene:scene-msh sc)))
   sc)
 
@@ -35,7 +35,7 @@
   ; (declare (optimize speed (safety 0)))
   (let* ((sc (load-scene))
          (msh (gmsh/scene:scene-msh sc))
-         (bvh (gmsh:make-bvh msh :num 8 :mode
+         (bvh (gmsh:make-bvh msh :num 16 :mode
                 ; :bvh2-stackless
               :bvh4-simd
                 :matfx (lambda (p &aux (mc (gmsh/scene:getmat sc p)))
@@ -46,11 +46,12 @@
 
     (print :-----) (print msh) (print bvh)
 
-(sb-sprof:with-profiling (:max-samples 200000
-                        ; :mode :cpu
-                        ; :mode :alloc
-                        :mode :time
-                        :report :graph)
+; (sb-sprof:with-profiling (:max-samples 200000
+;                         :mode :cpu
+;                         ; :mode :alloc
+;                         ; :mode :time
+;                         :report :graph)
+
 
     (time (gmsh/xrend:xrend sc bvh :size *size*
                                    :par t :vol t :aa 10
@@ -61,14 +62,8 @@
                                   :vlim 50f0
                                   :world :bgkk
                                   :raylen 1200.0
-                                  :raylen2 50f0
-                                  ))
-    )
-
-    ; (veq:vp :poly #1=gmsh/bvh::*poly*  (lqn:size? (lqn:str! #1#)))
-    ; (veq:vp :bvh #2=gmsh/bvh::*bvh* (lqn:size? (lqn:str! #2#)))
-    ; (veq:vp :all #3=gmsh/bvh::*all* (lqn:size? (lqn:str! #3#)))
-
+                                  :raylen2 50f0))
+    ; )
     (gmsh/scene:canv/save sc "fuck" :gamma 1.1)
     ))
 

@@ -19,8 +19,8 @@
    (defvar *opt1* '(optimize (safety 3) (speed 3) (debug 3) (space 0)))
    (defvar *dev* t))
 
-  ((defvar *opt*  '(optimize (safety 1) (speed 3) (debug 3) (space 3))) ; prod
-   (defvar *opt1* '(optimize (safety 0) (speed 3) (debug 1) (space 3)))
+  ((defvar *opt*  '(optimize (safety 1) (speed 3) (debug 1) (space 0))) ; prod
+   (defvar *opt1* '(optimize (safety 0) (speed 3) (debug 0) (space 0)))
    (defvar *dev* nil)))
 
 (defvar *programs* #(:std :flat))
