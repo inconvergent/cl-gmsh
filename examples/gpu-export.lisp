@@ -8,7 +8,6 @@
 
 ; TODO: size export. partially fixed. normalize ortho scaling properly
 
-; TODO: fix failing tests
 ; TODO: volume gpu raytracer
 ; TODO: profile do-alter-mesh. performance.
 ; TODO: manual/auto extend max-verts

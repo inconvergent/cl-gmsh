@@ -120,9 +120,9 @@
             (.and
 
               (.and
-                    (.or (.<= 0f0 hi) (.<= lo 1f0))
-                    (.<= lo hi)
                     (.<= 0f0 hi)
+                    (.<= lo 1f0)
+                    (.<= lo hi)
                     )
                     ; (.or (.and (.<= lo 0f0) (.<= 0f0 hi))
                     ;      (.and (.<= 1f0 hi) (.<= lo 1f0))

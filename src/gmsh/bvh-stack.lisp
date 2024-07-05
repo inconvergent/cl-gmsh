@@ -12,10 +12,16 @@
   "#(v2v0x v2v0y v2v0z, ... v1v0x , ... , v0x v0y v0z)"
   (veq:~ (f3!@- v2 v0) (f3!@- v1 v0) (veq:f3 v0)))
 
-(blurb BVH2 MIMA LAYOUT
+(doc   BVH2 NODE LAYOUT (ROW MAJOR LEAP 4)
+       =========================
+       |00   |01   |02   |03   |
+       |0num |1ref |2ax  |3rht |
+       =========================
+
+       BVH2 MIMA LAYOUT (ROW MAJOR LEAP 8)
        =================================================
        |00   |01   |02   |03   |04   |05   |06   |07   |
-       |0miX |0maX |1miY |1maY |2miZ |2maZ |pad  |pad  |
+       |0miX |0maX |1miY |1maY |2miZ |2maZ |0    |0    |
        ================================================= )
 
 (defun int/make-stackless! (new-nodes)
@@ -47,12 +53,6 @@
                    (values num (if (< 0 num) ref (* ref 4)) ax (if set-lvl lvl 0)))
              (veq:$nvset (mima 6 (* i leap)) (veq:f$ bbox 0 3 1 4 2 5))))
   (values res mima))
-
-; do we already collapse chained boxes with less than 4 subnodes
-; do they exist?
-; HAVE TO UNDERSTAND HOW GT4/GTX COLLAPSES SUBNODES...
-
-; ()
 
 (veq:fvdef gpu/pack-bvh (bvh &key (mats gmsh::*mats*) (matpar gmsh::*matpar*))
   (declare (bvh bvh) (list matpar mats))

@@ -2,7 +2,7 @@
   (:use #:common-lisp)
   (:nicknames #:cl-gmsh)
   (:export
-    #:v? #:d? #:i? #:*opt* #:*opt1* #:*eps* #:*programs* #:*matpar* #:blurb
+    #:v? #:d? #:i? #:*opt* #:*opt1* #:*eps* #:*programs* #:*matpar* #:doc
     #:*wrncnt* #:wrn #:inline?
     #:with-fast-stack #:make-fast-stack #:stack #:stack-ind
     #:gmsh #:make-bvh #:clear! #:center!
@@ -22,7 +22,7 @@
 
 (defpackage #:gmsh/bvh
   (:use #:common-lisp)
-  (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:blurb #:inline? #:wrn)
+  (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:doc #:inline? #:wrn)
   (:export #:bvh #:get-mat #:get-norm #:get-poly
            #:int/raycast #:int/simple-raycast
            #:simd4/simple-raycast #:simd4/raycast
@@ -41,12 +41,12 @@
 
 (defpackage #:gmsh/xrend
   (:use #:common-lisp)
-  (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:blurb #:wrn)
+  (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:doc #:wrn)
   (:export #:xrend #:init #:iter-timer #:get-info-fx))
 
 (defpackage #:gmsh/gl
   (:use #:common-lisp)
-  (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:blurb)
+  (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:doc)
   (:export
     #:sdl-info #:bind-buffer-object #:init-viewport #:window-context
     #:make-buftex #:init-controller
@@ -55,7 +55,7 @@
 
 (defpackage #:gvox
   (:use #:common-lisp)
-  (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:blurb #:wrn)
+  (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:doc #:wrn)
   (:export #:get-mesh #:make #:setvoxel))
 
 ; TODO: helpers for material, scene, in sep package?

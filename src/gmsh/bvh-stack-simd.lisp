@@ -1,7 +1,16 @@
 (in-package :gmsh/bvh)
 
 
-(blurb BVH4 SIMD MIMA LAYOUT
+(doc   BVH4 SIMD NODE LAYOUT (ROW MAJOR LEAP 8)
+       =========================
+       |00   |01   |02   |03   |
+       |0num |1num |2num |3num |    == num 0
+       -------------------------
+       |04   |05   |06   |07   |
+       |0ref |1ref |2ref |3ref |    == ref 1 (poly/nxt)
+       =========================
+
+       BVH4 SIMD MIMA LAYOUT (ROW MAJOR LEAP 32)
        =========================
        |00   |01   |02   |03   |
        |0miX |1miX |2miX |3miX |    == miX 0
@@ -20,13 +29,17 @@
        -------------------------
        |20   |21   |22   |23   |
        |0maZ |1maZ |2maZ |3maZ |    == maZ 5
+       =========================
+       |24   | 25  |26   |27   |
+       |0    |0    |0    |0    |    == pad 6
+       -------------------------
+       |28   |29   |30   |31   |
+       |0    |0    |0    |0    |    == pad 7
        ========================= )
 
 (veq:fvdef simd/build-int-nodes (nodes mima)
   (declare #.*opt* (veq:pvec nodes) (veq:fvec mima))
   ; (old: gt == num, gt 1 == poly, gt 2 == lft)
-  ; NEW SIMD4 NODE LAYOUT: LEAP 4*2 = 8
-  ; new: num 1 2 3 4 ; ref (poly/nxt) 1 2 3 4
   (veq:xlet ((num-leaf 0)
              (num-dummy 0)
              (num-internal 0)
@@ -91,6 +104,7 @@
 
 (veq:fvdef simd/compress-int-nodes (nodes mima)
   (declare #.*opt* (veq:pvec nodes) (veq:fvec mima))
+  ; this does not improve anything ...
   (veq:xlet ((num-leaf 0) (num-dummy 0) (num-internal 0) (num-moved 0)
              (stack (list)) (p!ni 0))
     (declare (list stack))
@@ -120,24 +134,15 @@
                (rotatef (aref mima (+ a 16)) (aref mima (+ b 16)))
                (rotatef (aref mima (+ a 20)) (aref mima (+ b 20)))
                (rotatef (aref nodes (+ (* 8 ani) asi)) (aref nodes (+ (* 8 bni) bsi)))
-               (rotatef (aref nodes (+ (* 8 ani) asi 4)) (aref nodes (+ (* 8 bni) bsi 4)))
-               ))
+               (rotatef (aref nodes (+ (* 8 ani) asi 4)) (aref nodes (+ (* 8 bni) bsi 4)))))
       (stack-add 0)
       (loop while stack for ni = (stack-nxt)
             do (loop for si from 0 repeat 4
-                     if (leaf? ni si)
-                         do (incf num-leaf)
-                            ; (lqn:out "~&leaf ~a ~a~&" ni si)
-                    else if (internal? ni si)
-                         do (incf num-internal)
-                            ; (lqn:out "~&internal: ~a ~a~&" ni si)
-                            (stack-add (gt ni (+ si 4)))
-                    else do (incf num-dummy)
-                            ; (lqn:out "~&dummy: ~a ~a~&" ni si)
-                            (let ((lf (find-first-leaf ni)))
-                              (when lf
-                                (incf num-moved)
-                                (apply #'move-leaf ni si lf)))
-                            ))
+                     if (leaf? ni si) do (incf num-leaf)
+                     else if (internal? ni si) do (incf num-internal)
+                                                  (stack-add (gt ni (+ si 4)))
+                     else do (incf num-dummy)
+                             (let ((lf (find-first-leaf ni)))
+                               (when lf (incf num-moved) (apply #'move-leaf ni si lf)))))
       (veq:vpr num-internal num-leaf num-dummy num-moved)
       (values nodes mima))))

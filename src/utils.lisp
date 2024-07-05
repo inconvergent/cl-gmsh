@@ -100,7 +100,7 @@
 ;                   (error "stack overflow in: ~a. ind: ~a" ',',sym ,',ind)))))
 ;            ,@body)))))
 
-(defmacro blurb (&rest body)
+(defmacro doc (&rest body)
   (declare (ignore body)) "ignores body. returns nil."
   nil)
 

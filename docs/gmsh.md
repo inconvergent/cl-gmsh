@@ -105,7 +105,7 @@
  ; 
  ; *WRNCNT* names a special variable:
  ;   Declared type: HASH-TABLE
- ;   Value: #<HASH-TABLE :TEST EQL :COUNT 0 {10C3D24253}>
+ ;   Value: #<HASH-TABLE :TEST EQL :COUNT 0 {10C414D283}>
 ```
 
 ## `gmsh:add-box!`
@@ -193,18 +193,6 @@
  ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
 ```
 
-## `gmsh:blurb`
-```
- ; GMSH:BLURB
- ;   [symbol]
- ; 
- ; BLURB names a macro:
- ;   Lambda-list: (&REST BODY)
- ;   Documentation:
- ;     ignores body. returns nil.
- ;   Source file: /data/x/gmsh/src/utils.lisp
-```
-
 ## `gmsh:center!`
 ```
  ; GMSH:CENTER!
@@ -274,6 +262,18 @@
  ;   Documentation:
  ;     delete this poly.
  ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
+```
+
+## `gmsh:doc`
+```
+ ; GMSH:DOC
+ ;   [symbol]
+ ; 
+ ; DOC names a macro:
+ ;   Lambda-list: (&REST BODY)
+ ;   Documentation:
+ ;     ignores body. returns nil.
+ ;   Source file: /data/x/gmsh/src/utils.lisp
 ```
 
 ## `gmsh:get-all-polys`

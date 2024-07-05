@@ -1,7 +1,5 @@
 (in-package :gmsh/bvh)
 
-(defvar *simd/cnt-pol* 0)
-
 (defmacro /nodes- (i) `(aref nodes ,i))
 (defmacro /poly (c8 si) `(/nodes- (+ ,c8 ,(+ 4 si))))
 (defmacro /ref (c8 si) `(/nodes- (+ ,c8 ,(+ 4 si))))
