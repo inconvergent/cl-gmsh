@@ -136,8 +136,8 @@
  ;       Type: (OR KEYWORD STRING)
  ;       Initform: :STD
  ;     GMSH/SCENE::PROJ
- ;       Type: ORTHO:ORTHO
- ;       Initform: (ORTHO:MAKE)
+ ;       Type: GMSH/CAM:CAM
+ ;       Initform: (GMSH/CAM:MAKE)
  ;     GMSH/SCENE::LOOK
  ;       Type: VEQ:FVEC
  ;       Initform: (VEQ:F3$POINT 0.0 0.0 0.0)
@@ -263,7 +263,7 @@
  ; SCENE-PROJ names a compiled function:
  ;   Lambda-list: (INSTANCE)
  ;   Derived type: (FUNCTION (GMSH/SCENE:SCENE)
- ;                  (VALUES ORTHO:ORTHO &OPTIONAL))
+ ;                  (VALUES GMSH/CAM:CAM &OPTIONAL))
  ;   Source file: /data/x/gmsh/src/gmsh/scene.lisp
 ```
 
@@ -293,15 +293,15 @@
  ;                 (MSH (GMSH MAX-VERTS MAX-VERTS))
  ;                 (CAM (F3$POINT 401.0 400.0 101.0)) (LOOK (F3$ZERO))
  ;                 (S 1.0) (XY (F2$POINT 1000.0 1000.0))
- ;                 (PROJ (MAKE CAM CAM LOOK LOOK XY XY S S))
+ ;                 (PROJ (MAKE POS CAM LOOK LOOK XY XY S S))
  ;                 (MATMAP (MAKE-HASH-TABLE TEST (FUNCTION EQUAL))) MATFX)
  ;   Derived type: (FUNCTION
  ;                  (&KEY (:SIZE (UNSIGNED-BYTE 32))
  ;                   (:MAX-VERTS (UNSIGNED-BYTE 32)) (:PROGRAM KEYWORD)
  ;                   (:MSH T) (:CAM (SIMPLE-ARRAY SINGLE-FLOAT))
  ;                   (:LOOK (SIMPLE-ARRAY SINGLE-FLOAT)) (:S SINGLE-FLOAT)
- ;                   (:XY (SIMPLE-ARRAY SINGLE-FLOAT)) (:PROJ ORTHO:ORTHO)
- ;                   (:MATMAP HASH-TABLE) (:MATFX T))
+ ;                   (:XY (SIMPLE-ARRAY SINGLE-FLOAT))
+ ;                   (:PROJ GMSH/CAM:CAM) (:MATMAP HASH-TABLE) (:MATFX T))
  ;                  (VALUES GMSH/SCENE:SCENE &OPTIONAL))
  ;   Source file: /data/x/gmsh/src/gmsh/scene.lisp
 ```

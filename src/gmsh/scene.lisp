@@ -7,7 +7,7 @@
   "unified scene object for gpu/cpu rendering. with file export/import."
   (msh nil :type gmsh:gmsh :read-only t)
   (program :std :type (or keyword string) :read-only nil)
-  (proj (ortho:make) :type ortho::ortho :read-only t)
+  (proj (gmsh/cam:make) :type gmsh/cam:cam :read-only t)
   (look (veq:f3$point 0f0 0f0 0f0) :type veq:fvec :read-only nil)
   (axis-state #.(veq:f_ '(0f0 0f0 0f0 0f0 0f0 0f0 0f0)) :type veq:fvec :read-only t)
   (size 1000 :type fixnum :read-only nil)
@@ -20,12 +20,12 @@
   ; (attr nil :read-only nil) (n 0 :read-only nil)
 
 (declaim (inline make-pm make-vm get-pm get-vm get-s set-s))
-(defun get-s (sc)   (declare (scene sc)) "current scale."             (ortho:@s (scene-proj sc)))
-(defun set-s (sc s) (declare (scene sc)) "set new scale."             (ortho:update (scene-proj sc) :s s))
+(defun get-s (sc)   (declare (scene sc)) "current scale."             (gmsh/cam:@s (scene-proj sc)))
+(defun set-s (sc s) (declare (scene sc)) "set new scale."             (gmsh/cam:update (scene-proj sc) :s s))
 (defun make-vm (sc) (declare (scene sc)) "new view matrix."
-  (vector (ortho:vm (scene-proj sc) (veq:f3$ (scene-look sc)))))
+  (vector (gmsh/cam:vm (scene-proj sc) (veq:f3$ (scene-look sc)))))
 (defun make-pm (sc) (declare (scene sc)) "new projection matrix."
-  (vector (ortho:pm (scene-proj sc) (get-s sc) 0.01 50f0)))
+  (vector (gmsh/cam:pm (scene-proj sc) (get-s sc) 0.01 50f0)))
 (defun get-pm (sc)  (declare (scene sc)) "current projection matrix." (scene-pm sc))
 (defun get-vm (sc)  (declare (scene sc)) "current view matrix."       (scene-vm sc))
 
@@ -33,13 +33,13 @@
   (declare (optimize speed (safety 1))) "update scene view."
   (labels ((trans (proj ax v)
              (veq:xlet ((f3!dx (f3!@*. (veq:f3$
-                                         (if (eq ax :u) (ortho::ortho-u proj)
-                                                        (ortho::ortho-v proj))) v)))
+                                         (if (eq ax :u) (gmsh/cam::cam-u proj)
+                                                        (gmsh/cam::cam-v proj))) v)))
                (setf (veq:3$ look) (f3!@+ (veq:f3$ look) dx))
-               (ortho:update proj
-                 :cam (veq:f3$point (f3!@+ (veq:f3$ (ortho::ortho-cam proj)) dx))
+               (gmsh/cam:update proj
+                 :pos (veq:f3$point (f3!@+ (veq:f3$ (gmsh/cam::cam-pos proj)) dx))
                  :look (scene-look sc))))
-           (around (proj ax v) (ortho::around proj ax v :look (scene-look sc))))
+           (around (proj ax v) (gmsh/cam::around proj ax v :look (scene-look sc))))
 
     (loop for (fx ax s) in `((,#'around :yaw 0.07) (,#'around :pitch 0.07)
                              (,#'trans :u -2.0) (,#'trans :v -2.0)
@@ -94,13 +94,14 @@
 
 (veq:fvdef scene/make (&key (size 1000) (max-verts 2000000) (program :std)
                             (msh (gmsh:gmsh :max-verts max-verts))
-                            (cam (veq:f3$point 401f0 400f0 101f0)) (look (veq:f3$zero))
+                            (cam (veq:f3$point 401f0 400f0 101f0))  ; rename to cam-pos
+                            (look (veq:f3$zero))
                             (s 1f0) (xy (veq:f2$point 1000f0 1000f0))
-                            (proj (ortho:make :cam cam :look look :xy xy :s s))
+                            (proj (gmsh/cam:make :pos cam :look look :xy xy :s s))
                             (matmap (make-hash-table :test #'equal)) matfx)
   (declare (veq:pn max-verts size) (veq:ff s) (veq:fvec look cam xy)
-           (keyword program) (hash-table matmap) (ortho:ortho proj))
-  (labels ((make-ortho () )
+           (keyword program) (hash-table matmap) (gmsh/cam:cam proj))
+  (labels ((make-cam () )
            (matfx (p) (veq:mvb (m exists) (gethash p matmap '(:c :x))
                         (unless exists (wrn :scene-matfx "poly missing matmap: ~a" p))
                         (values-list m))))
@@ -123,7 +124,7 @@
                          (:true-name . ,*load-truename*) ; TODO: get this as input?
                          (:size . ,(scene-size sc))
                          (:programs . ,gmsh:*programs*) (:matpar . ,gmsh:*matpar*)
-                         (:proj . ,(ortho:export-data (scene-proj sc)))
+                         (:proj . ,(gmsh/cam:export-data (scene-proj sc)))
                          (:msh . ,(gmsh/io:export-data msh
                                      :matfx (the function (or matfx #'matfx)))))
                     ".gmsh-scene")))
@@ -136,6 +137,6 @@
            (matfx (p m c) (setf (gethash p matmap) `(,m ,c))))
    (let ((msh (gmsh/io:import-data (gk :msh) :matfx #'matfx)))
     (scene/make :msh msh :max-verts (gmsh::gmsh-max-verts msh)
-                :proj (ortho:import-data (gk :proj))
+                :proj (gmsh/cam:import-data (gk :proj))
                 :matmap matmap :size (gk :size))))) ; TODO: import colors,, other?
 

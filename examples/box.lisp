@@ -29,9 +29,9 @@
 
       (loop for lim in '(10f0) do (gmsh/scene::split-edges sc lim) (print msh))
       (gmsh/scene:scene/new-canv sc :size 2000)
-      (ortho:update (gmsh/scene:scene-proj sc)
+      (gmsh/cam:update (gmsh/scene:scene-proj sc)
                     :s 3.5f0 :xy (veq:f2$val 1000.0)
-                    :cam (veq:f3$point (f3!@+ 200f0 200.0 175.0 (rnd:3in-sphere 0.01)))
+                    :pos (veq:f3$point (f3!@+ 200f0 200.0 175.0 (rnd:3in-sphere 0.01)))
                     :look (veq:f3$point (rnd:3in-sphere 0.01)))
       sc)))
 
@@ -56,7 +56,6 @@
     ;                                        )
     (time (gmsh/xrend:xrend sc bvh :size 2000 :raylen 2000.0
                                    :vol t :par t :aa 50
-                                   :vrec 10
                                    :vlim 50.0
                                    :vdst 1000.0
                                    :miss :bgk

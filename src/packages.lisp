@@ -28,6 +28,15 @@
            #:simd4/simple-raycast #:simd4/raycast
            #:gpu/pack-bvh))
 
+(defpackage #:gmsh/gl
+  (:use #:common-lisp)
+  (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:doc)
+  (:export
+    #:sdl-info #:bind-buffer-object #:init-viewport #:window-context
+    #:make-buftex #:init-controller
+    #:compile-shader #:make-program #:make-program*
+    #:to-gl-array #:set-uniform-f #:set-uniform-i #:set-uniform-mat-4f #:tick))
+
 (defpackage #:gmsh/scene
   (:use #:common-lisp)
   (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:wrn)
@@ -39,19 +48,19 @@
     #:scene-msh #:scene-proj #:scene-program #:scene-canv
     #:scene-matfx #:scene-matmap #:getmat #:setmat))
 
+(defpackage #:gmsh/cam
+  (:use #:common-lisp)
+  (:import-from #:gmsh #:*opt*)
+  (:import-from #:auxin #:with-struct)
+  (:export #:cam #:export-data #:import-data #:make #:pan-cam #:pan-xy
+           #:rotate #:update #:zoom
+           #:vm #:pm
+           #:@pos #:@vpn #:@xy #:@up #:@s))
+
 (defpackage #:gmsh/xrend
   (:use #:common-lisp)
   (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:doc #:wrn)
   (:export #:xrend #:init #:iter-timer #:get-info-fx))
-
-(defpackage #:gmsh/gl
-  (:use #:common-lisp)
-  (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:doc)
-  (:export
-    #:sdl-info #:bind-buffer-object #:init-viewport #:window-context
-    #:make-buftex #:init-controller
-    #:compile-shader #:make-program #:make-program*
-    #:to-gl-array #:set-uniform-f #:set-uniform-i #:set-uniform-mat-4f #:tick))
 
 (defpackage #:gvox
   (:use #:common-lisp)

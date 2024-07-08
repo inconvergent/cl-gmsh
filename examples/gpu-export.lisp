@@ -6,7 +6,7 @@
 (defvar *size* 1000) (defvar *pid* 0)
 ; (rnd:set-rnd-state 113)
 
-; TODO: size export. partially fixed. normalize ortho scaling properly
+; TODO: size export. partially fixed. normalize gmsh/cam scaling properly
 
 ; TODO: volume gpu raytracer
 ; TODO: profile do-alter-mesh. performance.
@@ -86,8 +86,8 @@
                          (gl:delete-buffers buf) (gl:delete-textures tex))
                (uniforms () (gmsh/gl:set-uniform-f p :ts (gmsh/gl:tick))
                             (gmsh/gl:set-uniform-f p :resolution (veq:f2 1000.0 1000.0))
-                            (gmsh/gl:set-uniform-f p :vpn (ortho:@vpn proj))
-                            (gmsh/gl:set-uniform-f p :cam (ortho:@cam proj))
+                            (gmsh/gl:set-uniform-f p :vpn (gmsh/cam:@vpn proj))
+                            (gmsh/gl:set-uniform-f p :cam (gmsh/cam:@pos proj))
                             (gmsh/gl:set-uniform-mat-4f p :pm (gmsh/scene:get-pm sc))
                             (gmsh/gl:set-uniform-mat-4f p :vm (gmsh/scene:get-vm sc) )) ; nil
                (render () (uniforms) (gl:draw-arrays :triangles 0 6) (gl:flush)))

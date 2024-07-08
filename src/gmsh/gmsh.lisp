@@ -265,7 +265,7 @@ keywords:
 ; just use somthing like: ((verts . #(1 2 3)) (polys . ((...) (...))))
 ; can we make it chainable?
 ; (veq:fvdef add-back-wall (msh proj)
-;   (auxin:with-struct (ortho::ortho- cam u v vpn) proj
+;   (auxin:with-struct (gmsh/cam::gmsh/cam- cam u v vpn) proj
 ;     (veq:xlet ((f3!cam* (f3!@+ (veq:f3$ cam)
 ;                                (f3!@*. (veq:f3$ vpn) -870.0)))
 ;                (f3!u* (veq:f3$ u)) (f3!v* (veq:f3$ v))

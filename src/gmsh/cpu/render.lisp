@@ -5,27 +5,26 @@
   `(veq:mvc #'gmsh/bvh:simd4/simple-raycast ,@rest))
 (defmacro rc (&rest rest) "raycast using current raycaster."
   `(veq:mvc #'gmsh/bvh:simd4/raycast ,@rest))
-
 ; (defmacro rc-simple (&rest rest) `(veq:mvc #'gmsh/bvh:int/simple-raycast ,@rest))
 ; (defmacro rc (&rest rest) `(veq:mvc #'gmsh/bvh::int/raycast ,@rest))
 
 ; TODO: config object?
 (veq:vdef xrend (sc bvh &key (par t) (size 1000) (bs 1) (aa 1) (vol nil)
-                             (raylen 2000.0) (raylen2 (* 0.5 raylen))
-                             (max-depth 12)
+                             (raylen 2000.0) (max-depth 12) (aa-mult (veq:ff (/ aa)))
                              (ao-rep 4)
                              (vmult 64.0)
-                             (vdst 1000f0)
+                             (vdst raylen)
                              (vlim 100f0)
                              (miss :bgk) (world miss)
+                             (ao-dst (* 0.5 raylen))
                              (ao-mult (veq:ff (/ ao-rep)))
-                             (aa-mult (veq:ff (/ aa)))     ; used in render-wrap
                              (vlim* (/ vlim vdst))
-                             (vdepth (if vol 1 0)))        ; used in render-wrap
+                             (vdepth (if vol 1 0))         ; used in render-wrap
+                             (info 200))
   (declare #.*opt1* (gmsh/scene:scene sc) (gmsh/bvh:bvh bvh)
-                    (veq:pn bs aa size max-depth ao-rep vdepth)
+                    (veq:pn bs aa size max-depth ao-rep vdepth info)
                     (keyword world miss)
-                    (veq:ff raylen raylen2 ao-mult
+                    (veq:ff raylen ao-dst ao-mult
                             vmult vlim vlim* vdst)
                     (boolean vol par))
   "render scene from this scene/bvh.
@@ -33,15 +32,21 @@
 use (gmsh/xrend:init 4) before calling render to initialize parallel cores:
 
 keywords:
- - aa     : rendering fidelity. higher is slower.
- - raylen : ray length for sampling. not volume sampling.
- - vdst   : ray length for sampling volume light. [:ll mat]
- - vmult  : volume light brightness. [:ll mat]
- - vdepth : disable volume sampling after vdepth ray bounces.
- - vlim   : volume sampling min recursive sampling step size.
-            lower is more detailed.
- - vol    : enable disable volumetric light. [:ll mat]
- - par    : use parallelism."
+ - vol      : enable disable volumetric light. [:ll mat]
+ - par      : use parallelism.
+ - aa       : rendering fidelity. higher is slower.
+ - raylen   : ray length for sampling. not volume sampling.
+ - ao-rep   : number of ao samples. higher is slower.
+ - ao-dst   : ray length for ao sampling. [:ll mat]
+ - ao-mult  : ao darkness.
+ - vdst     : ray length for volume sampling [:ll mat]
+ - vmult    : volume light brightness. [:ll mat]
+ - vdepth   : disable volume sampling after vdepth ray bounces.
+ - vlim     : volume sampling min recursive sampling step size.
+                lower is more detailed.
+ - world    : environment color.
+ - miss     : miss color.
+ - info     : print progress every nth row."
   (render-wrap ; NOTE: requires scene: sc ; TODO: rewrite/rename?
     ((do-ll (hi (:va 3 origin pt dir))
        (declare (veq:in hi) (veq:ff origin pt dir))
@@ -64,8 +69,7 @@ keywords:
               (veq:xlet ((f3!php (veq:f3lerp origin far q)))
                 (veq:mvb (hi hs) (rc bvh php (rnd3on-sphere vdst))
                   (declare (fixnum hi) (veq:ff hs) (ignorable hs))
-                  ; :none is ignored as we have hit something
-                  (veq:mvb (flag (:va 3 rgb)) (hitmat-simple bvh hi :none)
+                  (veq:mvb (flag (:va 3 rgb)) (hitmat-simple bvh hi :ignore)
                     (declare (symbol flag) (veq:ff rgb))
                     (if (and (eq flag :ll)) ; there was a eps < hs test here. why?
                         (veq:f3 rgb)        ; scale by distance? (exp (- (expt (abs hs) vexpt)))
@@ -74,9 +78,9 @@ keywords:
 
      (do-ao (hi (:va 3 pt dir)) ; ambient occlusion
        (declare (veq:in hi) (veq:ff pt dir))
-       (veq:xlet ((f!rl (* raylen2 (expt (srnd:rnd* *rs* 1f0) 2.0)))
+       (veq:xlet ((f!rl (* ao-dst (expt (srnd:rnd* *rs* 1f0) 2.0)))
                   (f3!hn (get-normal bvh hi dir))
-                  (f3!hp* (veq:f3from pt hn 0.001))
+                  (f3!hp* (veq:f3from pt hn 0.0001))
                   (f3!hnrl (f3!@*. hn rl)))
          (min 1f0 (* (loop repeat ao-rep
                            summing (abs (the veq:ff
@@ -87,12 +91,12 @@ keywords:
      (do-rr (depth hi (:va 3 rgb pt dir)) ; reflection
        (declare (veq:pn depth) (veq:in hi) (veq:ff rgb pt dir))
        (veq:xlet ((f3!hn (get-normal bvh hi dir))
-                  (f3!hp* (veq:f3from pt hn 0.001)))
+                  (f3!hp* (veq:f3from pt hn 0.0001)))
          (f3!@+ (f3!@*. rgb 0.75) ; TODO: config factor
          (f3!@*. (m@do-render (1+ depth) hp*
                    (m@reflect dir
-                     (veq:f3norm (f3!@+ (rnd3in-sphere 0.05) hn))))
-                 0.25))))
+                     (veq:f3norm (f3!@+ (rnd3in-sphere 0.05) hn)))) ; TODO: config
+                 0.50))))
 
      (do-ro (depth hi (:va 3 rgb pt dir)) ; ao * rr
        (declare (veq:pn depth) (veq:in hi) (veq:ff rgb pt dir))

@@ -31,8 +31,8 @@
   (declare #.*opt1* (srnd:srnd rs) (veq:ff u v p s))
   (veq:f3from (veq:f3from p u (srnd:rnd* rs s)) v (srnd:rnd* rs s)))
 
-(veq:fvdef su (proj) (f3!@/. (veq:f3$s proj ortho::ortho- :u) (ortho::ortho-s proj)))
-(veq:fvdef sv (proj) (f3!@/. (veq:f3$s proj ortho::ortho- :v) (ortho::ortho-s proj)))
+(veq:fvdef su (proj) (f3!@/. (veq:f3$s proj gmsh/cam::cam- :u) (gmsh/cam::cam-s proj)))
+(veq:fvdef sv (proj) (f3!@/. (veq:f3$s proj gmsh/cam::cam- :v) (gmsh/cam::cam-s proj)))
 
 (veq:fvdef symbol-rgb (s) ; TODO: adapt to *color* and *rs*
   (case s (:w (veq:f3rep 1.0))
@@ -54,9 +54,10 @@
                  (veq:~ flag (symbol-rgb rgbflag)))
                (veq:~ default (veq:f3rep 0.0))))
 
-(defun get-info-fx (size aa) (declare (veq:pn size aa))
-  (lambda (i progr) (declare (veq:pn i) (veq:ff progr))
-    (format nil "λ~06,2f" (auxin:me (* aa size (/ i progr))))))
+(defun get-info-fx (size aa interval) (declare (veq:pn size aa interval))
+  (lambda (i secs df_secs) (declare (veq:pn i) (veq:ff secs))
+    (lqn:fmt "λs (~06,2f | ~05,2f)" (auxin:me (/ (* interval aa size) df_secs))
+                                    (auxin:me (/ (* i aa size) secs)))))
 
 
 (defmacro render-wrap (labels*)
@@ -64,12 +65,12 @@
  `(veq:fvprogn ; TODO: or convert to generic render macro
   (veq:xlet ((canv (gmsh/scene::scene-canv sc))
              (proj (gmsh/scene::scene-proj sc))
-             (f2!xy (veq:f2scale (veq:f2$ (ortho::ortho-xy proj)) -1.0))
-             (f3!vpn* (f3.@- (veq:f3$ (ortho::ortho-vpn proj))))
-             (f3!cam (veq:f3$ (ortho::ortho-cam proj)))
+             (f2!xy (veq:f2scale (veq:f2$ (gmsh/cam::cam-xy proj)) -1.0))
+             (f3!vpn* (f3.@- (veq:f3$ (gmsh/cam::cam-vpn proj))))
+             (f3!cam (veq:f3$ (gmsh/cam::cam-pos proj)))
              (f3!u (f3.@- (su proj)))
              (f3!v (f3.@- (sv proj))))
-    (declare (ortho::ortho proj) (canvas::canvas canv))
+    (declare (gmsh/cam::cam proj) (canvas::canvas canv))
     (labels (,@labels*
               (do-row (yy xx repx repy)
                 (declare (veq:pn yy xx repx repy))
@@ -82,7 +83,7 @@
                               (loop repeat aa
                                 do (f3!@+! res
                                      (m@do-render 0
-                                       (pixel-shift *rs* u v p 0.75) vpn*)))
+                                       (pixel-shift *rs* u v p 0.53) vpn*)))
                               (canvas::m@set-pix canv i j
                                 (f3!@*. res aa-mult)))))))
               (hitmat (i depth)
@@ -121,10 +122,10 @@
                         (veq:f3 res)))))))
 
   (veq:xlet ((p!blocks (floor size bs)) ; TODO: blocks do not work properly
-             (p!interval (max 1 200))
              (timer (auxin:iter-timer blocks
-                      :int interval :infofx (get-info-fx size aa)
-                      :prefx (lambda (&rest rest) (declare (ignore rest))"██ "))))
+                      :int info :infofx (get-info-fx size aa info)
+                      :prefx (lambda (&rest rest) (declare (ignore rest))
+                               (lqn:fmt "██ ~a: " (lqn:seq (lqn:now) 11 19))))))
 
     (lqn:out "~&██ rendering scene at ~d pix (~d * ~d)~&" size blocks bs)
     (lqn:out "~&██   aa: ~a;  ao-rep: ~a; vlim: ~a~&" aa ao-rep vlim)

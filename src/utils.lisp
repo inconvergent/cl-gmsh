@@ -7,13 +7,15 @@
 (defun d? (f) (describe f))
 (defun i? (f) (inspect f))
 
+(defmacro doc (&rest body) (declare (ignore body)) "ignores body. returns nil." nil)
+(defmacro abbrev (short long) `(defmacro ,short (&rest args) `(,',long ,@args)))
+
 (defun internal-path-string (path &optional (pkg :gmsh)) (declare (string path))
   (namestring (asdf:system-relative-pathname pkg path)))
 
 (defun mkstr (&rest args) (with-output-to-string (s) (dolist (a args) (princ a s))))
 (defun reread (&rest args) (values (read-from-string (apply #'mkstr args))))
 (defun symb (&rest args) (values (intern (apply #'mkstr args))))
-(defmacro abbrev (short long) `(defmacro ,short (&rest args) `(,',long ,@args)))
 (defun mapqt (l) (mapcar (lambda (s) `(quote ,s)) l))
 
 (abbrev mvc multiple-value-call) (abbrev mvb multiple-value-bind)
@@ -99,8 +101,4 @@
 ;                 (when (< ,,(the stack-ind (- n safe-z)) ,',ind)
 ;                   (error "stack overflow in: ~a. ind: ~a" ',',sym ,',ind)))))
 ;            ,@body)))))
-
-(defmacro doc (&rest body)
-  (declare (ignore body)) "ignores body. returns nil."
-  nil)
 

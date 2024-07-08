@@ -32,7 +32,8 @@
                (:file "gmsh/bvh" :depends-on ("gmsh/bvh-checks"))
                (:file "gmsh/bvh-raycast" :depends-on ("gmsh/bvh"))
                (:file "gmsh/bvh-raycast-simd" :depends-on ("gmsh/bvh"))
-               (:file "gmsh/scene" :depends-on ("gmsh/bvh"))
+               (:file "gmsh/cam" :depends-on ("macros"))
+               (:file "gmsh/scene" :depends-on ("gmsh/cam" "gmsh/bvh"))
                (:file "gmsh/cpu/render-utils"
                 :depends-on ("gmsh/scene"
                              "gmsh/bvh-raycast" "gmsh/bvh-raycast-simd"
