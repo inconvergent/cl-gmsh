@@ -63,6 +63,8 @@
   (fwdcnt 0 :type veq:pn)          (bckcnt 0 :type veq:pn)
   (fwdbb (make-bb) :type veq:fvec) (bckbb (make-bb) :type veq:fvec)
   (bb (make-bb) :type veq:fvec))
+
+(deftype sah-buckets () `(simple-array sah-bucket))
 (defun init-sah-buckets (n &aux)
   (make-array n :adjustable nil :initial-contents (loop repeat n collect (-make-sah-bucket))))
 

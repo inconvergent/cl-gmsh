@@ -38,7 +38,7 @@
           (progn ,@body))))))
 
 (defun compile-shader (shader-type src &aux (s (gl:create-shader shader-type)))
-  (declare (keyword shader-type) (string src))
+  (declare #.*opt* (keyword shader-type) (string src))
   "build shader of type :vertex-shader, :fragment-shader at src."
   (gl:shader-source s src) (gl:compile-shader s)
   (let ((l (gl:get-shader-info-log s)))
@@ -46,7 +46,7 @@
       (lqn:out "~&██ COMPILE ~(~a~) message:~%~d~&" shader-type l) (finish-output)))
   s)
 
-(defun make-program* (vs fs &aux (p (gl:create-program))) (declare (string vs fs))
+(defun make-program* (vs fs &aux (p (gl:create-program))) (declare #.*opt* (string vs fs))
   "make shader program from these two source codes."
   (gl:attach-shader p (compile-shader :vertex-shader vs))
   (gl:attach-shader p (compile-shader :fragment-shader fs))
@@ -68,7 +68,7 @@
   (/ (veq:ff (sdl2-ffi.functions:sdl-get-ticks)) s))
 
 (defun to-gl-array (seq type &aux (l (length seq)) (arr (gl:alloc-gl-array type l)))
-  (declare (sequence seq) (keyword type)) "create gl array from seq."
+  (declare #.*opt* (sequence seq) (keyword type)) "create gl array from seq."
   (dotimes (i l) (setf (gl:glaref arr i) (aref seq i)))
   arr)
 
@@ -83,11 +83,13 @@
 ; (cl-opengl-bindings:uniform-block-binding p arrloc 0)
 ; TODO: use shader binding by uniform name
 (defun bind-buffer-object (buf ty o &key (slot 0) &aux (arr (to-gl-array o ty)))
+  (declare #.*opt*)
   (gl:bind-buffer :uniform-buffer buf)
   (gl:buffer-data :uniform-buffer :static-draw arr)
   (cl-opengl-bindings:bind-buffer-base :uniform-buffer slot buf))
 
 (defun make-buftex (p name buf buf-tex arr &key (slot 0) (layout :RGBA32F))
+  (declare #.*opt*)
   (gl:active-texture (lqn:kw! :texture slot))
   (gl:bind-buffer :texture-buffer buf)
   (gl:buffer-data :texture-buffer :static-draw arr)

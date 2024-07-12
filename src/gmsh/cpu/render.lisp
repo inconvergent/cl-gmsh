@@ -8,19 +8,17 @@
 ; (defmacro rc-simple (&rest rest) `(veq:mvc #'gmsh/bvh:int/simple-raycast ,@rest))
 ; (defmacro rc (&rest rest) `(veq:mvc #'gmsh/bvh::int/raycast ,@rest))
 
+; TODO: ascii-preview
 ; TODO: config object?
-(veq:vdef xrend (sc bvh &key (par t) (size 1000) (bs 1) (aa 1) (vol nil)
-                             (raylen 2000.0) (max-depth 12) (aa-mult (veq:ff (/ aa)))
-                             (ao-rep 4)
-                             (vmult 64.0)
-                             (vdst raylen)
-                             (vlim 100f0)
-                             (miss :bgk) (world miss)
-                             (ao-dst (* 0.5 raylen))
-                             (ao-mult (veq:ff (/ ao-rep)))
-                             (vlim* (/ vlim vdst))
-                             (vdepth (if vol 1 0))         ; used in render-wrap
-                             (info 200))
+(veq:vdef xrend (sc bvh
+      &key (par t) (size 1000) (bs 1) (aa 1) (vol nil)
+           (raylen 2000.0) (max-depth 12)
+           (aa-mult (veq:ff (/ aa))) (ao-rep 4)
+           (vmult 64.0) (vdst raylen) (vlim 100f0) (vlim* (/ vlim vdst)) (vdepth (if vol 1 0))
+           (miss :bgk) (world miss)
+           (ao-dst (* 0.5 raylen))
+           (ao-mult (veq:ff (/ ao-rep)))
+           (info 200))
   (declare #.*opt1* (gmsh/scene:scene sc) (gmsh/bvh:bvh bvh)
                     (veq:pn bs aa size max-depth ao-rep vdepth info)
                     (keyword world miss)
@@ -80,7 +78,7 @@ keywords:
        (declare (veq:in hi) (veq:ff pt dir))
        (veq:xlet ((f!rl (* ao-dst (expt (srnd:rnd* *rs* 1f0) 2.0)))
                   (f3!hn (get-normal bvh hi dir))
-                  (f3!hp* (veq:f3from pt hn 0.0001))
+                  (f3!hp* (veq:f3from pt hn 0.01))
                   (f3!hnrl (f3!@*. hn rl)))
          (min 1f0 (* (loop repeat ao-rep
                            summing (abs (the veq:ff
@@ -91,12 +89,12 @@ keywords:
      (do-rr (depth hi (:va 3 rgb pt dir)) ; reflection
        (declare (veq:pn depth) (veq:in hi) (veq:ff rgb pt dir))
        (veq:xlet ((f3!hn (get-normal bvh hi dir))
-                  (f3!hp* (veq:f3from pt hn 0.0001)))
-         (f3!@+ (f3!@*. rgb 0.75) ; TODO: config factor
+                  (f3!hp* (veq:f3from pt hn 0.01)))
+         (f3!@+ (f3!@*. rgb 0.5) ; TODO: config factor
          (f3!@*. (m@do-render (1+ depth) hp*
                    (m@reflect dir
                      (veq:f3norm (f3!@+ (rnd3in-sphere 0.05) hn)))) ; TODO: config
-                 0.50))))
+                 0.5))))
 
      (do-ro (depth hi (:va 3 rgb pt dir)) ; ao * rr
        (declare (veq:pn depth) (veq:in hi) (veq:ff rgb pt dir))

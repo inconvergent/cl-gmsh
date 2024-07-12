@@ -1,9 +1,8 @@
-; (setf *features* `(:veq-simd ,@*features*))
-; (declaim (optimize compilation-speed))
+(defvar *ver* "1.3.0")
 
 (asdf:defsystem #:gmsh
-  :description "mesh thing"
-  :version "1.2.0"
+  :description "triangular mesh and raytracer utilities."
+  :version *ver*
   :author "anders hoff / @inconvergent / inconvergent@gmail.com"
   :licence "MIT"
   :in-order-to ((asdf:test-op (asdf:test-op #:gmsh/tests)))
@@ -46,7 +45,7 @@
 
 (asdf:defsystem #:gmsh/tests
   :depends-on (#:gmsh #:prove)
-  :version "1.2.0"
+  :version *ver*
   :perform (asdf:test-op (o s) (uiop:symbol-call ':gmsh-tests '#:run-tests))
   :pathname "test/" :serial t
   :components ((:file "run")))

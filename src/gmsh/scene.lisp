@@ -76,7 +76,9 @@
 
 (defun gpu/do-pack-bvh (sc) (declare (scene sc))
   (gmsh/bvh:gpu/pack-bvh (gmsh:make-bvh (scene-msh sc) :num 7
-                           :matfx (scene-matfx sc) :mode :bvh2-stackless)))
+                           :matfx (scene-matfx sc)
+                           :mode :bvh2-stackless
+                           )))
 
 (defun scene/new-canv (sc &key size) (declare (scene sc)) ; TODO: new name??
   (when size (setf (scene-size sc) size))
@@ -96,7 +98,7 @@
                             (msh (gmsh:gmsh :max-verts max-verts))
                             (cam (veq:f3$point 401f0 400f0 101f0))  ; rename to cam-pos
                             (look (veq:f3$zero))
-                            (s 1f0) (xy (veq:f2$point 1000f0 1000f0))
+                            (s 1f0) (xy (veq:f2$zero))
                             (proj (gmsh/cam:make :pos cam :look look :xy xy :s s))
                             (matmap (make-hash-table :test #'equal)) matfx)
   (declare (veq:pn max-verts size) (veq:ff s) (veq:fvec look cam xy)

@@ -45,14 +45,18 @@
     #:scene/make #:scene/load #:scene/save #:canv/save #:scene/new-canv
     #:update-axis #:update-view #:make-vm #:make-pm
     #:gpu/do-pack-bvh
-    #:scene-msh #:scene-proj #:scene-program #:scene-canv
-    #:scene-matfx #:scene-matmap #:getmat #:setmat))
+    #:scene-msh #:scene-look #:scene-proj
+    #:scene-program
+    #:scene-matfx #:scene-matmap
+    #:scene-canv
+    #:getmat #:setmat))
 
 (defpackage #:gmsh/cam
   (:use #:common-lisp)
   (:import-from #:gmsh #:*opt*)
   (:import-from #:auxin #:with-struct)
   (:export #:cam #:export-data #:import-data #:make #:pan-cam #:pan-xy
+           #:cam-u #:cam-v #:cam-s #:cam-up #:cam-pos #:cam-vpn
            #:rotate #:update #:zoom
            #:vm #:pm
            #:@pos #:@vpn #:@xy #:@up #:@s))

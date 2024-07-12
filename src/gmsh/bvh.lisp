@@ -16,7 +16,7 @@
 
 ; objs list: ((2 3 4) #(xmi xma ...) #normal)
 (veq:fvdef make (input-objs vfx &key (num 5)  (mode :bvh4-simd) matfx
-                                     (sort-num num) (num-buckets 13) (sort-lvl 100))
+                                     (sort-num num) (num-buckets 11) (sort-lvl 100))
   (declare #.*opt* (list input-objs) (function vfx) (symbol mode)
                    (veq:pn num sort-lvl sort-num num-buckets))
   "build bvh from these objects"

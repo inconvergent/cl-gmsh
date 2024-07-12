@@ -111,9 +111,15 @@
   (veq::fmake-view-matrix (veq:f3$ (cam-pos p)) look
                          (veq:f3$ (cam-up p))))
 
-(veq:fvdef pm (p s &optional (near 0.1) (far 50f0) &aux (s (/ s)))
+; (veq:fvdef pm (p s &optional (near 0.1) (far 500f0) &aux
+;                  ; (s (/ s))
+;                  )
+;   (declare #.*opt* (cam p) (veq:ff near far s)) "projection matrix. compatible with gmsh/scene"
+;   (veq::fmake-proj-matrix s s near far))
+
+(veq:fvdef pm (p s &optional (near 0.1) (far 500f0))
   (declare #.*opt* (cam p) (veq:ff near far s)) "projection matrix. compatible with gmsh/scene"
-  (veq::fmake-proj-matrix s s near far))
+  (veq:fmake-ortho-proj-matrix s s near far))
 
 (defun export-data (p) (declare (cam p))
   "export the neccessary values to recreate cam. import with gmsh/cam:import-data."

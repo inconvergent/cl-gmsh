@@ -54,18 +54,18 @@
     ;                                        ; :mode :time
     ;                                        :mode :cpu
     ;                                        )
-    (time (gmsh/xrend:xrend sc bvh :size 2000 :raylen 2000.0
+    (time (handler-case
+      (gmsh/xrend:xrend sc bvh :size 2000 :raylen 2000.0
                                    :vol t :par t :aa 50
                                    :vlim 50.0
                                    :vdst 1000.0
                                    :miss :bgk
                                    :world :bgk
                                    :ao-rep 5
-                                   :vmult 100.0))
+                                   :vmult 100.0)
+      (sb-sys:interactive-interrupt () (warn "render aborted. exporting png ..."))))
     ; )
-    (gmsh/scene:canv/save sc "tmp" :gamma 1.1)
-    )
-  )
+    (gmsh/scene:canv/save sc "tmp" :gamma 1.1)))
 
 (main 1000)
 

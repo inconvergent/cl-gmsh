@@ -2,13 +2,13 @@
 
 
 (veq:fvdef -make-objects-and-normals (vfx objs)
-  (declare (function vfx) (list objs))
+  (declare #.*opt* (function vfx) (list objs))
   (loop for p in objs for vv = (f@vfx p)
         collect (list p (bbox (veq:f3$mima vv))
                         (veq:f3$point (gmsh::-poly-normal vv))
                         vv)))
 
-(veq:fvdef make-polyx ((:va 3 v0 v1 v2)) (declare (veq:ff v0 v1 v2))
+(veq:fvdef make-polyx ((:va 3 v0 v1 v2)) (declare #.*opt* (veq:ff v0 v1 v2))
   "#(v2v0x v2v0y v2v0z, ... v1v0x , ... , v0x v0y v0z)"
   (veq:~ (f3!@- v2 v0) (f3!@- v1 v0) (veq:f3 v0)))
 
@@ -55,7 +55,7 @@
   (values res mima))
 
 (veq:fvdef gpu/pack-bvh (bvh &key (mats gmsh::*mats*) (matpar gmsh::*matpar*))
-  (declare (bvh bvh) (list matpar mats))
+  (declare #.*opt* (bvh bvh) (list matpar mats))
   "return packed bvh arrays for gpu rendering."
   (labels ((find-mat-key (mk &aux (res (cdr (assoc mk mats))))
               (if res res (progn (wrn :gpumat-key "missing mat for: ~a" mk) 0)))
@@ -79,9 +79,11 @@
                         (veq:~ (veq:$ mima (+ i 0) (+ i 2) (+ i 4)) 0.0
                         (veq:$ mima (+ i 1) (+ i 3) (+ i 5)) 0.0)))
              mima*)
-           (pck-nodes (nodes &aux (nodes* (veq:p$coerce nodes)))
+           ; TODO: this should be unnecessary
+           (pck-nodes (nodes &aux (nodes* (veq:i$coerce nodes)))
              (loop for i from 0 below (length nodes) by 4
-                   if (zerop (aref nodes* (+ i 3))) do (setf (aref nodes* (+ i 3)) -4))
+                   if (zerop (aref nodes* (+ i 3)))
+                   do (setf (aref nodes* (+ i 3)) -4))
              nodes*))
    (auxin:with-struct
      (gmsh/bvh::bvh- nodes int-nodes polys mima polyfx normals mat) bvh

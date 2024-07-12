@@ -1,6 +1,7 @@
 (in-package :gmsh/bvh)
 
-(declaim (inline -objs-list-bbox))
+(declaim (inline -objs-list-bbox -axissort -longaxis merge-mima))
+
 (veq:fvdef -objs-list-bbox (objs) (declare #.*opt* (list objs))
   (loop for o* of-type list in objs for o of-type veq:fvec = (second o*)
         minimizing (veq:f$ o 0) into xmi of-type veq:ff
@@ -13,7 +14,7 @@
 
 (veq:fvdef get-objs-ax-centroid-mima (objs ax) (declare #.*opt* (list objs) (veq:pn ax))
   (loop for (poly bbox . rest) in objs
-        for c = (* 0.5 (f2_@+ (veq:f2$ bbox ax)))
+        for c of-type veq:ff = (* 0.5 (f2_@+ (veq:f2$ bbox ax)))
         minimizing c into mi maximizing c into ma
         finally (return (values mi ma))))
 
@@ -22,30 +23,32 @@
            ($n (b) `(length ($ ,b :inds))))
 
 (veq:fvdef sah-do-split-axis (objs buckets imin &aux (leftinds (hset:make)))
-  (declare (list objs) (vector buckets) (veq:pn imin))
-  (loop for bi from 0 below (- (length buckets) 1)
-        for b = (aref buckets bi)
+  (declare #.*opt* (list objs) (sah-buckets buckets) (veq:in imin) (hash-table leftinds))
+  (loop for bi from 0 below (max 0 (- (length buckets) 1))
+        for b of-type sah-bucket = (aref buckets bi)
         if (and (<= bi imin) (> ($n b) 0))
-        do (loop for k across ($ b :inds) do (hset:add leftinds k)))
+        do (loop for k of-type veq:pn across ($ b :inds) do (hset:add leftinds k)))
   (loop for k from 0 for o in objs
         if (hset:mem leftinds k) collect o into l else collect o into r
         finally (return (values l r))))
 
-(veq:fvdef bb-area (b) (declare (veq:fvec b))
+(veq:fvdef bb-area (b) (declare #.*opt* (veq:fvec b))
   (veq:xlet ((f!x (f2_@- (veq:$ b 1 0)))
              (f!y (f2_@- (veq:$ b 3 2)))
              (f!z (f2_@- (veq:$ b 5 4))))
     (max 0.01 (+ (abs (* x z)) (abs (* x y)) (abs (* y z))))))
 
 (veq:fvdef sah-find-min-node (buckets &aux (imin 0) (mincost 9999999999f0))
+  (declare #.*opt* (sah-buckets buckets) (veq:ff mincost) (veq:in imin))
   (labels ((costcnt (n) (max 2 n)))
-    (loop for i from 0 repeat (- (length buckets) 1) for b across buckets
-          for nodecost2 = (+ (* (costcnt ($ b :fwdcnt)) (bb-area ($ b :fwdbb)))
-                             (* (costcnt ($ b :bckcnt)) (bb-area ($ b :bckbb))))
+    (loop repeat (- (length buckets) 1) for b across buckets
+          for i of-type veq:in from 0
+          for nodecost2 of-type veq:ff = (+ (* (costcnt ($ b :fwdcnt)) (bb-area ($ b :fwdbb)))
+                                            (* (costcnt ($ b :bckcnt)) (bb-area ($ b :bckbb))))
           do (when (< nodecost2 mincost) (setf imin i mincost nodecost2))))
   (values buckets imin mincost))
 
-(veq:fvdef merge-mima (curr new) (declare (veq:fvec curr new))
+(veq:fvdef merge-mima (curr new) (declare #.*opt* (veq:fvec curr new))
   (setf (veq:2$ curr 0) (veq:f2 (min (veq:$ curr 0) (veq:$ new 0))
                                 (max (veq:$ curr 1) (veq:$ new 1)))
         (veq:2$ curr 1) (veq:f2 (min (veq:$ curr 2) (veq:$ new 2))
@@ -58,6 +61,7 @@
   (declare #.*opt* (ignore rest) (list objs) (veq:pn ax nb))
   (veq:xlet ((buckets (init-sah-buckets nb))
              (f2!centmima (get-objs-ax-centroid-mima objs ax)))
+    (declare (sah-buckets buckets))
     (labels ((update-surface-est (bi new-bb &aux (b (aref buckets bi)))
                (merge-mima ($ b :bb) new-bb))
              (push-obj (oi bi bb &aux (b (aref buckets bi)))
@@ -85,18 +89,19 @@
             do ($! b- :bckcnt cnt) (merge-mima ($ b- :bckbb) bb))
       (sah-find-min-node buckets)))))
 
+; TODO: this is very messy and probably inefficent
 ; TODO: fix buckets init to nil
 ; TODO: fix very general handler-case
 (veq:fvdef sah-split-by-best-axis (objs nb &aux (imin -1) (axis -1)
                                                 (mincost 9999999999f0) buckets)
-  (loop for ax from 0 below 3
+  (declare #.*opt* (veq:in imin axis) (veq:ff mincost))
+  (loop for ax of-type veq:pn from 0 repeat 3
         do (handler-case
              (veq:mvb (buckets* imin* mincost*) (sah-estimate-axis objs ax :nb nb)
-               (when (< mincost* mincost)
-                     (setf mincost mincost*
-                           buckets buckets*
-                           imin imin*
-                           axis ax)))
+                (declare (sah-buckets buckets*)
+                         (veq:in imin*) (veq:ff mincost*))
+                (when (< mincost* mincost)
+                      (setf mincost mincost* buckets buckets* imin imin* axis ax)))
              (simple-error (e) (declare (ignorable e))))) ; ignores bad range error
 
   (when (< imin 0) (error "tiny box"))
@@ -108,7 +113,6 @@
                 (error (e) (error "split err: ~a" e))))
 
 ; TODO: fix mix of mi mi mi, ma ma ma, mi ma, mi ma mappings
-(declaim (inline -longaxis))
 (veq:fvdef -longaxis (objs) (declare #.*opt* (list objs))
   (veq:mvb (xmi ymi zmi xma yma zma)
     (-objs-list-bbox objs)
@@ -119,7 +123,6 @@
                                               (list (:vr diff 2) 2 zmi zma))
                                         #'> :key #'first)))))))
 
-(declaim (inline -axissort))
 (defun -axissort (objs &key (ax (-longaxis objs)) &aux (ax (* 2 ax)))
   (declare #.*opt* (veq:pn ax) (list objs) )
   (labels ((ak (a ind) (declare (list a) (veq:pn ind))

@@ -41,27 +41,27 @@
  ; 
  ; XREND names a compiled function:
  ;   Lambda-list: (SC BVH &KEY (PAR T) (SIZE 1000) (BS 1) (AA 1) (VOL NIL)
- ;                 (RAYLEN 2000.0) (MAX-DEPTH 12) (AO-REP 4) (VMULT 64.0)
- ;                 (VDST RAYLEN) (AO-DST (* 0.5 RAYLEN)) (VLIM 100.0)
- ;                 (MISS BGK) (WORLD MISS) (AO-MULT (FF (/ AO-REP)))
- ;                 (AA-MULT (FF (/ AA))) (VLIM* (/ VLIM VDST))
+ ;                 (RAYLEN 2000.0) (MAX-DEPTH 12) (AA-MULT (FF (/ AA)))
+ ;                 (AO-REP 4) (VMULT 64.0) (VDST RAYLEN) (VLIM 100.0)
+ ;                 (MISS BGK) (WORLD MISS) (AO-DST (* 0.5 RAYLEN))
+ ;                 (AO-MULT (FF (/ AO-REP))) (VLIM* (/ VLIM VDST))
  ;                 (VDEPTH
  ;                  (IF VOL
  ;                      1
  ;                      0))
- ;                 (INFO-INTERVAL 200))
+ ;                 (INFO 200))
  ;   Derived type: (FUNCTION
  ;                  (GMSH/SCENE:SCENE GMSH/BVH:BVH &KEY (:PAR BOOLEAN)
  ;                   (:SIZE (UNSIGNED-BYTE 32)) (:BS (UNSIGNED-BYTE 32))
  ;                   (:AA (UNSIGNED-BYTE 32)) (:VOL BOOLEAN)
  ;                   (:RAYLEN SINGLE-FLOAT)
- ;                   (:MAX-DEPTH (UNSIGNED-BYTE 32))
+ ;                   (:MAX-DEPTH (UNSIGNED-BYTE 32)) (:AA-MULT T)
  ;                   (:AO-REP (UNSIGNED-BYTE 32)) (:VMULT SINGLE-FLOAT)
- ;                   (:VDST SINGLE-FLOAT) (:AO-DST SINGLE-FLOAT)
- ;                   (:VLIM SINGLE-FLOAT) (:MISS KEYWORD) (:WORLD KEYWORD)
- ;                   (:AO-MULT SINGLE-FLOAT) (:AA-MULT T)
+ ;                   (:VDST SINGLE-FLOAT) (:VLIM SINGLE-FLOAT)
+ ;                   (:MISS KEYWORD) (:WORLD KEYWORD)
+ ;                   (:AO-DST SINGLE-FLOAT) (:AO-MULT SINGLE-FLOAT)
  ;                   (:VLIM* SINGLE-FLOAT) (:VDEPTH (UNSIGNED-BYTE 32))
- ;                   (:INFO-INTERVAL (UNSIGNED-BYTE 32)))
+ ;                   (:INFO (UNSIGNED-BYTE 32)))
  ;                  (VALUES NULL &OPTIONAL))
  ;   Documentation:
  ;     render scene from this scene/bvh.

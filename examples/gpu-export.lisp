@@ -4,6 +4,8 @@
 (ql:quickload :auxin) (ql:quickload :gmsh)
 (setf lparallel:*kernel* (lparallel:make-kernel 10))
 (defvar *size* 1000) (defvar *pid* 0)
+
+
 ; (rnd:set-rnd-state 113)
 
 ; TODO: size export. partially fixed. normalize gmsh/cam scaling properly
@@ -16,43 +18,36 @@
 (veq:fvdef reset-mesh (sc &aux (msh (gmsh/scene:scene-msh sc)))
   (labels ((reset-mat () (clrhash (gmsh/scene::scene-matmap sc))
                          (gmsh:itr-polys (msh p)
+
                            (gmsh/scene:setmat sc p
-                             (rnd:rcond (0.1 '(:c :c)) (0.1 '(:c :m))
-                                        (0.1 '(:c :y)) (0.5 '(:c :k)))))))
+
+                             (list :c :w)
+                             ; (rnd:rcond (0.1 '(:c :c)) (0.1 '(:c :m))
+                             ;            (0.1 '(:c :y)) (0.5 '(:c :k)))
+                             ))))
     (gmsh:clear! msh)
-    (gmsh/io:obj/load-model :cube :msh msh)
-    (gmsh:center! msh :max-side 15.0)
+    (gmsh/io:obj/load-model :teapot :msh msh)
+    (gmsh:center! msh :max-side 50.0)
     (reset-mat)
     (print sc)))
 
-(veq:vdef do-alter-mesh (sc &aux (msh (gmsh/scene:scene-msh sc)))
-  (declare (optimize speed (safety 1)))
-  (handler-case
-    (labels ((pwalker ((:va 3 s)) (rnd:3walker-acc s (rnd:3in-sphere 0.01)))
-             (nwalker ((:va 3 s)) (rnd:3walker-acc s (rnd:3in-sphere 0.01)))
-             (polymatfx (old new) (gmsh/scene:setmat sc new (gmsh/scene:getmat sc old)))
-             (sym (wp wn)
-               (veq:xlet ((f3!pt (f3!@+ (rnd:3in-sphere 10.0) (f@wp 2.3)))
-                          (f3!n (veq:f3norm (f3!@+ (rnd:3in-sphere 1.0)
-                                                   (f@wn (rnd:prob 0.3 2.1 0.5))))))
-                 (gmsh:plane-sym msh pt n :matfx #'polymatfx)))
-             (stretch (wp wn)
-               (veq:xlet ((f3!pt (f@wp 3.3))
-                          (f3!n (veq:f3norm (veq:fsel (:xyz) (f@wn (rnd:prob 0.5 2.1 0.1)))))
-                          (inds (gmsh:plane-split msh pt n :matfx #'polymatfx))
-                          (f!s (rnd:rndrng -1.0 20.0)))
-                 (gmsh:tx! msh ; TODO p/tx
-                   (set-difference (gmsh:p/classify-verts msh
-                                     (lambda ((:va 3 pos)) (> (veq:f3dot (f3!@- pos pt) n) 0.0)))
-                                   inds)
-                   (lambda ((:va 3 pos)) (veq:f3from pos n s))))))
-      (loop with wp = (m@pwalker (rnd:3on-sphere 0.1))
-            with wn = (m@nwalker (rnd:3on-sphere 0.5))
-            repeat 1 if (rnd:prob 0.15 t nil) do (sym wp wn)
-                     else do (stretch wp wn)
-                     (gmsh:center! msh)
-                     ))
-    (error (e) (gmsh:wrn :alter-msh "unexpected err: ~a" e)))
+(veq:vdef do-alter-mesh (sc mode &aux (msh (gmsh/scene:scene-msh sc))
+                                      (cam (gmsh/scene:scene-proj sc)))
+  ; (declare (optimize speed (safety 1)))
+  (veq:xlet ((f3!nn (veq:3$ (gmsh/cam:cam-u cam))) (f3!nn- (f3.@- nn))
+             (f3!pt (veq:3$ (gmsh/scene:scene-look sc))))
+    (labels ((polymatfx (old new) (gmsh/scene:setmat sc new (gmsh/scene:getmat sc old)))
+             (sym () (gmsh:plane-sym msh pt nn :matfx #'polymatfx))
+             (stretch (&aux (s (rnd:rndrng 5.0 40.0)))
+               (gmsh:tx! msh ; TODO p/tx
+                 (set-difference
+                   (gmsh:p/classify-verts msh
+                     (lambda ((:va 3 pos)) (> (veq:f3dot (f3!@- pos pt) nn-) 0.001)))
+                   (gmsh:plane-split msh pt nn- :matfx #'polymatfx))
+                 (lambda ((:va 3 pos)) (veq:f3from pos nn- s)))))
+        (handler-case
+         (ecase (print mode) (:sym (sym)) (:stretch (stretch)))
+         (error (e) (gmsh:wrn :alter-msh "unexpected err: ~a" e)))))
   (print msh))
 
 (veq:vdef make-render (sc)
@@ -100,12 +95,12 @@
                            #.(veq:ff internal-time-units-per-second)))))
         (lqn:out "~&██ frame: ~a, t: ~a, f: ~a~%" itt df (safe-inv df))))))
 
-(defun fn () "_gpu-export") ; (fn:fn)
+(defun fn () "_example") ; (fn:fn)
 
 (veq:fvdef main ()
   (gmsh/gl:window-context (*size* *size*)
-    (let ((sc (gmsh/scene:scene/make :s 0.05 :xy (veq:f2$zero)
-                                     :cam (veq:f3$point 70.0 70.0 20.0)))
+    (let ((sc (gmsh/scene:scene/make :s 1000f0
+                :cam (veq:f3$point 1200.0 1200.0 500.0)))
           (itt 0))
       (reset-mesh sc)
       (veq:mvb (render-init render render-clean program) (make-render sc)
@@ -118,20 +113,22 @@
                                  (gmsh/scene::update-axis sc ax v))
           (:controllerbuttondown (:state state :which which :button b :type ty)
             (lqn:out "~&██ btn: ~a~&" b)
-            (case b (1  (do-alter-mesh sc) (f@render-init)) ; circle
+            (case b
+                    (9  (do-alter-mesh sc :sym)     (f@render-init)) ; L1
+                    (10  (do-alter-mesh sc :stretch) (f@render-init)) ; L2
                     (0  (setf *pid* (mod (1+ *pid*) (length gmsh:*programs*))) ; triangle
                         (funcall program (aref gmsh:*programs* *pid*))
                         (funcall render-init))
                     (2  (gmsh/scene::scene/save sc (fn))) ; square
                     (3  (reset-mesh sc) (funcall render-init)) ; x
-                    (11 (gmsh/scene:set-s sc (min 100.0 (+ (gmsh/scene:get-s sc) 0.001))))
-                    (12 (gmsh/scene:set-s sc (max 0.0005 (- (gmsh/scene:get-s sc) 0.001))))))
+                    (12 (gmsh/scene:set-s sc (min 100000.0 (+ (gmsh/scene:get-s sc) 50.0))))
+                    (11 (gmsh/scene:set-s sc (max 0.1 (- (gmsh/scene:get-s sc) 50.0))))))
           (:keydown (:keysym keysym)
             ; (print (gmsh:get-num-polys (scene-msh sc)))
             ; (progn (gmsh:make-bvh (scene-msh sc) :num 10))
             (case (sdl2:scancode keysym)
                   (:scancode-e (gmsh/scene:scene/save sc (fn)))
-                  (:scancode-r (do-alter-mesh sc) (f@render-init))))
+                  (:scancode-s (do-alter-mesh sc :sym) (f@render-init))))
           (:idle () (let ((t0 (veq:ff (get-internal-real-time))))
                       (when run (gmsh/scene:update-view sc) (f@render))
                       (sdl2:gl-swap-window win)
