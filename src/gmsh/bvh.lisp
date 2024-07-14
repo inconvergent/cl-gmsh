@@ -15,10 +15,9 @@
   (loop for i from 1 below (* 2 n) by 2 do (setf (aref res i) :x)) res)
 
 ; objs list: ((2 3 4) #(xmi xma ...) #normal)
-(veq:fvdef make (input-objs vfx &key (num 5)  (mode :bvh4-simd) matfx
-                                     (sort-num num) (num-buckets 11) (sort-lvl 100))
-  (declare #.*opt* (list input-objs) (function vfx) (symbol mode)
-                   (veq:pn num sort-lvl sort-num num-buckets))
+(veq:fvdef make (input-objs vfx &key (num 5)  (mode :bvh4-simd) matfx (num-buckets 31))
+  (declare #.*opt1* (list input-objs) (function vfx) (symbol mode)
+                   (veq:pn num num-buckets))
   "build bvh from these objects"
   (macrolet (($ (ni field)
               `(,(gmsh::symb (string-upcase (gmsh::mkstr "bvh-node-" field)))
@@ -37,8 +36,9 @@
            (polyfx (veq:f3$zero (* 3 npolys)))
            (normals (veq:f3$zero npolys))
            (numlvls 0)
-           (int-nodes (veq:p4$zero 0)) ; TODO: make this with leap 2, not 3
-           (simd-nodes (veq:p4$zero 0))) ; TODO: make this pvec
+           (int-nodes (veq:p4$zero 0)) ; TODO: make this with leap 2, not 3?
+           (simd-nodes (veq:p4$zero 0))
+           (buckets (init-sah-buckets (* 3 num-buckets))))
       (declare (veq:pn ni npolys max-node-num polyind) (veq:pvec polys int-nodes)
                (bvh-node-vec nodes) (veq:kvec mat) (veq:fvec polyfx normals))
       (labels
@@ -54,23 +54,24 @@
            (setf ($ ni :num) n ($ ni :ref) (* #.+polyleap+ polyind))
            (loop for o in objs do (do-poly o)))
 
-         (split-axis (objs n lvl) (declare (list objs) (veq:pn n lvl))
-           (handler-case
-             (progn (when (> lvl sort-lvl) (error "deep batch ~a" lvl))
-                    (when (< n sort-num) (error "small batch ~a" n))
-                    (sah-split-by-best-axis objs num-buckets))
-             (simple-error (e) (declare (ignorable e))
-               (veq:xlet ((ax (-longaxis objs))
-                          (objs* (-axissort objs :ax ax))
-                          (p!mid (if (= n 1) 0 (round n 2))))
-                 (values (subseq objs* 0 mid)
-                         (subseq objs* mid)
-                         ax)))))
+         (simple-split (objs n) (declare (list objs) (veq:pn n))
+           (veq:xlet ((ax (-longaxis objs))
+                      (objs* (-axissort objs ax))
+                      (p!mid (if (= n 1) 0 (round n 2))))
+              (values (subseq objs* 0 mid) (subseq objs* mid) ax)))
+
+         (split-axis (objs n lvl) (declare (list objs) (veq:pn n lvl) (ignorable lvl))
+
+           (if  (> lvl 1000) (simple-split objs n)
+            (veq:mvb (flag l r ax) (sah-split-by-best-axis buckets num-buckets objs)
+             (declare (keyword flag) (list l r) (veq:pn ax))
+              (ecase flag (:sah (values l r ax))
+                         (:narrow (simple-split objs n))))))
 
          (build (ni objs &optional (lvl 0) &aux (n (length objs)))
            (declare (veq:pn ni n) (list objs))
            (setf numlvls (max numlvls lvl))
-           (when (< (length objs) 1) (wrn :make "empty node"))
+           (when (< (length objs) 1) (wrn :bvh-empty-node "empty node"))
            (veq:$nvset (($ ni :bbox) 6) (-objs-list-bbox objs))
            (if (<= n num)
                (set-leaf-node n ni objs)

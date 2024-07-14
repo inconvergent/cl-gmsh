@@ -16,3 +16,4 @@ tmp.*
 *delete-me.*
 log
 perf.data
+examples/res/*

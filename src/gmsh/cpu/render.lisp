@@ -80,11 +80,12 @@ keywords:
                   (f3!hn (get-normal bvh hi dir))
                   (f3!hp* (veq:f3from pt hn 0.01))
                   (f3!hnrl (f3!@*. hn rl)))
-         (min 1f0 (* (loop repeat ao-rep
+         (min 1f0 (+ 0.5
+                    (* 0.5 (loop repeat ao-rep
                            summing (abs (the veq:ff
                                           (rc-simple bvh hp*
                                             (f3!@+ (rnd3on-sphere rl) hnrl)))))
-                     ao-mult))))
+                     ao-mult)))))
 
      (do-rr (depth hi (:va 3 rgb pt dir)) ; reflection
        (declare (veq:pn depth) (veq:in hi) (veq:ff rgb pt dir))

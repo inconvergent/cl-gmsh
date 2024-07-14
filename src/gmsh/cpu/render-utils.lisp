@@ -79,10 +79,10 @@
                              (f3!@*. res aa-mult)))))))
            (hitmat (i depth)
              (declare (veq:in i) (veq:pn depth))
-             (if (and (< i 0) (< depth 1)) (values miss 0f0 0f0 0f0)
+             (if (and (< i 0) (< depth 1)) (values miss 0f0 0f0 1f0) ; CHANGE
                                            (hitmat-simple bvh i world)))
             (do-render (depth (:va 3 p dir)) (declare (veq:pn depth) (veq:ff p dir))
-              (when (> depth max-depth) (return-from do-render (veq:f3val 0.0)))
+              (when (> depth max-depth) (return-from do-render (veq:f3 0.0 1f0 1f0))) ; CHANGE
               (veq:xlet ((f3!ll (veq:f3scale dir raylen)))
                 (veq:mvb (hi hs) (rc bvh p ll)
                   (declare (veq:ff hs) (veq:in hi))

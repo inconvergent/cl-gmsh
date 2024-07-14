@@ -1,8 +1,8 @@
-(defvar *ver* "1.3.0")
+
 
 (asdf:defsystem #:gmsh
   :description "triangular mesh and raytracer utilities."
-  :version *ver*
+  :version "1.4.0"
   :author "anders hoff / @inconvergent / inconvergent@gmail.com"
   :licence "MIT"
   :in-order-to ((asdf:test-op (asdf:test-op #:gmsh/tests)))
@@ -45,7 +45,7 @@
 
 (asdf:defsystem #:gmsh/tests
   :depends-on (#:gmsh #:prove)
-  :version *ver*
+  :version "1.4.0"
   :perform (asdf:test-op (o s) (uiop:symbol-call ':gmsh-tests '#:run-tests))
   :pathname "test/" :serial t
   :components ((:file "run")))

@@ -185,6 +185,27 @@
  ;   Source file: /data/x/gmsh/src/gmsh/scene.lisp
 ```
 
+## `gmsh/scene:scene-look`
+```
+:missing:
+
+ ; GMSH/SCENE:SCENE-LOOK
+ ;   [symbol]
+ ; 
+ ; SCENE-LOOK names a compiled function:
+ ;   Lambda-list: (INSTANCE)
+ ;   Derived type: (FUNCTION (GMSH/SCENE:SCENE)
+ ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL))
+ ;   Source file: /data/x/gmsh/src/gmsh/scene.lisp
+ ; 
+ ; (SETF SCENE-LOOK) names a compiled function:
+ ;   Lambda-list: (VALUE INSTANCE)
+ ;   Derived type: (FUNCTION
+ ;                  ((SIMPLE-ARRAY SINGLE-FLOAT) GMSH/SCENE:SCENE)
+ ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL))
+ ;   Source file: /data/x/gmsh/src/gmsh/scene.lisp
+```
+
 ## `gmsh/scene:scene-matfx`
 ```
 :missing:
@@ -292,7 +313,7 @@
  ;   Lambda-list: (&KEY (SIZE 1000) (MAX-VERTS 2000000) (PROGRAM STD)
  ;                 (MSH (GMSH MAX-VERTS MAX-VERTS))
  ;                 (CAM (F3$POINT 401.0 400.0 101.0)) (LOOK (F3$ZERO))
- ;                 (S 1.0) (XY (F2$POINT 1000.0 1000.0))
+ ;                 (S 1.0) (XY (F2$ZERO))
  ;                 (PROJ (MAKE POS CAM LOOK LOOK XY XY S S))
  ;                 (MATMAP (MAKE-HASH-TABLE TEST (FUNCTION EQUAL))) MATFX)
  ;   Derived type: (FUNCTION

@@ -43,13 +43,13 @@
  ;   Lambda-list: (SC BVH &KEY (PAR T) (SIZE 1000) (BS 1) (AA 1) (VOL NIL)
  ;                 (RAYLEN 2000.0) (MAX-DEPTH 12) (AA-MULT (FF (/ AA)))
  ;                 (AO-REP 4) (VMULT 64.0) (VDST RAYLEN) (VLIM 100.0)
- ;                 (MISS BGK) (WORLD MISS) (AO-DST (* 0.5 RAYLEN))
- ;                 (AO-MULT (FF (/ AO-REP))) (VLIM* (/ VLIM VDST))
+ ;                 (VLIM* (/ VLIM VDST))
  ;                 (VDEPTH
  ;                  (IF VOL
  ;                      1
  ;                      0))
- ;                 (INFO 200))
+ ;                 (MISS BGK) (WORLD MISS) (AO-DST (* 0.5 RAYLEN))
+ ;                 (AO-MULT (FF (/ AO-REP))) (INFO 200))
  ;   Derived type: (FUNCTION
  ;                  (GMSH/SCENE:SCENE GMSH/BVH:BVH &KEY (:PAR BOOLEAN)
  ;                   (:SIZE (UNSIGNED-BYTE 32)) (:BS (UNSIGNED-BYTE 32))
@@ -58,9 +58,9 @@
  ;                   (:MAX-DEPTH (UNSIGNED-BYTE 32)) (:AA-MULT T)
  ;                   (:AO-REP (UNSIGNED-BYTE 32)) (:VMULT SINGLE-FLOAT)
  ;                   (:VDST SINGLE-FLOAT) (:VLIM SINGLE-FLOAT)
+ ;                   (:VLIM* SINGLE-FLOAT) (:VDEPTH (UNSIGNED-BYTE 32))
  ;                   (:MISS KEYWORD) (:WORLD KEYWORD)
  ;                   (:AO-DST SINGLE-FLOAT) (:AO-MULT SINGLE-FLOAT)
- ;                   (:VLIM* SINGLE-FLOAT) (:VDEPTH (UNSIGNED-BYTE 32))
  ;                   (:INFO (UNSIGNED-BYTE 32)))
  ;                  (VALUES NULL &OPTIONAL))
  ;   Documentation:

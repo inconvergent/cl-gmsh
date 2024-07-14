@@ -16,8 +16,13 @@
     (format s "<@~a ❦~1<~d~> # ~a ↳~2<~d~> ∇ ~a s ~a>"
               (lqn:sdwn mode) num-leaves num-nodes lvl num-polys  time)))
 
+(defmacro bb$ (b f) `(,(gmsh::symb :sah-bucket- f) ,b)) ; TODO: rename these
+(defmacro bb$! (b f v) `(setf (bb$ ,b ,f) ,v))
+(defmacro bb$n (b) `(length (bb$ ,b :inds)))
+
 (deftype bbox () `(simple-array veq:ff (6)))
 (defmacro bbox (&rest rest) `(veq:f$~ (6) ,@rest))
+
 
 (defstruct (bvh-node (:constructor -make-bvh-node) (:print-object -print-bvh-node))
   (num 0 :type veq:pn :read-only nil)
@@ -55,11 +60,12 @@
 ;   (auxin:with-struct (sah-bucket- mi ma fwdcnt fwdbb bckcnt bckbb inds) o
 ;     (format s "<@sah/b # ~d | ~05,2f ~05,2f | fwd: ~a ~05,2f | bck: ~a ~05,2f ~%~a ~%~a>"
 ;             (length inds) mi ma fwdcnt fwdbb bckcnt bckbb)))
+(declaim (inline -make-sah-bucket))
 (defstruct (sah-bucket (:constructor -make-sah-bucket)
                        ; (:print-object -print-sah-bucket)
                        )
-  (inds (auxin:make-adjustable-vector) :type vector)
-  (mi 900000f0 :type veq:ff)       (ma -900000f0 :type veq:ff)
+  (inds (auxin:make-adjustable-vector :type 'veq:pn) :type vector)
+  (mi *bvhhi* :type veq:ff)        (ma *bvhlo* :type veq:ff)
   (fwdcnt 0 :type veq:pn)          (bckcnt 0 :type veq:pn)
   (fwdbb (make-bb) :type veq:fvec) (bckbb (make-bb) :type veq:fvec)
   (bb (make-bb) :type veq:fvec))

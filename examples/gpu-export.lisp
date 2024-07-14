@@ -31,6 +31,9 @@
     (reset-mat)
     (print sc)))
 
+
+
+
 (veq:vdef do-alter-mesh (sc mode &aux (msh (gmsh/scene:scene-msh sc))
                                       (cam (gmsh/scene:scene-proj sc)))
   ; (declare (optimize speed (safety 1)))
@@ -38,15 +41,27 @@
              (f3!pt (veq:3$ (gmsh/scene:scene-look sc))))
     (labels ((polymatfx (old new) (gmsh/scene:setmat sc new (gmsh/scene:getmat sc old)))
              (sym () (gmsh:plane-sym msh pt nn :matfx #'polymatfx))
-             (stretch (&aux (s (rnd:rndrng 5.0 40.0)))
+             (stretch-vpn (&aux (s (rnd:rndrng 5.0 40.0)))
                (gmsh:tx! msh ; TODO p/tx
                  (set-difference
                    (gmsh:p/classify-verts msh
                      (lambda ((:va 3 pos)) (> (veq:f3dot (f3!@- pos pt) nn-) 0.001)))
                    (gmsh:plane-split msh pt nn- :matfx #'polymatfx))
-                 (lambda ((:va 3 pos)) (veq:f3from pos nn- s)))))
+                 (lambda ((:va 3 pos)) (veq:f3from pos (veq:3$ (gmsh/cam:cam-vpn cam))
+                                                   s))))
+             (stretch-v (&aux (s (rnd:rndrng 5.0 40.0)))
+               (gmsh:tx! msh ; TODO p/tx
+                 (set-difference
+                   (gmsh:p/classify-verts msh
+                     (lambda ((:va 3 pos)) (> (veq:f3dot (f3!@- pos pt) nn-) 0.001)))
+                   (gmsh:plane-split msh pt nn- :matfx #'polymatfx))
+                 (lambda ((:va 3 pos)) (veq:f3from pos nn- s))))
+             )
         (handler-case
-         (ecase (print mode) (:sym (sym)) (:stretch (stretch)))
+         (ecase (print mode)
+                (:sym (sym))
+                (:stretch-vpn (stretch-vpn))
+                (:stretch-v (stretch-v)))
          (error (e) (gmsh:wrn :alter-msh "unexpected err: ~a" e)))))
   (print msh))
 
@@ -95,7 +110,7 @@
                            #.(veq:ff internal-time-units-per-second)))))
         (lqn:out "~&██ frame: ~a, t: ~a, f: ~a~%" itt df (safe-inv df))))))
 
-(defun fn () "_example") ; (fn:fn)
+(defun fn () (fn:fn))
 
 (veq:fvdef main ()
   (gmsh/gl:window-context (*size* *size*)
@@ -113,16 +128,26 @@
                                  (gmsh/scene::update-axis sc ax v))
           (:controllerbuttondown (:state state :which which :button b :type ty)
             (lqn:out "~&██ btn: ~a~&" b)
+
+            ;     L2              R2
+            ;     L1 9            R1  10
+            ;
+            ;     ↑ 11            3
+            ; ←13   14 →       2     1
+            ;     ↓ 12            0
+            ;
+            ;     7               8
             (case b
-                    (9  (do-alter-mesh sc :sym)     (f@render-init)) ; L1
-                    (10  (do-alter-mesh sc :stretch) (f@render-init)) ; L2
+                    (3  (do-alter-mesh sc :sym)     (f@render-init)) ; L1
+                    (2  (do-alter-mesh sc :stretch-v) (f@render-init)) ; L2
+                    (1  (do-alter-mesh sc :stretch-vpn) (f@render-init)) ; L2
                     (0  (setf *pid* (mod (1+ *pid*) (length gmsh:*programs*))) ; triangle
                         (funcall program (aref gmsh:*programs* *pid*))
                         (funcall render-init))
-                    (2  (gmsh/scene::scene/save sc (fn))) ; square
-                    (3  (reset-mesh sc) (funcall render-init)) ; x
-                    (12 (gmsh/scene:set-s sc (min 100000.0 (+ (gmsh/scene:get-s sc) 50.0))))
-                    (11 (gmsh/scene:set-s sc (max 0.1 (- (gmsh/scene:get-s sc) 50.0))))))
+                    (12  (gmsh/scene::scene/save sc (fn))) ; square
+                    (13  (reset-mesh sc) (funcall render-init)) ; x
+                    (9 (gmsh/scene:set-s sc (min 100000.0 (+ (gmsh/scene:get-s sc) 50.0))))
+                    (10 (gmsh/scene:set-s sc (max 0.1 (- (gmsh/scene:get-s sc) 50.0))))))
           (:keydown (:keysym keysym)
             ; (print (gmsh:get-num-polys (scene-msh sc)))
             ; (progn (gmsh:make-bvh (scene-msh sc) :num 10))

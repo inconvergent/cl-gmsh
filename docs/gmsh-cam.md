@@ -117,6 +117,126 @@
  ;       Initform: 1.0
 ```
 
+## `gmsh/cam:cam-pos`
+```
+:missing:
+
+ ; GMSH/CAM:CAM-POS
+ ;   [symbol]
+ ; 
+ ; CAM-POS names a compiled function:
+ ;   Lambda-list: (INSTANCE)
+ ;   Derived type: (FUNCTION (GMSH/CAM:CAM)
+ ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL))
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+ ; 
+ ; (SETF CAM-POS) names a compiled function:
+ ;   Lambda-list: (VALUE INSTANCE)
+ ;   Derived type: (FUNCTION ((SIMPLE-ARRAY SINGLE-FLOAT) GMSH/CAM:CAM)
+ ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL))
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+```
+
+## `gmsh/cam:cam-s`
+```
+:missing:
+
+ ; GMSH/CAM:CAM-S
+ ;   [symbol]
+ ; 
+ ; CAM-S names a compiled function:
+ ;   Lambda-list: (INSTANCE)
+ ;   Derived type: (FUNCTION (GMSH/CAM:CAM)
+ ;                  (VALUES SINGLE-FLOAT &OPTIONAL))
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+ ; 
+ ; (SETF CAM-S) names a compiled function:
+ ;   Lambda-list: (VALUE INSTANCE)
+ ;   Derived type: (FUNCTION (SINGLE-FLOAT GMSH/CAM:CAM)
+ ;                  (VALUES SINGLE-FLOAT &OPTIONAL))
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+```
+
+## `gmsh/cam:cam-u`
+```
+:missing:
+
+ ; GMSH/CAM:CAM-U
+ ;   [symbol]
+ ; 
+ ; CAM-U names a compiled function:
+ ;   Lambda-list: (INSTANCE)
+ ;   Derived type: (FUNCTION (GMSH/CAM:CAM)
+ ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL))
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+ ; 
+ ; (SETF CAM-U) names a compiled function:
+ ;   Lambda-list: (VALUE INSTANCE)
+ ;   Derived type: (FUNCTION ((SIMPLE-ARRAY SINGLE-FLOAT) GMSH/CAM:CAM)
+ ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL))
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+```
+
+## `gmsh/cam:cam-up`
+```
+:missing:
+
+ ; GMSH/CAM:CAM-UP
+ ;   [symbol]
+ ; 
+ ; CAM-UP names a compiled function:
+ ;   Lambda-list: (INSTANCE)
+ ;   Derived type: (FUNCTION (GMSH/CAM:CAM)
+ ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL))
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+ ; 
+ ; (SETF CAM-UP) names a compiled function:
+ ;   Lambda-list: (VALUE INSTANCE)
+ ;   Derived type: (FUNCTION ((SIMPLE-ARRAY SINGLE-FLOAT) GMSH/CAM:CAM)
+ ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL))
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+```
+
+## `gmsh/cam:cam-v`
+```
+:missing:
+
+ ; GMSH/CAM:CAM-V
+ ;   [symbol]
+ ; 
+ ; CAM-V names a compiled function:
+ ;   Lambda-list: (INSTANCE)
+ ;   Derived type: (FUNCTION (GMSH/CAM:CAM)
+ ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL))
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+ ; 
+ ; (SETF CAM-V) names a compiled function:
+ ;   Lambda-list: (VALUE INSTANCE)
+ ;   Derived type: (FUNCTION ((SIMPLE-ARRAY SINGLE-FLOAT) GMSH/CAM:CAM)
+ ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL))
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+```
+
+## `gmsh/cam:cam-vpn`
+```
+:missing:
+
+ ; GMSH/CAM:CAM-VPN
+ ;   [symbol]
+ ; 
+ ; CAM-VPN names a compiled function:
+ ;   Lambda-list: (INSTANCE)
+ ;   Derived type: (FUNCTION (GMSH/CAM:CAM)
+ ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL))
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+ ; 
+ ; (SETF CAM-VPN) names a compiled function:
+ ;   Lambda-list: (VALUE INSTANCE)
+ ;   Derived type: (FUNCTION ((SIMPLE-ARRAY SINGLE-FLOAT) GMSH/CAM:CAM)
+ ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL))
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+```
+
 ## `gmsh/cam:export-data`
 ```
  ; GMSH/CAM:EXPORT-DATA
@@ -191,7 +311,7 @@
  ;   [symbol]
  ; 
  ; PM names a compiled function:
- ;   Lambda-list: (P S &OPTIONAL (NEAR 0.1) (FAR 50.0) &AUX (S (/ S)))
+ ;   Lambda-list: (P S &OPTIONAL (NEAR 0.1) (FAR 500.0))
  ;   Derived type: (FUNCTION
  ;                  (GMSH/CAM:CAM SINGLE-FLOAT &OPTIONAL SINGLE-FLOAT
  ;                   SINGLE-FLOAT)
