@@ -77,11 +77,11 @@ keywords:
      (do-ao (hi (:va 3 pt dir)) ; ambient occlusion
        (declare (veq:in hi) (veq:ff pt dir))
        (veq:xlet ((f!rl (* ao-dst (expt (srnd:rnd* *rs* 1f0) 2.0)))
-                  (f3!hn (get-normal bvh hi dir))
+                  (f3!hn (align-normal bvh hi dir))
                   (f3!hp* (veq:f3from pt hn 0.01))
                   (f3!hnrl (f3!@*. hn rl)))
-         (min 1f0 (+ 0.5
-                    (* 0.5 (loop repeat ao-rep
+         (min 1f0 (+ 0.2
+                    (* 0.8 (loop repeat ao-rep
                            summing (abs (the veq:ff
                                           (rc-simple bvh hp*
                                             (f3!@+ (rnd3on-sphere rl) hnrl)))))
@@ -89,12 +89,12 @@ keywords:
 
      (do-rr (depth hi (:va 3 rgb pt dir)) ; reflection
        (declare (veq:pn depth) (veq:in hi) (veq:ff rgb pt dir))
-       (veq:xlet ((f3!hn (get-normal bvh hi dir))
+       (veq:xlet ((f3!hn (align-normal bvh hi dir))
                   (f3!hp* (veq:f3from pt hn 0.01)))
          (f3!@+ (f3!@*. rgb 0.5) ; TODO: config factor
          (f3!@*. (m@do-render (1+ depth) hp*
                    (m@reflect dir
-                     (veq:f3norm (f3!@+ (rnd3in-sphere 0.05) hn)))) ; TODO: config
+                     (veq:f3norm (f3!@+ (rnd3in-sphere 0.03) hn)))) ; TODO: config
                  0.5))))
 
      (do-ro (depth hi (:va 3 rgb pt dir)) ; ao * rr

@@ -38,9 +38,11 @@
            (numlvls 0)
            (int-nodes (veq:p4$zero 0)) ; TODO: make this with leap 2, not 3?
            (simd-nodes (veq:p4$zero 0))
+           (bb (make-bb))
            (buckets (init-sah-buckets (* 3 num-buckets))))
       (declare (veq:pn ni npolys max-node-num polyind) (veq:pvec polys int-nodes)
-               (bvh-node-vec nodes) (veq:kvec mat) (veq:fvec polyfx normals))
+               (bvh-node-vec nodes) (veq:kvec mat) (veq:fvec polyfx normals)
+               (sah-buckets buckets) (bbox bb))
       (labels
         ((nxt-index () (incf ni) (1- ni))
          (do-poly (o &aux (p (car o)))
@@ -63,7 +65,7 @@
          (split-axis (objs n lvl) (declare (list objs) (veq:pn n lvl) (ignorable lvl))
 
            (if  (> lvl 1000) (simple-split objs n)
-            (veq:mvb (flag l r ax) (sah-split-by-best-axis buckets num-buckets objs)
+            (veq:mvb (flag l r ax) (sah-split-by-best-axis buckets num-buckets bb objs)
              (declare (keyword flag) (list l r) (veq:pn ax))
               (ecase flag (:sah (values l r ax))
                          (:narrow (simple-split objs n))))))
@@ -106,13 +108,13 @@
                    :mima mima :simd-mima simd-mima
                    :num-leaves num :time (auxin:now t0) :mode mode)))))
 
-(declaim (inline get-norm get-poly get-mat))
-(veq:fvdef get-norm (bvh i) (declare #.*opt* (bvh bvh) (veq:in i))
+(declaim (inline @norm @poly @mat))
+(veq:fvdef @norm (bvh i) (declare #.*opt* (bvh bvh) (veq:in i))
   "get this normal from bvh" (veq:f3$ (bvh-normals bvh) i))
 
-(veq:fvdef get-poly (bvh i) (declare #.*opt* (bvh bvh) (veq:in i))
+(veq:fvdef @poly (bvh i) (declare #.*opt* (bvh bvh) (veq:in i))
   "get this poly from bvh." (veq:3$ (bvh-polys bvh) i))
 
-(veq:fvdef get-mat (bvh i) (declare #.*opt* (bvh bvh) (veq:in i))
+(veq:fvdef @mat (bvh i) (declare #.*opt* (bvh bvh) (veq:in i))
   "get this material from bvh." (veq:2$ (bvh-mat bvh) i))
 

@@ -1,3 +1,46 @@
+## `gmsh/scene:@pm`
+```
+ ; GMSH/SCENE:@PM
+ ;   [symbol]
+ ; 
+ ; @PM names a compiled function:
+ ;   Lambda-list: (SC)
+ ;   Derived type: (FUNCTION (GMSH/SCENE:SCENE) (VALUES VECTOR &OPTIONAL))
+ ;   Documentation:
+ ;     current projection matrix.
+ ;   Inline proclamation: INLINE (inline expansion available)
+ ;   Source file: /data/x/gmsh/src/gmsh/scene.lisp
+```
+
+## `gmsh/scene:@s`
+```
+ ; GMSH/SCENE:@S
+ ;   [symbol]
+ ; 
+ ; @S names a compiled function:
+ ;   Lambda-list: (SC)
+ ;   Derived type: (FUNCTION (GMSH/SCENE:SCENE)
+ ;                  (VALUES SINGLE-FLOAT &OPTIONAL))
+ ;   Documentation:
+ ;     current scale.
+ ;   Inline proclamation: INLINE (inline expansion available)
+ ;   Source file: /data/x/gmsh/src/gmsh/scene.lisp
+```
+
+## `gmsh/scene:@vm`
+```
+ ; GMSH/SCENE:@VM
+ ;   [symbol]
+ ; 
+ ; @VM names a compiled function:
+ ;   Lambda-list: (SC)
+ ;   Derived type: (FUNCTION (GMSH/SCENE:SCENE) (VALUES VECTOR &OPTIONAL))
+ ;   Documentation:
+ ;     current view matrix.
+ ;   Inline proclamation: INLINE (inline expansion available)
+ ;   Source file: /data/x/gmsh/src/gmsh/scene.lisp
+```
+
 ## `gmsh/scene:canv/save`
 ```
  ; GMSH/SCENE:CANV/SAVE
@@ -9,49 +52,6 @@
  ;                  (GMSH/SCENE:SCENE STRING &KEY (:GAMMA SINGLE-FLOAT)) *)
  ;   Documentation:
  ;     save scene canvas to fn as png.
- ;   Source file: /data/x/gmsh/src/gmsh/scene.lisp
-```
-
-## `gmsh/scene:get-pm`
-```
- ; GMSH/SCENE:GET-PM
- ;   [symbol]
- ; 
- ; GET-PM names a compiled function:
- ;   Lambda-list: (SC)
- ;   Derived type: (FUNCTION (GMSH/SCENE:SCENE) (VALUES VECTOR &OPTIONAL))
- ;   Documentation:
- ;     current projection matrix.
- ;   Inline proclamation: INLINE (inline expansion available)
- ;   Source file: /data/x/gmsh/src/gmsh/scene.lisp
-```
-
-## `gmsh/scene:get-s`
-```
- ; GMSH/SCENE:GET-S
- ;   [symbol]
- ; 
- ; GET-S names a compiled function:
- ;   Lambda-list: (SC)
- ;   Derived type: (FUNCTION (GMSH/SCENE:SCENE)
- ;                  (VALUES SINGLE-FLOAT &OPTIONAL))
- ;   Documentation:
- ;     current scale.
- ;   Inline proclamation: INLINE (inline expansion available)
- ;   Source file: /data/x/gmsh/src/gmsh/scene.lisp
-```
-
-## `gmsh/scene:get-vm`
-```
- ; GMSH/SCENE:GET-VM
- ;   [symbol]
- ; 
- ; GET-VM names a compiled function:
- ;   Lambda-list: (SC)
- ;   Derived type: (FUNCTION (GMSH/SCENE:SCENE) (VALUES VECTOR &OPTIONAL))
- ;   Documentation:
- ;     current view matrix.
- ;   Inline proclamation: INLINE (inline expansion available)
  ;   Source file: /data/x/gmsh/src/gmsh/scene.lisp
 ```
 
@@ -349,10 +349,11 @@
  ;   [symbol]
  ; 
  ; SCENE/SAVE names a compiled function:
- ;   Lambda-list: (SC FN &KEY MATFX (COLORS *MATPAR*) &AUX
+ ;   Lambda-list: (SC FN &KEY MATFX OBJ (COLORS *MATPAR*) &AUX
  ;                 (MSH (SCENE-MSH SC)))
  ;   Derived type: (FUNCTION
- ;                  (GMSH/SCENE:SCENE STRING &KEY (:MATFX T) (:COLORS T))
+ ;                  (GMSH/SCENE:SCENE STRING &KEY (:MATFX T)
+ ;                   (:OBJ BOOLEAN) (:COLORS LIST))
  ;                  *)
  ;   Source file: /data/x/gmsh/src/gmsh/scene.lisp
 ```

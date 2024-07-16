@@ -7,6 +7,11 @@
           (error "bad poly: (~a ~a ~a)" a b c))
   t)
 
+(defun vrange (n &aux (res (veq:p$zero n)))
+  (declare #.*opt* (veq:pn n) (veq:pvec res))
+  (loop for i of-type veq:pn from 0 repeat n do (setf (aref res i) i))
+  res)
+
 (defun poly-as-edges (p) (declare #.*opt* (list p))
   (loop for a in p and b in (append (cdr p) (list (first p)))
         collect (list a b)))
@@ -55,18 +60,18 @@
         (gmsh-num-verts gmsh) 0)
   gmsh)
 
-(defun get-all-polys (msh) (declare (gmsh msh)) "get list of all polys."
+(defun @all-polys (msh) (declare (gmsh msh)) "get list of all polys."
   (loop for k of-type list being the hash-keys of (gmsh-polys msh)
         collect k of-type list))
 
-(defun get-num-verts (msh)    (declare (gmsh msh)) "get number of verts"      (gmsh-num-verts msh))
-(defun get-max-verts (msh)    (declare (gmsh msh)) "get max number of verts." (gmsh-max-verts msh))
-(defun get-num-polys (msh)    (declare (gmsh msh)) "get number of polys."     (hash-table-count (gmsh-polys msh)))
-(defun get-poly-edges (msh p) (declare (gmsh msh)) "get edges of poly."       (gethash (the list p) (gmsh-polys msh)))
-(defun get-edge-polys (msh e) (declare (gmsh msh)) "get polys of edge."
+(defun @vnum (msh) (declare (gmsh msh)) "get number of verts"      (gmsh-num-verts msh))
+(defun @vmax (msh) (declare (gmsh msh)) "get max number of verts." (gmsh-max-verts msh))
+(defun @pnum (msh) (declare (gmsh msh)) "get number of polys."     (hash-table-count (gmsh-polys msh)))
+(defun @poly-edges (msh p) (declare (gmsh msh)) "get edges of poly."       (gethash (the list p) (gmsh-polys msh)))
+(defun @edge-polys (msh e) (declare (gmsh msh)) "get polys of edge."
   (gethash (the list (apply #'-edg (the list e))) (gmsh-edges->poly msh)))
 
-(defun poly-exists (msh p) (declare (gmsh msh) (list p))
+(defun @poly (msh p) (declare (gmsh msh) (list p))
   "return poly if it exists; or nil"
   (gethash p (gmsh-polys msh)))
 (defun norm-poly (poly &aux (i (find-min-ind poly))) (declare (veq:pn i))
@@ -84,7 +89,7 @@
                      do (setf (gethash e edges->poly)
                               (cons p (gethash e edges->poly (list))))))
              (-add-poly (p vt) (declare (list p vt))
-               (when (poly-exists msh p)
+               (when (@poly msh p)
                      (wrn :add-poly! "ignoring dupe: ~a" p)
                      (return-from -add-poly nil))
                (-add-poly-edges p)
@@ -92,6 +97,7 @@
                (when vt (add-vt! msh p vt))
                p))
       (auxin:mvb (p i) (norm-poly poly)
+        (declare (list p) (veq:pn i))
         (values (-add-poly p (when vt (roll-ind vt i)))
                 i)))))
 
@@ -132,25 +138,42 @@
 ; TODO: rename to set? export
 (defun add-vt! (msh p v) (auxin:with-struct (gmsh- vt) msh (setf (gethash p vt) v)))
 
-(veq:fvdef get-vert (msh i) (declare (gmsh msh) (veq:pn i)) "get vert 3d pos (3d)."
+(veq:fvdef @vert (msh i) (declare (gmsh msh) (veq:pn i)) "get vert 3d pos (3d)."
   (veq:f3$ (gmsh-verts msh) i))
-(veq:fvdef get-norm (msh i) (declare (gmsh msh) (veq:pn i)) "get normal vector (3d)."
+(veq:fvdef @norm (msh i) (declare (gmsh msh) (veq:pn i)) "get normal vector (3d)."
   (veq:f3$ (gmsh-norms msh) i))
-(veq:fvdef get-uv (msh i) (declare (gmsh msh) (veq:pn i)) "get uv pos (2d)."
+(veq:fvdef @uv (msh i) (declare (gmsh msh) (veq:pn i)) "get uv pos (2d)."
   (veq:f2$ (gmsh-uv msh) i))
 
-(veq:fvdef get-verts (msh inds) (declare (gmsh msh) (list inds)) "get verts as veq:fvec (3d)."
+(veq:fvdef @verts (msh inds) (declare (gmsh msh) (list inds)) "get verts as veq:fvec (3d)."
   (f3.@$identity (l?@ (gmsh-verts msh) inds)))
-(veq:fvdef get-norms (msh inds) (declare (gmsh msh) (list inds)) "get normals as veq:fvec (3d)."
+(veq:fvdef @norms (msh inds) (declare (gmsh msh) (list inds)) "get normals as veq:fvec (3d)."
   (f3.@$identity (l?@ (gmsh-norms msh) inds)))
-(veq:fvdef get-uvs (msh inds) (declare (gmsh msh) (list inds)) "get uvs as veq:fvec (2d)."
+(veq:fvdef @uvs (msh inds) (declare (gmsh msh) (list inds)) "get uvs as veq:fvec (2d)."
   (f2.@$identity (l?@ (gmsh-uv msh) inds)))
 
-(defun get-connected-verts (msh &aux (res (make-hash-table :test #'eql)))
+(defun @connected-verts (msh &aux (res (make-hash-table :test #'eql)))
   (declare (gmsh msh)) "return all connected verts."
   (auxin:with-struct (gmsh- edges->poly) msh
     (loop for (a b) being the hash-keys of edges->poly do (setf (gethash a res) t (gethash b res) t))
     (loop for k being the hash-keys of res collect k))) ; this was sorted <. does it matter?
+
+(veq:fvdef split-edge! (msh e &key matfx)
+  (declare #.*opt* (gmsh msh) (list e)) "split this edge"
+  (auxin:with-struct (gmsh- edges->poly) msh
+    (declare (hash-table edges->poly))
+    ; TODO: unless edge exists, exit
+    ; TODO: textures
+    ; TODO: inject edge
+    (unless (gethash e edges->poly) (return-from split-edge! nil))
+    (dsb (a b) e
+     (let ((nv (add-vert! msh (veq:f3mid (veq:f3$ (@verts msh e) 0 1)))))
+       (labels ((mat (from to) (when matfx (f@matfx from to)) from)
+                (do-split (p &aux (c (car (set-difference p e))))
+                  (list (mat p (add-poly! msh `(,a ,nv ,c)))
+                        (mat p (add-poly! msh `(,nv ,b ,c))))))
+         (loop for p in (del-polys! msh (gethash e edges->poly))
+               nconc (do-split p)))))))
 
 (veq:fvdef tx! (msh inds fx)
   (declare (gmsh msh) (list inds) (function fx)) "apply this transform to verts."
@@ -172,7 +195,7 @@
     (auxin:with-struct (gmsh- verts num-verts) msh
       (declare (veq:fvec verts) (veq:pn num-verts))
       (auxin:mvb (xmi xma ymi yma zmi zma)
-        (if connected (veq:f3$mima verts :inds (get-connected-verts msh))
+        (if connected (veq:f3$mima verts :inds (@connected-verts msh))
                       (veq:f3$mima verts :n (gmsh-num-verts msh)))
         (declare (veq:ff xmi xma ymi yma zmi zma))
         (veq:xlet ((f3!mx (f3!@*. (f3!@+ xmi ymi zmi xma yma zma) 0.5))
@@ -190,10 +213,8 @@ keywords:
  - num         : smallest number of polys in a node.
  - mode        : acceleration structure.
  - num-buckets : SAH estimation buckets.
- - sort-lvl    : no SAH estimation below this level.
- - sort-num    : no SAH estimation when less than sort-num polys.
-" (apply #'gmsh/bvh::make (get-all-polys msh)
-         (lambda (verts) (declare (list verts)) (get-verts msh verts))
+" (apply #'gmsh/bvh::make (@all-polys msh)
+         (lambda (verts) (declare (list verts)) (@verts msh verts))
          rest))
 
 

@@ -8,7 +8,7 @@
   :in-order-to ((asdf:test-op (asdf:test-op #:gmsh/tests)))
   :pathname "src/" :serial nil
   :depends-on (#:uiop #:sb-simd
-               #:auxin
+               #:auxin #:lparallel #:fset
                #:cl-opengl #:cl-glu #:sdl2)
   :components ((:file "packages")
                (:file "init" :depends-on ("packages"))
@@ -44,7 +44,9 @@
                (:file "voxel/voxel" :depends-on ("voxel/init"))))
 
 (asdf:defsystem #:gmsh/tests
-  :depends-on (#:gmsh #:prove)
+  :depends-on (#:uiop #:sb-simd
+               #:auxin #:lparallel #:fset
+               #:cl-opengl #:cl-glu #:sdl2)
   :version "1.4.0"
   :perform (asdf:test-op (o s) (uiop:symbol-call ':gmsh-tests '#:run-tests))
   :pathname "test/" :serial t

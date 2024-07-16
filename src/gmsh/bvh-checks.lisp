@@ -78,58 +78,37 @@
             (when (< tymax tmax) (setf tmax tymax))
             ; (setf tmin (max tymin tmin) tmax (min tymax tmax))
             (-bound ((:vr org 2) (:vr inv 2) ($ 4) ($ 5) tzmin tzmax)
-              (and
-                   (<= tmin tzmax)
-                   (<= tmin 1f0)
-                   (>= tmax 0f0)
-                   (<= tzmin 1f0)
-                   (<= tzmin tmax)
-                   (>= tzmax 0f0)))))))))
+              (and (<= tmin tzmax) (<= tmin 1f0) (>= tmax 0f0)
+                   (<= tzmin 1f0) (<= tzmin tmax) (>= tzmax 0f0)))))))))
 
-; ----- SIMD ---------------------------------------------------------
-
-; this is slower, maybe we can improve it?
-; `(sb-simd-fma:f32.4-fnmadd ,iv ($ ,mx) ; 43.2s ; 35.6 sans bcast
-;     (sb-simd-avx2:f32.4* ,o ,iv))
-
-(macrolet (($ (k) `(sb-simd-avx2:f32.4-aref mima (the veq:pn (+ i ,k))))
-           (.fmadd (mx o iv) `(sb-simd-avx2:f32.4* ,iv ;         35.2
-                                (sb-simd-avx2:f32.4- ($ ,mx) ,o)))
+(macrolet (($    (k)          `(sb-simd-avx2:f32.4-aref mima (+ i ,k)))
+           (.f32 (&rest rest) `(sb-simd-avx2:f32.4 ,@rest))
            (.min (&rest rest) `(sb-simd-avx2:f32.4-min ,@rest))
            (.max (&rest rest) `(sb-simd-avx2:f32.4-max ,@rest))
-           (.<= (&rest rest) `(sb-simd-avx2:f32.4<= ,@rest))
-           (.>= (&rest rest) `(sb-simd-avx2:f32.4>= ,@rest))
+           (.<=  (&rest rest) `(sb-simd-avx2:f32.4<=   ,@rest))
+           (.>=  (&rest rest) `(sb-simd-avx2:f32.4>=   ,@rest))
            (.and (&rest rest) `(sb-simd-avx2:u32.4-and ,@rest))
-           (.or (&rest rest) `(sb-simd-avx2:u32.4-or ,@rest))
+           (.or  (&rest rest) `(sb-simd-avx2:u32.4-or  ,@rest))
+           (.msub (mx o iv)   `(sb-simd-avx2:f32.4* ,iv
+                                 (sb-simd-avx2:f32.4- ($ ,mx) ,o)))
            (do-dim (8d iorg* inv*)
-             `(let* ((iv (sb-simd-avx2:f32.4 ,inv*))
-                     (o (sb-simd-avx2:f32.4 ,iorg*))
-                     (a (.fmadd ,8d o iv))
-                     (b (.fmadd ,(+ 8d 4) o iv)))
+             `(let* ((iv (.f32 ,inv*))
+                     (o (.f32 ,iorg*))
+                     (a (.msub ,8d o iv))
+                     (b (.msub ,(+ 8d 4) o iv)))
+                (declare (sb-simd-avx2:f32.4 iv o a b))
                 (setf lo (.max (.min a b) lo)
                       hi (.min (.max a b) hi)))))
-  (veq:fvdef simd/bvh4/bbox-test ( mima i (:va 3 inv iorg))
+
+  (veq:fvdef simd/bvh4/bbox-test ( mima i (:va 3 inv iorg)) ; SIMD
     (declare #.*opt1* (veq:pn i) (sb-simd-avx2:f32vec mima) (veq:ff inv iorg))
-      (let ((lo (sb-simd-avx2:f32.4 -9000f0)) (hi (sb-simd-avx2:f32.4 9000f0)))
+      (let ((lo (.f32 *bvhlo*)) (hi (.f32 *bvhhi*)))
         (declare (sb-simd-avx2:f32.4 lo hi))
         (do-dim 0  (:vr iorg 0) (:vr inv 0))
         (do-dim 8  (:vr iorg 1) (:vr inv 1))
         (do-dim 16 (:vr iorg 2) (:vr inv 2))
         (veq:mvc #'logxor
           (sb-simd-avx2:u32.4-values
-            (.and
-
-              (.and
-                    (.<= 0f0 hi)
-                    (.<= lo 1f0)
-                    (.<= lo hi)
-                    )
-                    ; (.or (.and (.<= lo 0f0) (.<= 0f0 hi))
-                    ;      (.and (.<= 1f0 hi) (.<= lo 1f0))
-                    ;      (.and (.<= 0f0 lo) (.<= hi 1f0))
-                    ;      )
-                  (sb-simd-avx2:make-u32.4 1 2 4 8))
-
-
-            )))))
+            (.and (sb-simd-avx2:make-u32.4 1 2 4 8)
+                  (.and (.<= 0f0 hi) (.<= lo 1f0) (.<= lo hi))))))))
 

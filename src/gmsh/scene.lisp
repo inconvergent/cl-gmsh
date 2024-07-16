@@ -19,15 +19,15 @@
   (vm #() :type vector :read-only nil))
   ; (attr nil :read-only nil) (n 0 :read-only nil)
 
-(declaim (inline make-pm make-vm get-pm get-vm get-s set-s))
-(defun get-s (sc)   (declare (scene sc)) "current scale."             (gmsh/cam:@s (scene-proj sc)))
+(declaim (inline make-pm make-vm @pm @vm @s set-s))
+(defun @s (sc)   (declare (scene sc)) "current scale."             (gmsh/cam:@s (scene-proj sc)))
 (defun set-s (sc s) (declare (scene sc)) "set new scale."             (gmsh/cam:update (scene-proj sc) :s s))
 (defun make-vm (sc) (declare (scene sc)) "new view matrix."
   (vector (gmsh/cam:vm (scene-proj sc) (veq:f3$ (scene-look sc)))))
 (defun make-pm (sc) (declare (scene sc)) "new projection matrix."
-  (vector (gmsh/cam:pm (scene-proj sc) (get-s sc) 0.01 50f0)))
-(defun get-pm (sc)  (declare (scene sc)) "current projection matrix." (scene-pm sc))
-(defun get-vm (sc)  (declare (scene sc)) "current view matrix."       (scene-vm sc))
+  (vector (gmsh/cam:pm (scene-proj sc) (@s sc) 0.01 50f0)))
+(defun @pm (sc)  (declare (scene sc)) "current projection matrix." (scene-pm sc))
+(defun @vm (sc)  (declare (scene sc)) "current view matrix."       (scene-vm sc))
 
 (veq:fvdef update-view (sc &aux (look (scene-look sc)))
   (declare (optimize speed (safety 1))) "update scene view."
@@ -74,11 +74,10 @@
   (unless res (wrn :getmat "missing material for: ~a; default: ~a" p default))
   (or res default))
 
-(defun gpu/do-pack-bvh (sc) (declare (scene sc))
-  (gmsh/bvh:gpu/pack-bvh (gmsh:make-bvh (scene-msh sc) :num 7
-                           :matfx (scene-matfx sc)
-                           :mode :bvh2-stackless
-                           )))
+(defun gpu/do-pack-bvh (sc) (declare (scene sc)) ; TODO: pass bvh params
+  (gmsh/bvh:gpu/pack-bvh
+    (print (gmsh:make-bvh (scene-msh sc) :num 32 :buckets 31
+              :matfx (scene-matfx sc) :mode :bvh2-stackless))))
 
 (defun scene/new-canv (sc &key size) (declare (scene sc)) ; TODO: new name??
   (when size (setf (scene-size sc) size))
@@ -89,7 +88,7 @@
   "split edges longer than lim. sometimes this makes faster raycasting (with bvh)."
   (loop with msh = (gmsh/scene:scene-msh sc)
         for e across (lqn:keys? (gmsh::gmsh-edges->poly msh))
-        if  (> (veq:f3dst (veq:f3$ (gmsh:get-verts msh e) 0 1)) lim)
+        if  (> (veq:f3dst (veq:f3$ (gmsh:@verts msh e) 0 1)) lim)
         do (gmsh::split-edge! msh e :matfx (lambda (old new)
                                              (gmsh/scene:setmat sc new
                                                (gmsh/scene:getmat sc old))))))
@@ -103,25 +102,25 @@
                             (matmap (make-hash-table :test #'equal)) matfx)
   (declare (veq:pn max-verts size) (veq:ff s) (veq:fvec look cam xy)
            (keyword program) (hash-table matmap) (gmsh/cam:cam proj))
-  (labels ((make-cam () )
-           (matfx (p) (veq:mvb (m exists) (gethash p matmap '(:c :x))
+  (labels ((matfx (p) (veq:mvb (m exists) (gethash p matmap '(:c :x))
                         (unless exists (wrn :scene-matfx "poly missing matmap: ~a" p))
                         (values-list m))))
     (-make-scene :size size :program program :msh msh :proj proj :look look
                  :matmap matmap :matfx (the function (or matfx #'matfx)))))
 
-(defun scene/save (sc fn &key matfx (colors gmsh:*matpar*) &aux (msh (scene-msh sc)))
-  (declare (scene sc) (string fn))
+(defun scene/save (sc fn &key matfx obj (colors gmsh:*matpar*)
+                         &aux (msh (scene-msh sc)))
+  (declare (scene sc) (string fn) (boolean obj) (list colors))
   (lqn:out "~&████ exporting: ~a.~%████ fn: ~a~&" msh fn)
   (labels ((matfx (p) (getmat sc p '(:c :x)))
            (expfx (m &aux (m (second m))) `(,(mname m) :c ,m))
            (mname (m) (lqn:sdwn m 1))
            (propfx (mc) `(("mtllib" . ,(lqn:fmt "~a.mtl" fn))
                           ("usemtl" . ,(mname (second mc)))))) ; TODO: usemtl could be better
-    (gmsh/io:obj/save-mtl msh fn
-      (mapcar #'expfx (gmsh/io:obj/save msh fn :matfx (the function (or matfx #'matfx))
-                                               :propfx #'propfx))
-      :colors colors)
+    (when obj (gmsh/io:obj/save-mtl msh fn
+                (mapcar #'expfx (gmsh/io:obj/save msh fn :propfx #'propfx
+                                  :matfx (the function (or matfx #'matfx))))
+                :colors colors))
     (lqn:dat-export fn `((:fn . ,fn) (:now . ,(lqn:now))
                          (:true-name . ,*load-truename*) ; TODO: get this as input?
                          (:size . ,(scene-size sc))

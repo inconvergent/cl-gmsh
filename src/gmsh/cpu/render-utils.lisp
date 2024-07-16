@@ -1,6 +1,6 @@
 (in-package :gmsh/xrend)
 
-; (declaim (inline reflect pixel-shift symbol-rgb get-normal hitmat-simple))
+(declaim (inline reflect pixel-shift symbol-rgb get-normal hitmat-simple))
 
 (defvar *rs*)
 (defmacro rndrng     (&rest rest) `(srnd:rndrng *rs* ,@rest))
@@ -14,14 +14,11 @@
                               (the fixnum (* (the (unsigned-byte 6)
                                                   (lparallel:kernel-worker-index))
                                              19997)))))))
-(defmacro init (k &key (context #'gmsh/xrend::xrend-worker-context)
-                       ; (bindings '((gmsh/bvh::*stck* . (gmsh::make-fast-stack :n 2048))))
-                       )
+
+; NOTE: make-kernel can accept thread local bindings. eg fast stack
+(defmacro init (k &key (context #'gmsh/xrend::xrend-worker-context))
   `(progn (format t "~&██ starting ~a threads~&" ,k)
-          (setf lparallel:*kernel* (lparallel:make-kernel ,k
-                                     :context ,context
-                                     ; :bindings ',bindings
-                                     ))))
+          (setf lparallel:*kernel* (lparallel:make-kernel ,k :context ,context))))
 
 ; (defmacro falloff (b e) `(exp (- (expt (abs ,b) ,e))))
 (veq:fvdef reflect ((:va 3 d n)) (declare #.*opt1* (veq:ff d n))
@@ -35,6 +32,7 @@
 (veq:fvdef sv (proj) (f3!@/. (veq:f3$s proj gmsh/cam::cam- :v) (gmsh/cam::cam-s proj)))
 
 (veq:fvdef symbol-rgb (s) ; TODO: adapt to *color* and *rs*
+  (declare #.*opt1* (keyword s))
   (case s (:w (veq:f3rep 1.0))
           (:r (veq:f3 1.0 0.0 0.0)) (:g (veq:f3 0.0 1.0 0.0)) (:b (veq:f3 0.0 0.0 1.0))
           (:gray (veq:f3val 0.4))
@@ -42,14 +40,14 @@
           (:k (veq:f3rep 0.0))
           (otherwise (veq:f3rep 1.0))))
 
-(veq:fvdef get-normal (bvh i (:va 3 d))
+(veq:fvdef align-normal (bvh i (:va 3 d))
   (declare #.*opt1* (gmsh/bvh:bvh bvh) (veq:in i) (veq:ff d))
-  (veq:xlet ((f3!n (gmsh/bvh::get-norm bvh i)))
+  (veq:xlet ((f3!n (gmsh/bvh:@norm bvh i)))
     (if (< (veq:f3dot n d) 0.0) (veq:f3 n) (f3.@- n))))
 
 (veq:fvdef hitmat-simple (bvh i default) ; embedded in xrend for the time being
   (declare #.*opt1* (gmsh/bvh:bvh bvh) (veq:in i) (keyword default))
-  (if (> i -1) (veq:mvb (flag rgbflag) (gmsh/bvh::get-mat bvh i)
+  (if (> i -1) (veq:mvb (flag rgbflag) (gmsh/bvh:@mat bvh i)
                  (declare (symbol flag rgbflag))
                  (veq:~ flag (symbol-rgb rgbflag)))
                (veq:~ default (veq:f3rep 0.0))))
@@ -60,8 +58,7 @@
                                    (auxin:me (/ (* i aa size) secs)))))
 
 
-(defmacro render-wrap (labels*)
-               ; TODO: make this cleaner ;
+(defmacro render-wrap (labels*) ; TODO: make this cleaner ;
  (let ((default-labels
          `((do-row (yy xx repx repy)
              (declare (veq:pn yy xx repx repy))
@@ -142,3 +139,4 @@
               (loop for k of-type veq:pn from 0 repeat blocks
                     do (do-row k 0 size 1) (f@timer)))
       (f@timer) (format t "~&██~&")))))))
+

@@ -105,7 +105,200 @@
  ; 
  ; *WRNCNT* names a special variable:
  ;   Declared type: HASH-TABLE
- ;   Value: #<HASH-TABLE :TEST EQL :COUNT 0 {10C404E283}>
+ ;   Value: #<HASH-TABLE :TEST EQL :COUNT 0 {10C41B8463}>
+```
+
+## `gmsh:@all-polys`
+```
+ ; GMSH:@ALL-POLYS
+ ;   [symbol]
+ ; 
+ ; @ALL-POLYS names a compiled function:
+ ;   Lambda-list: (MSH)
+ ;   Derived type: (FUNCTION (GMSH:GMSH) (VALUES LIST &OPTIONAL))
+ ;   Documentation:
+ ;     get list of all polys.
+ ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
+```
+
+## `gmsh:@connected-verts`
+```
+ ; GMSH:@CONNECTED-VERTS
+ ;   [symbol]
+ ; 
+ ; @CONNECTED-VERTS names a compiled function:
+ ;   Lambda-list: (MSH &AUX (RES (MAKE-HASH-TABLE TEST (FUNCTION EQL))))
+ ;   Derived type: (FUNCTION (GMSH:GMSH) (VALUES LIST &OPTIONAL))
+ ;   Documentation:
+ ;     return all connected verts.
+ ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
+```
+
+## `gmsh:@edge-polys`
+```
+ ; GMSH:@EDGE-POLYS
+ ;   [symbol]
+ ; 
+ ; @EDGE-POLYS names a compiled function:
+ ;   Lambda-list: (MSH E)
+ ;   Derived type: (FUNCTION (GMSH:GMSH T) (VALUES T BOOLEAN &OPTIONAL))
+ ;   Documentation:
+ ;     get polys of edge.
+ ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
+```
+
+## `gmsh:@norm`
+```
+ ; GMSH:@NORM
+ ;   [symbol]
+ ; 
+ ; @NORM names a compiled function:
+ ;   Lambda-list: (MSH I)
+ ;   Derived type: (FUNCTION (GMSH:GMSH (UNSIGNED-BYTE 32))
+ ;                  (VALUES SINGLE-FLOAT SINGLE-FLOAT SINGLE-FLOAT
+ ;                          &OPTIONAL))
+ ;   Documentation:
+ ;     get normal vector (3d).
+ ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
+```
+
+## `gmsh:@norms`
+```
+ ; GMSH:@NORMS
+ ;   [symbol]
+ ; 
+ ; @NORMS names a compiled function:
+ ;   Lambda-list: (MSH INDS)
+ ;   Derived type: (FUNCTION (GMSH:GMSH LIST)
+ ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT (*)) &OPTIONAL))
+ ;   Documentation:
+ ;     get normals as veq:fvec (3d).
+ ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
+```
+
+## `gmsh:@pnum`
+```
+ ; GMSH:@PNUM
+ ;   [symbol]
+ ; 
+ ; @PNUM names a compiled function:
+ ;   Lambda-list: (MSH)
+ ;   Derived type: (FUNCTION (GMSH:GMSH)
+ ;                  (VALUES (UNSIGNED-BYTE 44) &OPTIONAL))
+ ;   Documentation:
+ ;     get number of polys.
+ ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
+```
+
+## `gmsh:@poly`
+```
+ ; GMSH:@POLY
+ ;   [symbol]
+ ; 
+ ; @POLY names a compiled function:
+ ;   Lambda-list: (MSH P)
+ ;   Derived type: (FUNCTION (GMSH:GMSH LIST) (VALUES T BOOLEAN &OPTIONAL))
+ ;   Documentation:
+ ;     return poly if it exists; or nil
+ ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
+```
+
+## `gmsh:@poly-edges`
+```
+ ; GMSH:@POLY-EDGES
+ ;   [symbol]
+ ; 
+ ; @POLY-EDGES names a compiled function:
+ ;   Lambda-list: (MSH P)
+ ;   Derived type: (FUNCTION (GMSH:GMSH T) (VALUES T BOOLEAN &OPTIONAL))
+ ;   Documentation:
+ ;     get edges of poly.
+ ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
+```
+
+## `gmsh:@uv`
+```
+ ; GMSH:@UV
+ ;   [symbol]
+ ; 
+ ; @UV names a compiled function:
+ ;   Lambda-list: (MSH I)
+ ;   Derived type: (FUNCTION (GMSH:GMSH (UNSIGNED-BYTE 32))
+ ;                  (VALUES SINGLE-FLOAT SINGLE-FLOAT &OPTIONAL))
+ ;   Documentation:
+ ;     get uv pos (2d).
+ ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
+```
+
+## `gmsh:@uvs`
+```
+ ; GMSH:@UVS
+ ;   [symbol]
+ ; 
+ ; @UVS names a compiled function:
+ ;   Lambda-list: (MSH INDS)
+ ;   Derived type: (FUNCTION (GMSH:GMSH LIST)
+ ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT (*)) &OPTIONAL))
+ ;   Documentation:
+ ;     get uvs as veq:fvec (2d).
+ ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
+```
+
+## `gmsh:@vert`
+```
+ ; GMSH:@VERT
+ ;   [symbol]
+ ; 
+ ; @VERT names a compiled function:
+ ;   Lambda-list: (MSH I)
+ ;   Derived type: (FUNCTION (GMSH:GMSH (UNSIGNED-BYTE 32))
+ ;                  (VALUES SINGLE-FLOAT SINGLE-FLOAT SINGLE-FLOAT
+ ;                          &OPTIONAL))
+ ;   Documentation:
+ ;     get vert 3d pos (3d).
+ ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
+```
+
+## `gmsh:@verts`
+```
+ ; GMSH:@VERTS
+ ;   [symbol]
+ ; 
+ ; @VERTS names a compiled function:
+ ;   Lambda-list: (MSH INDS)
+ ;   Derived type: (FUNCTION (GMSH:GMSH LIST)
+ ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT (*)) &OPTIONAL))
+ ;   Documentation:
+ ;     get verts as veq:fvec (3d).
+ ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
+```
+
+## `gmsh:@vmax`
+```
+ ; GMSH:@VMAX
+ ;   [symbol]
+ ; 
+ ; @VMAX names a compiled function:
+ ;   Lambda-list: (MSH)
+ ;   Derived type: (FUNCTION (GMSH:GMSH)
+ ;                  (VALUES (UNSIGNED-BYTE 32) &OPTIONAL))
+ ;   Documentation:
+ ;     get max number of verts.
+ ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
+```
+
+## `gmsh:@vnum`
+```
+ ; GMSH:@VNUM
+ ;   [symbol]
+ ; 
+ ; @VNUM names a compiled function:
+ ;   Lambda-list: (MSH)
+ ;   Derived type: (FUNCTION (GMSH:GMSH)
+ ;                  (VALUES (UNSIGNED-BYTE 32) &OPTIONAL))
+ ;   Documentation:
+ ;     get number of verts
+ ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
 ```
 
 ## `gmsh:add-box!`
@@ -146,7 +339,7 @@
  ; ADD-POLY! names a compiled function:
  ;   Lambda-list: (MSH POLY &OPTIONAL VT)
  ;   Derived type: (FUNCTION (GMSH:GMSH LIST &OPTIONAL LIST)
- ;                  (VALUES LIST T &OPTIONAL))
+ ;                  (VALUES LIST (UNSIGNED-BYTE 32) &OPTIONAL))
  ;   Documentation:
  ;     add poly to msh. returns poly if it was created; or nil.
  ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
@@ -210,21 +403,6 @@
  ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
 ```
 
-## `gmsh:classify-vert-fx`
-```
- ; GMSH:CLASSIFY-VERT-FX
- ;   [symbol]
- ; 
- ; CLASSIFY-VERT-FX names a macro:
- ;   Lambda-list: (&REST REST)
- ;   Documentation:
- ;     WRAPS: %CLASSIFY-VERT-FX
- ;     ARGS: ((VA 3 PT N) &AUX (LIM -1.192093e-7))
- ;     DOCSTRING: [none]
- ;     defined via veq:FVDEF*
- ;   Source file: /data/x/gmsh/src/gmsh/isect.lisp
-```
-
 ## `gmsh:clear!`
 ```
  ; GMSH:CLEAR!
@@ -274,160 +452,6 @@
  ;   Documentation:
  ;     ignores body. returns nil.
  ;   Source file: /data/x/gmsh/src/utils.lisp
-```
-
-## `gmsh:get-all-polys`
-```
- ; GMSH:GET-ALL-POLYS
- ;   [symbol]
- ; 
- ; GET-ALL-POLYS names a compiled function:
- ;   Lambda-list: (MSH)
- ;   Derived type: (FUNCTION (GMSH:GMSH) (VALUES LIST &OPTIONAL))
- ;   Documentation:
- ;     get list of all polys.
- ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
-```
-
-## `gmsh:get-connected-verts`
-```
- ; GMSH:GET-CONNECTED-VERTS
- ;   [symbol]
- ; 
- ; GET-CONNECTED-VERTS names a compiled function:
- ;   Lambda-list: (MSH &AUX (RES (MAKE-HASH-TABLE TEST (FUNCTION EQL))))
- ;   Derived type: (FUNCTION (GMSH:GMSH) (VALUES LIST &OPTIONAL))
- ;   Documentation:
- ;     return all connected verts.
- ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
-```
-
-## `gmsh:get-max-verts`
-```
- ; GMSH:GET-MAX-VERTS
- ;   [symbol]
- ; 
- ; GET-MAX-VERTS names a compiled function:
- ;   Lambda-list: (MSH)
- ;   Derived type: (FUNCTION (GMSH:GMSH)
- ;                  (VALUES (UNSIGNED-BYTE 32) &OPTIONAL))
- ;   Documentation:
- ;     get max number of verts.
- ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
-```
-
-## `gmsh:get-norm`
-```
- ; GMSH:GET-NORM
- ;   [symbol]
- ; 
- ; GET-NORM names a compiled function:
- ;   Lambda-list: (MSH I)
- ;   Derived type: (FUNCTION (GMSH:GMSH (UNSIGNED-BYTE 32))
- ;                  (VALUES SINGLE-FLOAT SINGLE-FLOAT SINGLE-FLOAT
- ;                          &OPTIONAL))
- ;   Documentation:
- ;     get normal vector (3d).
- ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
-```
-
-## `gmsh:get-norms`
-```
- ; GMSH:GET-NORMS
- ;   [symbol]
- ; 
- ; GET-NORMS names a compiled function:
- ;   Lambda-list: (MSH INDS)
- ;   Derived type: (FUNCTION (GMSH:GMSH LIST)
- ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT (*)) &OPTIONAL))
- ;   Documentation:
- ;     get normals as veq:fvec (3d).
- ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
-```
-
-## `gmsh:get-num-polys`
-```
- ; GMSH:GET-NUM-POLYS
- ;   [symbol]
- ; 
- ; GET-NUM-POLYS names a compiled function:
- ;   Lambda-list: (MSH)
- ;   Derived type: (FUNCTION (GMSH:GMSH)
- ;                  (VALUES (UNSIGNED-BYTE 44) &OPTIONAL))
- ;   Documentation:
- ;     get number of polys.
- ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
-```
-
-## `gmsh:get-num-verts`
-```
- ; GMSH:GET-NUM-VERTS
- ;   [symbol]
- ; 
- ; GET-NUM-VERTS names a compiled function:
- ;   Lambda-list: (MSH)
- ;   Derived type: (FUNCTION (GMSH:GMSH)
- ;                  (VALUES (UNSIGNED-BYTE 32) &OPTIONAL))
- ;   Documentation:
- ;     get number of verts
- ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
-```
-
-## `gmsh:get-uv`
-```
- ; GMSH:GET-UV
- ;   [symbol]
- ; 
- ; GET-UV names a compiled function:
- ;   Lambda-list: (MSH I)
- ;   Derived type: (FUNCTION (GMSH:GMSH (UNSIGNED-BYTE 32))
- ;                  (VALUES SINGLE-FLOAT SINGLE-FLOAT &OPTIONAL))
- ;   Documentation:
- ;     get uv pos (2d).
- ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
-```
-
-## `gmsh:get-uvs`
-```
- ; GMSH:GET-UVS
- ;   [symbol]
- ; 
- ; GET-UVS names a compiled function:
- ;   Lambda-list: (MSH INDS)
- ;   Derived type: (FUNCTION (GMSH:GMSH LIST)
- ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT (*)) &OPTIONAL))
- ;   Documentation:
- ;     get uvs as veq:fvec (2d).
- ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
-```
-
-## `gmsh:get-vert`
-```
- ; GMSH:GET-VERT
- ;   [symbol]
- ; 
- ; GET-VERT names a compiled function:
- ;   Lambda-list: (MSH I)
- ;   Derived type: (FUNCTION (GMSH:GMSH (UNSIGNED-BYTE 32))
- ;                  (VALUES SINGLE-FLOAT SINGLE-FLOAT SINGLE-FLOAT
- ;                          &OPTIONAL))
- ;   Documentation:
- ;     get vert 3d pos (3d).
- ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
-```
-
-## `gmsh:get-verts`
-```
- ; GMSH:GET-VERTS
- ;   [symbol]
- ; 
- ; GET-VERTS names a compiled function:
- ;   Lambda-list: (MSH INDS)
- ;   Derived type: (FUNCTION (GMSH:GMSH LIST)
- ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT (*)) &OPTIONAL))
- ;   Documentation:
- ;     get verts as veq:fvec (3d).
- ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
 ```
 
 ## `gmsh:gmsh`
@@ -507,15 +531,27 @@
  ;   [symbol]
 ```
 
-## `gmsh:itr-polys`
+## `gmsh:itr/polys`
 ```
- ; GMSH:ITR-POLYS
+ ; GMSH:ITR/POLYS
  ;   [symbol]
  ; 
- ; ITR-POLYS names a macro:
+ ; ITR/POLYS names a macro:
  ;   Lambda-list: ((MSH P &KEY COLLECT) &BODY BODY)
  ;   Documentation:
  ;     iterate all polygons as p. optionally collect body.
+ ;   Source file: /data/x/gmsh/src/macros.lisp
+```
+
+## `gmsh:itr/verts`
+```
+ ; GMSH:ITR/VERTS
+ ;   [symbol]
+ ; 
+ ; ITR/VERTS names a macro:
+ ;   Lambda-list: ((MSH I X Y Z &KEY COLLECT) &BODY BODY)
+ ;   Documentation:
+ ;     iterate all vertices as index and pos. optionally collect body.
  ;   Source file: /data/x/gmsh/src/macros.lisp
 ```
 
@@ -535,8 +571,6 @@
  ;      - num         : smallest number of polys in a node.
  ;      - mode        : acceleration structure.
  ;      - num-buckets : SAH estimation buckets.
- ;      - sort-lvl    : no SAH estimation below this level.
- ;      - sort-num    : no SAH estimation when less than sort-num polys.
  ; 
  ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
 ```
@@ -547,6 +581,38 @@
 
  ; GMSH:MAKE-FAST-STACK
  ;   [symbol]
+```
+
+## `gmsh:msk/set!`
+```
+:missing:
+
+ ; GMSH:MSK/SET!
+ ;   [symbol]
+```
+
+## `gmsh:msk/tx!`
+```
+ ; GMSH:MSK/TX!
+ ;   [symbol]
+ ; 
+ ; MSK/TX! names a macro:
+ ;   Lambda-list: (MSH POS MSK &BODY BODY)
+ ;   Documentation:
+ ;     apply this transform to verts where msk is not 0
+ ;   Source file: /data/x/gmsh/src/macros.lisp
+```
+
+## `gmsh:msk/v`
+```
+ ; GMSH:MSK/V
+ ;   [symbol]
+ ; 
+ ; MSK/V names a macro:
+ ;   Lambda-list: (MSH POS &BODY BODY)
+ ;   Documentation:
+ ;     return veq:pvec mask
+ ;   Source file: /data/x/gmsh/src/macros.lisp
 ```
 
 ## `gmsh:norm-poly`
@@ -563,56 +629,41 @@
  ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
 ```
 
-## `gmsh:p/classify-verts`
-```
- ; GMSH:P/CLASSIFY-VERTS
- ;   [symbol]
- ; 
- ; P/CLASSIFY-VERTS names a macro:
- ;   Lambda-list: (&REST REST)
- ;   Documentation:
- ;     WRAPS: %P/CLASSIFY-VERTS
- ;     ARGS: (MSH VFX &AUX (SA (LIST)) (SB (LIST)))
- ;     DOCSTRING: [none]
- ;     defined via veq:FVDEF*
- ;   Source file: /data/x/gmsh/src/gmsh/isect.lisp
-```
-
-## `gmsh:plane-split`
-```
- ; GMSH:PLANE-SPLIT
- ;   [symbol]
- ; 
- ; PLANE-SPLIT names a macro:
- ;   Lambda-list: (&REST REST)
- ;   Documentation:
- ;     WRAPS: %PLANE-SPLIT
- ;     ARGS: (MSH (VA 3 PT NORM) &KEY MATFX &AUX (G (GRPH)) (NEW-VERTS (LIST))
- ;            (EDGE-CACHE (MAKE-HT)) (LERPS (MAKE-HT)))
- ;     DOCSTRING: split plane at plane.
- ;     defined via veq:FVDEF*
- ;   Source file: /data/x/gmsh/src/gmsh/isect.lisp
-```
-
-## `gmsh:plane-stretch`
+## `gmsh:plane-bisect!`
 ```
 :missing:
 
- ; GMSH:PLANE-STRETCH
+ ; GMSH:PLANE-BISECT!
  ;   [symbol]
 ```
 
-## `gmsh:plane-sym`
+## `gmsh:plane-slice!`
 ```
- ; GMSH:PLANE-SYM
+ ; GMSH:PLANE-SLICE!
  ;   [symbol]
  ; 
- ; PLANE-SYM names a macro:
+ ; PLANE-SLICE! names a macro:
  ;   Lambda-list: (&REST REST)
  ;   Documentation:
- ;     WRAPS: %PLANE-SYM
+ ;     WRAPS: %PLANE-SLICE!
+ ;     ARGS: (MSH (VA 3 PT NORM) &KEY MATFX &AUX (G (GRPH)) (EDGE-CACHE (MAKE-HT))
+ ;            (LERPS (MAKE-HT)) (NEW-VERTS (LIST)) (NEW-EDGE-SET (LIST)))
+ ;     DOCSTRING: slice mesh with plane.
+ ;     defined via veq:FVDEF*
+ ;   Source file: /data/x/gmsh/src/gmsh/isect.lisp
+```
+
+## `gmsh:plane-sym!`
+```
+ ; GMSH:PLANE-SYM!
+ ;   [symbol]
+ ; 
+ ; PLANE-SYM! names a macro:
+ ;   Lambda-list: (&REST REST)
+ ;   Documentation:
+ ;     WRAPS: %PLANE-SYM!
  ;     ARGS: (MSH (VA 3 PT NORM) &KEY MATFX &AUX
- ;            (SIDE-IDX (MAKE-HASH-TABLE TEST #'EQ)) (VFX (CLASSIFY-VERT-FX PT NORM)))
+ ;            (SIDE-IDX (MAKE-HASH-TABLE TEST #'EQ)))
  ;     DOCSTRING: cut and make mesh symmetric around plane.
  ;     defined via veq:FVDEF*
  ;   Source file: /data/x/gmsh/src/gmsh/isect.lisp
@@ -629,7 +680,7 @@
  ;                  (VALUES LIST &OPTIONAL))
  ;   Documentation:
  ;     split this edge
- ;   Source file: /data/x/gmsh/src/gmsh/isect.lisp
+ ;   Source file: /data/x/gmsh/src/gmsh/gmsh.lisp
 ```
 
 ## `gmsh:stack`
@@ -646,6 +697,21 @@
 
  ; GMSH:STACK-IND
  ;   [symbol]
+```
+
+## `gmsh:triangulate-edge-set`
+```
+ ; GMSH:TRIANGULATE-EDGE-SET
+ ;   [symbol]
+ ; 
+ ; TRIANGULATE-EDGE-SET names a compiled function:
+ ;   Lambda-list: (MSH EDGE-SET PFX)
+ ;   Derived type: (FUNCTION (GMSH:GMSH LIST FUNCTION)
+ ;                  (VALUES LIST &OPTIONAL))
+ ;   Documentation:
+ ;     triangulate the hull defined by edge set, using the projection provided
+ ;     by pfx where pfx: R3 -> R2.
+ ;   Source file: /data/x/gmsh/src/gmsh/isect.lisp
 ```
 
 ## `gmsh:tx!`

@@ -1,3 +1,50 @@
+## `gmsh/bvh:@mat`
+```
+ ; GMSH/BVH:@MAT
+ ;   [symbol]
+ ; 
+ ; @MAT names a compiled function:
+ ;   Lambda-list: (BVH I)
+ ;   Derived type: (FUNCTION (GMSH/BVH:BVH (SIGNED-BYTE 32))
+ ;                  (VALUES SYMBOL SYMBOL &OPTIONAL))
+ ;   Documentation:
+ ;     get this material from bvh.
+ ;   Inline proclamation: INLINE (inline expansion available)
+ ;   Source file: /data/x/gmsh/src/gmsh/bvh.lisp
+```
+
+## `gmsh/bvh:@norm`
+```
+ ; GMSH/BVH:@NORM
+ ;   [symbol]
+ ; 
+ ; @NORM names a compiled function:
+ ;   Lambda-list: (BVH I)
+ ;   Derived type: (FUNCTION (GMSH/BVH:BVH (SIGNED-BYTE 32))
+ ;                  (VALUES SINGLE-FLOAT SINGLE-FLOAT SINGLE-FLOAT
+ ;                          &OPTIONAL))
+ ;   Documentation:
+ ;     get this normal from bvh
+ ;   Inline proclamation: INLINE (inline expansion available)
+ ;   Source file: /data/x/gmsh/src/gmsh/bvh.lisp
+```
+
+## `gmsh/bvh:@poly`
+```
+ ; GMSH/BVH:@POLY
+ ;   [symbol]
+ ; 
+ ; @POLY names a compiled function:
+ ;   Lambda-list: (BVH I)
+ ;   Derived type: (FUNCTION (GMSH/BVH:BVH (SIGNED-BYTE 32))
+ ;                  (VALUES (UNSIGNED-BYTE 32) (UNSIGNED-BYTE 32)
+ ;                          (UNSIGNED-BYTE 32) &OPTIONAL))
+ ;   Documentation:
+ ;     get this poly from bvh.
+ ;   Inline proclamation: INLINE (inline expansion available)
+ ;   Source file: /data/x/gmsh/src/gmsh/bvh.lisp
+```
+
 ## `gmsh/bvh:bvh`
 ```
 :missing:
@@ -61,53 +108,6 @@
  ;     GMSH/BVH::CNT
  ;       Type: FIXNUM
  ;       Initform: 0
-```
-
-## `gmsh/bvh:get-mat`
-```
- ; GMSH/BVH:GET-MAT
- ;   [symbol]
- ; 
- ; GET-MAT names a compiled function:
- ;   Lambda-list: (BVH I)
- ;   Derived type: (FUNCTION (GMSH/BVH:BVH (SIGNED-BYTE 32))
- ;                  (VALUES SYMBOL SYMBOL &OPTIONAL))
- ;   Documentation:
- ;     get this material from bvh.
- ;   Inline proclamation: INLINE (inline expansion available)
- ;   Source file: /data/x/gmsh/src/gmsh/bvh.lisp
-```
-
-## `gmsh/bvh:get-norm`
-```
- ; GMSH/BVH:GET-NORM
- ;   [symbol]
- ; 
- ; GET-NORM names a compiled function:
- ;   Lambda-list: (BVH I)
- ;   Derived type: (FUNCTION (GMSH/BVH:BVH (SIGNED-BYTE 32))
- ;                  (VALUES SINGLE-FLOAT SINGLE-FLOAT SINGLE-FLOAT
- ;                          &OPTIONAL))
- ;   Documentation:
- ;     get this normal from bvh
- ;   Inline proclamation: INLINE (inline expansion available)
- ;   Source file: /data/x/gmsh/src/gmsh/bvh.lisp
-```
-
-## `gmsh/bvh:get-poly`
-```
- ; GMSH/BVH:GET-POLY
- ;   [symbol]
- ; 
- ; GET-POLY names a compiled function:
- ;   Lambda-list: (BVH I)
- ;   Derived type: (FUNCTION (GMSH/BVH:BVH (SIGNED-BYTE 32))
- ;                  (VALUES (UNSIGNED-BYTE 32) (UNSIGNED-BYTE 32)
- ;                          (UNSIGNED-BYTE 32) &OPTIONAL))
- ;   Documentation:
- ;     get this poly from bvh.
- ;   Inline proclamation: INLINE (inline expansion available)
- ;   Source file: /data/x/gmsh/src/gmsh/bvh.lisp
 ```
 
 ## `gmsh/bvh:gpu/pack-bvh`

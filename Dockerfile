@@ -26,9 +26,17 @@ RUN mkdir -p ~/quicklisp/ &&\
 
 WORKDIR /opt/quicklisp/local-projects
 RUN git clone https://github.com/inconvergent/cl-veq.git veq
-RUN git clone https://github.com/inconvergent/cl-grph.git grph
 RUN git clone https://github.com/inconvergent/lqn.git lqn
 RUN git clone https://github.com/inconvergent/auxin.git auxin
+RUN git clone https://github.com/inconvergent/cl-grph.git grph
+RUN echo "YIIIIIHAAAWWW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+RUN sbcl --quit --eval '(progn\
+  (ql:quickload :lparallel)\
+  (ql:quickload :fset)\
+  (ql:quickload :cl-opengl)\
+  (ql:quickload :prove)\
+  (ql:quickload :sdl2))\
+  (print :------------------------------------------------)'
 
 WORKDIR /opt/quicklisp/local-projects/gmsh/
 CMD ["bash", "./run-tests.sh"]

@@ -6,13 +6,20 @@
     #:*wrncnt* #:wrn #:inline?
     #:with-fast-stack #:make-fast-stack #:stack #:stack-ind
     #:gmsh #:make-bvh #:clear! #:center!
-    #:get-connected-verts #:get-num-verts #:get-num-polys #:get-max-verts
-    #:get-all-polys #:add-poly! #:add-vert! #:add-verts! #:add-polys!
+
+    #:@vert #:@verts #:@uv #:@uvs #:@norm #:@norms
+    #:@connected-verts
+    #:@vnum #:@pnum #:@vmax #:@poly-edges #:@edge-polys #:@poly #:@all-polys
+
+    #:add-poly! #:add-vert! #:add-verts! #:add-polys!
     #:add-plane! #:add-box! #:del-poly! #:split-edge!
-    #:tx! #:classify-vert-fx #:p/classify-verts
-    #:norm-poly #:itr-polys
-    #:get-vert #:get-verts #:get-uv #:get-uvs #:get-norm #:get-norms
-    #:plane-stretch #:plane-split #:plane-sym
+    #:tx!
+    #:msk/tx! #:msk/v #:msk/set!
+    #:norm-poly #:itr/polys #:itr/verts
+    #:triangulate-edge-set
+    #:plane-slice!
+    #:plane-bisect! ; TODO
+    #:plane-sym!
     #:$shape/box #:$shape/rect))
 
 (defpackage #:gmsh/io
@@ -23,7 +30,7 @@
 (defpackage #:gmsh/bvh
   (:use #:common-lisp)
   (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:doc #:inline? #:wrn)
-  (:export #:bvh #:get-mat #:get-norm #:get-poly
+  (:export #:bvh #:@mat #:@norm #:@poly
            #:int/raycast #:int/simple-raycast
            #:simd4/simple-raycast #:simd4/raycast
            #:gpu/pack-bvh))
@@ -41,7 +48,7 @@
   (:use #:common-lisp)
   (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:wrn)
   (:export #:scene
-    #:get-s #:set-s #:get-pm #:get-vm
+    #:@s #:set-s #:@pm #:@vm
     #:scene/make #:scene/load #:scene/save #:canv/save #:scene/new-canv
     #:update-axis #:update-view #:make-vm #:make-pm
     #:gpu/do-pack-bvh

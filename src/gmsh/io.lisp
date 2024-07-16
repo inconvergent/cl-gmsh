@@ -115,7 +115,7 @@
      (do-export (fs o polys props)
        (let* ((inds (sort (polys->verts polys) #'<))
               (old->new (remap-poly inds))
-              (verts (gmsh:get-verts msh inds)))
+              (verts (gmsh:@verts msh inds)))
          (unless polys (format t "~&  o: ~a; ()~%" o) (return-from do-export))
          (format fs "~&o ~a~%" o)
          (loop for (k . v) in props do (format fs "~&~a ~a~%" k v))
@@ -142,7 +142,7 @@
                                  (declare (ignorable m*) (boolean exists))
                                  (unless exists (setf (gethash m ht) (list)))
                                  (push p (gethash m ht)))))
-          (gmsh:itr-polys (msh p) (update p (f@matfx p)))
+          (gmsh:itr/polys (msh p) (update p (f@matfx p)))
           (loop for mc being the hash-keys of ht using (hash-value polys)
                 for o = (auxin:mkstr (apply #'auxin:mkstr mc) 1)
                 do (do-export fs o polys (f@propfx mc)) collect mc
@@ -150,18 +150,18 @@
 
 ; TODO: :uv, vn, vt normals?
 ; TODO: this is all rather inefficient
-(defun export-data (msh &key meta (matfx (lambda (p) (declare (ignore p)) '(:c :x))))
+(veq:fvdef export-data (msh &key meta (matfx (lambda (p) (declare (ignore p)) '(:c :x))))
   (declare (gmsh:gmsh msh) (list meta) (function matfx))
   "serialize gmsh. see gmsh/io:import-data"
-  (labels ((do-poly (&aux (res (list))) (gmsh:itr-polys (msh p)
-                                          (veq:dsb (m c) (funcall matfx p)
+  (labels ((do-poly (&aux (res (list))) (gmsh:itr/polys (msh p)
+                                          (veq:dsb (m c) (f@matfx p)
                                             (setf res `(,@p ,m ,c ,@res))))
                                         res)
-           (do-vert () (gmsh:get-verts msh (math:range 0 (gmsh:get-num-verts msh)))))
+           (do-vert () (gmsh:@verts msh (math:range 0 (gmsh:@vnum msh)))))
      `((:file . ((:ver . :v1) (:pkg . :gmsh/io))) (:meta . (,@meta))
-       (:num-verts . ,(gmsh:get-num-verts msh))
-       (:max-verts . ,(gmsh:get-max-verts msh))
-       (:num-polys . ,(gmsh:get-num-polys msh))
+       (:num-verts . ,(gmsh:@vnum msh))
+       (:max-verts . ,(gmsh:@vmax msh))
+       (:num-polys . ,(gmsh:@pnum msh))
        (:poly . ,(do-poly)) (:verts . ,(do-vert)))))
 
 (defun import-data (o &key matfx max-verts) ; TODO: count from existing verts, polys
@@ -176,9 +176,9 @@ and a list of (color material). see gmsh/io:export-data"
            (when matfx (apply (the function matfx) p (subseq poly 3))))
       (loop for i from 0 below (veq:3$num verts)
         collect (gmsh:add-vert! msh (veq:3$ verts i)))
-      (unless (= (gmsh:get-num-verts msh) nv)
-        (wrn :import-data "expected ~a verts, got: ~a." nv (gmsh:get-num-verts msh)))
-      (unless (= (gmsh:get-num-polys msh) np)
-        (wrn :import-data "expected ~a polys, got: ~a." np (gmsh:get-num-polys msh)))
+      (unless (= (gmsh:@vnum msh) nv)
+        (wrn :import-data "expected ~a verts, got: ~a." nv (gmsh:@vnum msh)))
+      (unless (= (gmsh:@pnum msh) np)
+        (wrn :import-data "expected ~a polys, got: ~a." np (gmsh:@pnum msh)))
       (values msh (the list (gk :meta))))))
 
