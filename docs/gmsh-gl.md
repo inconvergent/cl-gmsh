@@ -93,6 +93,20 @@
  ;   Source file: /data/x/gmsh/src/gmsh/gpu/gl.lisp
 ```
 
+## `gmsh/gl:make-render`
+```
+:missing:
+
+ ; GMSH/GL:MAKE-RENDER
+ ;   [symbol]
+ ; 
+ ; MAKE-RENDER names a compiled function:
+ ;   Lambda-list: (SC)
+ ;   Derived type: (FUNCTION (GMSH/SCENE:SCENE)
+ ;                  (VALUES FUNCTION FUNCTION FUNCTION FUNCTION &OPTIONAL))
+ ;   Source file: /data/x/gmsh/src/gmsh/gpu/gl.lisp
+```
+
 ## `gmsh/gl:sdl-info`
 ```
  ; GMSH/GL:SDL-INFO
@@ -139,6 +153,20 @@
  ;   Lambda-list: (P NAME VAL &OPTIONAL (TRANSPOSE T))
  ;   Documentation:
  ;     set 4f uniform.
+ ;   Source file: /data/x/gmsh/src/gmsh/gpu/gl.lisp
+```
+
+## `gmsh/gl:show-diag`
+```
+:missing:
+
+ ; GMSH/GL:SHOW-DIAG
+ ;   [symbol]
+ ; 
+ ; SHOW-DIAG names a compiled function:
+ ;   Lambda-list: (ITT T0)
+ ;   Derived type: (FUNCTION ((UNSIGNED-BYTE 32) T)
+ ;                  (VALUES NULL &OPTIONAL))
  ;   Source file: /data/x/gmsh/src/gmsh/gpu/gl.lisp
 ```
 

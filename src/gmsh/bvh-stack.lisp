@@ -43,7 +43,7 @@
                                   &key set-lvl (leap 8)
                                   &aux (res (veq:p4$zero num-nodes))
                                        (mima (veq:f$zero (* leap num-nodes))))
-  (declare #.*opt* (bvh-node-vec nodes))
+  (declare #.*opt* (bvh-nodes nodes))
   ; 0   ; 1                    ; 2  ; 3
   ; num ; ref/[nxt node, poly] ; ax ; (right)
   (loop for i from 0 repeat num-nodes

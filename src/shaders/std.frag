@@ -176,11 +176,20 @@ void main() { ////////////////////////////////////////////////////////////////
   }
 
 
-
-
   if ( floor(gl_FragCoord.x)==floor(resolution.x * 0.5) ) {
-    FragColor.xyz *= vec3(0.5);
+    FragColor.xyz = 1-FragColor.xyz;
   }
+  if (floor(gl_FragCoord.y)==floor(resolution.y * 0.5) ||
+      floor(gl_FragCoord.x)==floor(resolution.x * 0.2) ||
+      floor(gl_FragCoord.y)==floor(resolution.y * 0.2) ||
+      floor(gl_FragCoord.x)==floor(resolution.x * 0.4) ||
+      floor(gl_FragCoord.y)==floor(resolution.y * 0.4) ||
 
-} ///////////////////////////////////////////////////////////////////////////
+      floor(gl_FragCoord.x)==floor(resolution.x * 0.6) ||
+      floor(gl_FragCoord.y)==floor(resolution.y * 0.6) ||
+      floor(gl_FragCoord.x)==floor(resolution.x * 0.8) ||
+      floor(gl_FragCoord.y)==floor(resolution.y * 0.8)) {
+    FragColor.xyz = 0.3*(1-FragColor.xyz) + FragColor.xyz*0.7;
+  }
+}
 

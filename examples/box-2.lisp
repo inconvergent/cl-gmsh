@@ -6,7 +6,7 @@
 
 (veq:fvdef load-scene (size)
   (declare (optimize speed (safety 1)))
-  (let* ((sc (gmsh/scene:scene/make :s (/ 1200f0) :xy (veq:f2$zero)))
+  (let* ((sc (gmsh/scene:scene/make))
          (msh (gmsh/scene:scene-msh sc))
          (s- -1000.0) (ss (abs (* 0.5 s-)))
          (tt 30f0) (w -350f0))
@@ -27,7 +27,6 @@
       (loop for lim in '(15f0 15f0) do (gmsh/scene::split-edges sc lim) (print msh))
       (gmsh/scene:scene/new-canv sc :size size)
       (gmsh/cam:update (gmsh/scene:scene-proj sc)
-                    :s 3f0 :xy (veq:f2$val (* 0.5 size))
                     :pos (veq:f3$point 200.0 100.0 200.0)
                     :up (veq:f3$point 0f0 0f0 -1f0)
                     :look (veq:f3$point 0f0 -40f0 0f0))

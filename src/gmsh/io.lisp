@@ -3,7 +3,7 @@
 (veq:fvdef obj/load (fn &key (max-verts 100000) (msh (gmsh:gmsh :max-verts max-verts))
                              ign (silent t)
                         &aux (fn (auxin::ensure-filename fn ".obj" t)))
-  (declare (string fn) (veq:pn max-verts) (list ign))
+  (declare #.*opt* (string fn) (veq:pn max-verts) (list ign))
   ; (v1 vt1 vn1 v2 vt2 vn2 v3 vt3 vn3)
   "load this obj file. see: obj/load-model. see obj/load-model, obj/save"
   (let* ((verts (gmsh::gmsh-verts msh))
@@ -73,6 +73,7 @@
   (declare (ignorable msh) (string fn))
   "export mtl file. see: obj/save."
   (with-open-file (fs fn :direction :output :if-exists :supersede)
+    (declare (stream fs))
     (labels ((wn (k rest) (apply #'format fs "~&~a~@{ ~a~}~%" k rest))
              (ws (k s) (format fs "~&~a ~(~a~)~%" k s)))
       (loop for (name m c) in mats for kd = (subseq (cdr (assoc c colors)) 0 3)
@@ -90,7 +91,7 @@
                             (format fs "~%")))))
 
 ; OBJ SAVE --------------
-(defun polys->verts (polys) (declare (list polys))
+(defun polys->verts (polys) (declare #.*opt* (list polys))
   (loop with ht = (make-hash-table :test #'equal)
         for p in polys
         do (loop for v in p do (unless (gethash v ht) (setf (gethash v ht) t)))
@@ -103,16 +104,18 @@
   ; remember that there is a global vertex index offset to the file.
   ; can we export vertices only once?
   ; assume the same for normals and uv.
-  (declare (gmsh:gmsh msh) (string fn) (function matfx propfx))
+  (declare #.*opt* (gmsh:gmsh msh) (string fn) (function matfx propfx)
+                   (veq:pn vert-offset))
   "export obj file. see: obj/load, obj/load-model, obj/save-mtl"
   (labels
-    ((ns (s) (if s s "")) (1up (l) (mapcar #'1+ l))
+    ((ns (s) (if s s "")) ;(1up (l) (mapcar #'1+ l))
      (remap-poly (inds)
        (loop with ht = (make-hash-table :test #'eql)
              for i in inds for k from 0 do (setf (gethash i ht) k)
              finally (return ht)))
-     (re (ht &rest rest) (loop for k in rest collect (+ vert-offset (gethash k ht))))
+     (re (ht &rest rest) (loop for k in rest collect (+ vert-offset (the veq:pn (gethash k ht)))))
      (do-export (fs o polys props)
+       (declare (stream fs) (list polys props))
        (let* ((inds (sort (polys->verts polys) #'<))
               (old->new (remap-poly inds))
               (verts (gmsh:@verts msh inds)))
@@ -123,22 +126,23 @@
          ; TODO: remap uvs, remap normals, vt
          ; (f2x@vfx (?@ uv 0 num-uvs) (((:va 2 x)) (format fs "vt ~f ~f~%" x)))
          ; (f3x@vfx (?@ verts 0 num-verts) (((:va 3 x)) (format fs "v ~f ~f ~f~%" x)))
-         (loop for (v1 v2 v3) in polys
-               for (w1 w2 w3) = (re old->new v1 v2 v3)
-               for (vt1 vt2 vt3) = (math:nrep 3 "");(1up (gethash p vt))
+         (loop for (v1 v2 v3) of-type (veq:pn veq:pn veq:pn) in polys
+               for (w1 w2 w3) of-type (veq:pn veq:pn veq:pn) = (re old->new v1 v2 v3)
+               for (vt1 vt2 vt3) of-type (string string string) = (math:nrep 3 "");(1up (gethash p vt))
                ; for (vn1 vn2 vn3) = (1up (gethash p vn))
                do (format fs "~&f ~a/~a/~a ~a/~a/~a ~a/~a/~a~%"
-                          (1+ w1) (ns vt1) ""
-                          (1+ w2) (ns vt2) ""
-                          (1+ w3) (ns vt3) ""))
-         (let ((num-verts (veq:3$num verts)))
+                          (+ w1 1) (ns vt1) ""
+                          (+ w2 1) (ns vt2) ""
+                          (+ w3 1) (ns vt3) ""))
+         (veq:xlet ((p!num-verts (veq:3$num verts)))
            (format t "~&  o: ~a; (v: ~a p: ~a)~%" o num-verts (length polys))
            (incf vert-offset num-verts)))))
 
     (let ((ht (make-hash-table :test #'equal)))
       (with-open-file (fs fn :direction :output :if-exists :supersede)
+        (declare (stream fs))
         (format t "~&writing obj to: ~a~%" fn)
-        (labels ((update (p m) (auxin:mvb (m* exists) (gethash m ht)
+        (labels ((update (p m) (auxin:mvb (m* exists) (gethash m ht) ; TODO: simplify
                                  (declare (ignorable m*) (boolean exists))
                                  (unless exists (setf (gethash m ht) (list)))
                                  (push p (gethash m ht)))))
@@ -150,35 +154,43 @@
 
 ; TODO: :uv, vn, vt normals?
 ; TODO: this is all rather inefficient
+; TODO: convert poly/mat load in import
 (veq:fvdef export-data (msh &key meta (matfx (lambda (p) (declare (ignore p)) '(:c :x))))
-  (declare (gmsh:gmsh msh) (list meta) (function matfx))
+  (declare #.*opt* (gmsh:gmsh msh) (list meta) (function matfx))
   "serialize gmsh. see gmsh/io:import-data"
-  (labels ((do-poly (&aux (res (list))) (gmsh:itr/polys (msh p)
-                                          (veq:dsb (m c) (f@matfx p)
-                                            (setf res `(,@p ,m ,c ,@res))))
-                                        res)
+  (labels ((do-poly (&aux (ht (lqn:new$)))
+             (gmsh:itr/polys (msh p )
+               (let ((k (f@matfx p))) ; (m c)
+                 (setf (gethash k ht) `(,@p ,@(gethash k ht (list))))))
+             (lqn:ldnout ht))
            (do-vert () (gmsh:@verts msh (math:range 0 (gmsh:@vnum msh)))))
-     `((:file . ((:ver . :v1) (:pkg . :gmsh/io))) (:meta . (,@meta))
+     `((:ctx . ((:now . ,(lqn:now)) (:pkg . :gmsh/io) (:sys . :gmsh)
+                 (:sysver . ,(gmsh:v?)) (:ver . :v2)))
+       (:meta . (,@meta))
        (:num-verts . ,(gmsh:@vnum msh))
        (:max-verts . ,(gmsh:@vmax msh))
        (:num-polys . ,(gmsh:@pnum msh))
        (:poly . ,(do-poly)) (:verts . ,(do-vert)))))
 
-(defun import-data (o &key matfx max-verts) ; TODO: count from existing verts, polys
-  (declare (list o)) "deserialize gmsh. matfx should accept two arguments, polygon
+(veq:fvdef import-data (o &key matfx max-verts) ; TODO: count from existing verts, polys
+  (declare #.*opt* (list o)) "deserialize gmsh. matfx should accept two arguments, polygon
 and a list of (color material). see gmsh/io:export-data"
   (labels ((gk (k) (declare (keyword k)) (cdr (assoc k o))))
-    (let ((verts (gk :verts)) (nv (gk :num-verts)) (np (gk :num-polys))
-          (msh (gmsh:gmsh :max-verts (the veq:pn (or max-verts (gk :max-verts))))))
-      (declare (vector verts) (veq:pn nv np))
-      (loop for poly in (veq:group (gk :poly) 5) for p = (subseq poly 0 3)
-        do (gmsh:add-poly! msh p)
-           (when matfx (apply (the function matfx) p (subseq poly 3))))
+    (veq:xlet ((verts (gk :verts))
+               (p!nv (gk :num-verts))
+               (p!np (gk :num-polys))
+               (msh (gmsh:gmsh :max-verts (the veq:pn (or max-verts (gk :max-verts))))))
+      (declare (vector verts))
+      (loop for (mc . polys) of-type (list . list) in (gk :poly) ; remember that subseq makes a copy
+            do (loop while polys for p = (subseq polys 0 3)
+                     do (gmsh:add-poly! msh p)
+                        (setf polys (nthcdr 3 polys))
+                        (when matfx (apply (the function matfx) p mc))))
       (loop for i from 0 below (veq:3$num verts)
         collect (gmsh:add-vert! msh (veq:3$ verts i)))
-      (unless (= (gmsh:@vnum msh) nv)
-        (wrn :import-data "expected ~a verts, got: ~a." nv (gmsh:@vnum msh)))
-      (unless (= (gmsh:@pnum msh) np)
-        (wrn :import-data "expected ~a polys, got: ~a." np (gmsh:@pnum msh)))
+      (unless (= (the veq:pn (gmsh:@vnum msh)) nv)
+        (wrn :import-data-vnum "expected ~a verts, got: ~a." nv (gmsh:@vnum msh)))
+      (unless (= (the veq:pn (gmsh:@pnum msh)) np)
+        (wrn :import-data-pnum "expected ~a polys, got: ~a." np (gmsh:@pnum msh)))
       (values msh (the list (gk :meta))))))
 

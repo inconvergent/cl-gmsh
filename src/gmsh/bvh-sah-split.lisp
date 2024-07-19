@@ -41,8 +41,8 @@
   (declare #.*opt1* (sah-buckets buckets) (veq:ff mincost) (veq:pn imin) (veq:pn nb ax))
   (loop for i of-type veq:pn from 0 repeat (- nb 1)
         for bi from (* ax nb) for b = (aref buckets bi)
-        for cost of-type veq:ff = (+ (* (bb$ b :fwdcnt) (bb-area (bb$ b :fwdbb)))
-                                     (* (bb$ b :bckcnt) (bb-area (bb$ b :bckbb))))
+        for cost of-type veq:ff = (+ (*  (bb$ b :fwdcnt) (bb-area (bb$ b :fwdbb)))
+                                     (*  (bb$ b :bckcnt) (bb-area (bb$ b :bckbb))))
         if (< cost mincost) do (setf imin i mincost cost))
   (values imin mincost))
 

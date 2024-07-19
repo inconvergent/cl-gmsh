@@ -1,139 +1,114 @@
 (in-package :gmsh/cam)
 
+(veq:fvdef -prt (o s)
+  (labels ((fmtvec (name s (:va 3 v)) (lqn:fmt "~a:~a~08,2f | ~08,2f | ~08,2f" name s v)))
+    (format s "<@cam (~a ~a)~%  ~a~%  ~a~%  ~a
+               s |     near |      far~%  ~a~%  ~a>"
+              (@proj-mode o) (@nav-mode o)
+              (m@fmtvec :pos "  " (@pos o))
+              (m@fmtvec :up "   " (@up o))
+              (m@fmtvec :vpn "  " (@vpn o))
+              (m@fmtvec :orth " " (veq:f$ (cam-par o) 0 1 2))
+              (m@fmtvec :proj " " (veq:f$ (cam-par o) 3 4 5)))))
 
-(declaim (inline 3identity zero))
-(veq:fvdef 3identity ((:va 3 x)) (values x))
-(veq:fvdef zero () (veq:f3$point 0f0 0f0 0f0))
+(defstruct (cam (:constructor make) (:print-object -prt))
+  (nav-mode  :fly    :type keyword   :read-only nil)
+  (proj-mode :persp  :type keyword   :read-only nil)
+  (pos       (veq:f3$pt 150f0 150f0 50f0) :type veq:3fvec :read-only t) ; cam position
+  (up        (veq:f3$pt 0f0 1f0 0f0)      :type veq:3fvec :read-only t) ; cam up
+  (vpn       (veq:f3$pt 0f0 0f0 1f0)      :type veq:3fvec :read-only t) ; away from dop
+  (par (veq:f$~ (6) 100f0 10f0 1000f0                  ; ortho s near far
+                    10f0   3f0  100f0)                 ; proj  s near far
+                        :type veq:fvec  :read-only t)
+  (u   (veq:f3$val 0f0) :type veq:3fvec :read-only t)  ; view plane horizontal
+  (v   (veq:f3$val 0f0) :type veq:3fvec :read-only t)) ; view plane vertical
 
-(defstruct (cam)
-  (vpn (zero) :type veq:fvec :read-only nil) ; away from dop
-  (up (zero) :type veq:fvec :read-only nil) ; cam up
-  (pos (zero) :type veq:fvec :read-only nil) ; cam position
-  (u (zero) :type veq:fvec :read-only nil) ; view plane horizontal
-  (v (zero) :type veq:fvec :read-only nil) ; view plane vertical
-  (su (zero) :type veq:fvec :read-only nil) ; u scaled by s
-  (sv (zero) :type veq:fvec :read-only nil) ; v scaled by s
-  (xy (veq:f2$val 0.0) :type veq:fvec :read-only nil) ; offset in view plane
-  (s 1f0 :type veq:ff :read-only nil)) ; scale
+; (declaim (inline @pos @s @up @vpn))
+(veq:fvdef @pos       (c) "get current pos." (veq:f3$s c cam- :pos))
+(veq:fvdef @up        (c) "get current up."  (veq:f3$s c cam- :up))
+(veq:fvdef @vpn       (c) "get current vpn." (veq:f3$s c cam- :vpn))
+(veq:fvdef @u         (c) "get current u."   (veq:f3$s c cam- :u))
+(veq:fvdef @v         (c) "get current v."   (veq:f3$s c cam- :v))
+(veq:fvdef @nav-mode  (c) "get current nav mode. :fly or :around."   (cam-nav-mode c))
+(veq:fvdef @proj-mode (c) "get current proj mode. :ortho or :persp." (cam-proj-mode c))
 
-(declaim (inline @pos @s @up @vpn @xy))
-(veq:fvdef @pos (proj) "get pos." (veq:f3$s proj cam- :pos))
-(veq:fvdef @s (proj) "get scale." (cam-s proj))
-(veq:fvdef @up (proj) "get up." (veq:f3$s proj cam- :up))
-(veq:fvdef @vpn (proj) "get vpn." (veq:f3$s proj cam- :vpn))
-(veq:fvdef @xy (proj) "get view plane offset." (veq:f2$s proj cam- :xy))
+(veq:fvdef scale-from-to! (c from to)
+  (declare (cam c) (veq:pn from to))
+  (veq:xlet ((par (cam-par c)) (f!r (veq:ff (/ to from))))
+    (setf (aref par 0) (* r (aref par 0)) (aref par 3) (* r (aref par 3))))
+  c)
 
-(veq:fvdef -get-u-v (up* vpn* &optional (s 1f0))
-  (declare #.*opt* (veq:fvec up* vpn*) (veq:ff s))
-  (veq:xlet ((f3!up (veq:f3$ up*))
-             (f3!vpn (veq:f3$ vpn*)))
+(defmacro proj-par (c &optional mode)
+  (declare (symbol c))
+  "get s/near/far as values for :ortho or :persp projection modes."
+  `(ecase (@proj-mode c) (:ortho (veq:f$ (cam-par ,c) 0 1 2))
+                         (:persp (veq:f$ (cam-par ,c) 3 4 5))))
 
+(veq:fvdef vm (c) (declare #.*opt* (cam c))
+  "view matrix, compatible with gmsh/scene and gmsh/xrend."
+  (veq::m@fmake-view-matrix (@pos c) (f3!@- (@pos c) (@vpn c)) (@up c)))
+
+(veq:fvdef pm (c &optional (mode (@proj-mode c))) (declare #.*opt* (cam c) (keyword mode))
+  "projection matrix. compatible with gmsh/scene and gmsh/xrend."
+  (veq:xlet ((f3!par (proj-par c mode)))
+    (ecase mode (:ortho (veq:fmake-ortho-proj-matrix (:vr par 0 0 1 2)))
+                (:persp (veq:fmake-proj-matrix       (:vr par 0 0 1 2))))))
+
+(veq:fvdef make-uv ((:va 3 up vpn)) (declare #.*opt* (veq:ff up vpn))
+  "calculate cam plane u/v vectors."
+  (veq:xlet ((f3!v (veq:f3norm (f3.@- (veq:f3from up vpn (- (veq:f3dot up vpn)))))))
     (unless (< (abs (veq:f3dot up vpn)) #.(- 1f0 veq:*eps*))
-            (error "gmsh/cam: gimbal lock.~%up: ~a~%vpn: ~a" up* vpn*))
+            (wrn :gimbal-lock "gmsh/cam: gimbal lock.~%up: ~a~%vpn: ~a"
+                              (list up) (list vpn)))
+    (veq:~ (veq:f3rot v vpn veq:fpi5) v)))
 
-    (veq:xlet ((f3!v (veq:f3norm (f3.@- (veq:f3from up vpn (- (veq:f3dot up vpn))))))
-               (f3!u (veq:f3rot v vpn veq:fpi5)))
-      (veq:~ u v (f3!@*. u s) (f3!@*. v s)))))
+(veq:fvdef look-vpn (pos look) (declare #.*opt* (veq:3fvec pos look))
+  (veq:f3norm (f3!@- (veq:f3$ pos) (veq:f3$ look))))
 
-(veq:fvdef -look (pos look)
-  (declare #.*opt* (veq:fvec pos look))
-  (veq:f3$point (veq:f3norm (f3!@- (veq:f3$ pos) (veq:f3$ look)))))
+(veq:fvdef update! (c &key up pos vpn look) (declare #.*opt* (cam c))
+  "consistently update camera values. use vpn to set view plane normal (away
+from dop); or look to set view plane normal relative to position."
+  (when (and vpn look) (wrn :update  "update: can only use (or vpn look)."))
+  (when pos  (setf (veq:3$ (cam-pos c)) (veq:f3$ pos)))
+  (when up   (setf (veq:3$ (cam-up  c)) (veq:f3$ up)))
+  (when vpn  (setf (veq:3$ (cam-vpn c)) (veq:f3$ vpn)))
+  (when look (setf (veq:3$ (cam-vpn c)) (look-vpn (cam-pos c) look)))
+  (when (or pos up vpn look)
+        (veq:xlet ((f6!uv (m@make-uv (@up c) (@vpn c))))
+          (setf (veq:3$ (cam-u c)) (veq:f3 (:vr uv 0 1 2))
+                (veq:3$ (cam-v c)) (veq:f3 (:vr uv 3 4 5)))))
+  c)
 
-(veq:fvdef make (&key (s 1f0) (pos (veq:f3$val 1000f0))
-                      vpn look (up (veq:f3$point 0f0 0f0 1f0))
-                      (xy (veq:f2$val 500f0)))
-  (declare (veq:fvec up pos xy) (veq:ff s))
-  "make camera
+(veq:fvdef nav/trans! (c ax val) (declare #.*opt* (cam c) (keyword ax) (veq:ff val))
+  "translate cam."
+  (update! c :pos (veq:f3$pt (f3!@+ (gmsh/cam:@pos c)
+                               (f3!@.* val (ecase ax (:u (@u c)) (:v (@v c))
+                                                     (:vpn (@vpn c))))))))
 
-  default up is (0 0 1)
-  default pos is (1000.0 1000.0 1000.0)
-  if look and vpn are unset, the camera will look at the origin.
+(veq:fvdef nav/around! (c ax val) (declare #.*opt* (cam c) (keyword ax) (veq:ff val))
+  "rotate around cam axis."
+  (unless (> (abs val) 0) (return-from nav/around! nil))
+  (macrolet ((rot (a b) `(veq:f3norm (veq:f3rot (veq:f3$s c cam- ,a ,b val)))))
+    (ecase ax (:yaw   (update! c :vpn (veq:f3$pt (rot :vpn :up))))
+              (:roll  (update! c :up  (veq:f3$pt (rot :up  :vpn))))
+              (:pitch (update! c :up  (veq:f3$pt (rot :up  :u))
+                                 :vpn (veq:f3$pt (rot :vpn :u)))))))
 
-  default scale is 1.0
-  default xy is (0.0 0.0)"
-  (assert (not (and vpn look)) (vpn look)
-          "make: can only use (or vpn look)." vpn look)
+(defun export-data (c) (declare (cam c))
+  "serialize cam. see import-data."
+  (auxin:with-struct (cam- vpn pos up par nav-mode proj-mode) c
+    `((:vpn . ,vpn) (:pos . ,pos) (:up . ,up) (:nav-mode . ,nav-mode)
+      (:proj-mode . ,proj-mode) (:par . ,par))))
 
-  (let* ((look (if look look (veq:f3$val 0f0)))
-         (vpn* (if vpn vpn (-look pos look))))
-    (auxin:mvb ((:va 3 u v su sv)) (-get-u-v up vpn* s)
-      (declare (veq:ff u v su sv))
-      (make-cam :vpn vpn* :up up :pos pos :s s :xy xy
-                :u (veq:f3$point u)   :v (veq:f3$point v)
-                :su (veq:f3$point su) :sv (veq:f3$point sv)))))
-
-(veq:fvdef update (proj &key s xy up pos vpn look) (declare #.*opt* (cam proj))
-  "update projection parameters.
-
-  use vpn to set view plane normal directly, or look to set view plane normal
-  relative to camera.
-
-  ensures that internal state is updated appropriately."
-  (assert (not (and vpn look)) (vpn look)
-          "update: can only use (or vpn look)." vpn look)
-
-  (when pos (setf (cam-pos proj) pos))
-  (when up (setf (cam-up proj) up))
-  (when vpn (setf (cam-vpn proj) vpn))
-  (when look (setf (cam-vpn proj) (-look (cam-pos proj) look)))
-  (when s (setf (cam-s proj) (the veq:ff s)))
-  (when xy (setf (cam-xy proj) xy))
-  ; TODO: there appears to be a bug where u,v is not updated if pos is changed??
-  (when (or pos s up vpn look)
-        (auxin:mvb ((:va 3 u v su sv))
-                   (-get-u-v (cam-up proj) (cam-vpn proj) (cam-s proj))
-          (declare (veq:ff u v su sv))
-          (setf (veq:3$ (cam-u proj)) (veq:f3 u)
-                (veq:3$ (cam-v proj)) (veq:f3 v)
-                (veq:3$ (cam-su proj)) (veq:f3 su)
-                (veq:3$ (cam-sv proj)) (veq:f3 sv))))
-  proj)
-
-(veq:fvdef around (c axis val &key (look (veq:f3$point (veq:f3rep 0f0))))
-  (declare (cam c) (keyword axis) (veq:ff val) (veq:fvec look))
-  (unless (> (abs val) 0) (return-from around nil))
-  (macrolet ((_ (&rest rest) `(veq:fvprogn (veq:f_ (veq:lst ,@rest))))
-             (rot (a b) `(veq:fvprogn (veq:f3rots (veq:f3$s c cam- ,a ,b val) 0f0 0f0 0f0))))
-    (case axis
-      (:pitch (veq:f3let ((pos (rot :pos :u))
-                          (up (veq:f3norm (rot :up :u)))
-                          (vpn (veq:f3norm (f3!@- pos (veq:f3$ look)))))
-                (update c :pos (_ pos) :vpn (_ vpn) :up (_ up))))
-      (:yaw (veq:f3let ((pos (rot :pos :v))
-                        (up (veq:f3norm (rot :up :v)))
-                        (vpn (veq:f3norm (f3!@- pos (veq:f3$ look)))))
-                (update c :pos (_ pos) :vpn (_ vpn) :up (_ up))))
-      (:roll (update c :up (veq:f3$point
-                             (veq:f3rot (veq:f3$s c cam- :up :vpn val))))))))
-
-(veq:fvdef* vm (p (:va 3 look)) (declare #.*opt* (cam p) (veq:ff look))
-  "view matrix, compatible with gmsh/scene"
-  (veq::fmake-view-matrix (veq:f3$ (cam-pos p)) look
-                         (veq:f3$ (cam-up p))))
-
-; (veq:fvdef pm (p s &optional (near 0.1) (far 500f0) &aux
-;                  ; (s (/ s))
-;                  )
-;   (declare #.*opt* (cam p) (veq:ff near far s)) "projection matrix. compatible with gmsh/scene"
-;   (veq::fmake-proj-matrix s s near far))
-
-(veq:fvdef pm (p s &optional (near 0.1) (far 500f0))
-  (declare #.*opt* (cam p) (veq:ff near far s)) "projection matrix. compatible with gmsh/scene"
-  (veq:fmake-ortho-proj-matrix s s near far))
-
-(defun export-data (p) (declare (cam p))
-  "export the neccessary values to recreate cam. import with gmsh/cam:import-data."
-  (auxin:with-struct (cam- vpn pos up s xy) p
-    `((:vpn . ,vpn) (:pos . ,pos) (:up . ,up)
-      (:s . ,s) (:xy . ,xy))))
-
-(defun import-data (p) (declare (list p))
-  "recreate proj from an a list exported by gmsh/cam:export-data."
-  (labels ((as (i a) (cdr (assoc i a)))
-           (as-float (i a) (veq:ff (as i a)))
-           (as-arr (i a) (veq:f_ (coerce (as i a) 'list))))
-    ; NOTE: old (ortho) exports use :cam, instead of :pos
-    (make :pos (if (car (assoc :pos p)) (as-arr :pos p) (as-arr :cam p))
-          :vpn (as-arr :vpn p) :up (as-arr :up p)
-          :xy (as-arr :xy p) :s (as-float :s p))))
+(defun import-data (o) (declare (list o))
+  "load serialized cam. see export-data."
+  (labels ((gk (k) (cdr (assoc k o)))
+           (as-arr (k) (veq:f_ (coerce (gk k) 'list))))
+    ; TODO: refactor this
+    (let* ((c (make :pos (as-arr :pos) :vpn (as-arr :vpn) :up (as-arr :up)))
+           (par-place (cam-par c))
+           (par (as-arr :par)))
+      (setf (veq:3$ par-place 0) (veq:3$ par 0)
+            (veq:3$ par-place 1) (veq:3$ par 1))
+      (update! c))))
 

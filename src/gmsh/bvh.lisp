@@ -28,7 +28,7 @@
            ; TODO: WTF is this number, and why is it multiplied by 3?
            (max-node-num (* 3 (expt 2 (ceiling (log npolys 2)))))
            (polyind 1) (ni 0)
-           (nodes (init-bvh-node-vec max-node-num))
+           (nodes (init-bvh-nodes max-node-num))
            (polys (veq:p4$zero npolys))
            (mima (veq:f$zero (* +int-mima-leap+ max-node-num)))
            (simd-mima (veq:f$zero (* 6 max-node-num)))
@@ -41,7 +41,7 @@
            (bb (make-bb))
            (buckets (init-sah-buckets (* 3 num-buckets))))
       (declare (veq:pn ni npolys max-node-num polyind) (veq:pvec polys int-nodes)
-               (bvh-node-vec nodes) (veq:kvec mat) (veq:fvec polyfx normals)
+               (bvh-nodes nodes) (veq:kvec mat) (veq:fvec polyfx normals)
                (sah-buckets buckets) (bbox bb))
       (labels
         ((nxt-index () (incf ni) (1- ni))
@@ -60,7 +60,7 @@
            (veq:xlet ((ax (-longaxis objs))
                       (objs* (-axissort objs ax))
                       (p!mid (if (= n 1) 0 (round n 2))))
-              (values (subseq objs* 0 mid) (subseq objs* mid) ax)))
+              (values (subseq objs* 0 mid) (nthcdr mid objs*) ax)))
 
          (split-axis (objs n lvl) (declare (list objs) (veq:pn n lvl) (ignorable lvl))
 

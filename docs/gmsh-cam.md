@@ -4,27 +4,27 @@
  ;   [symbol]
  ; 
  ; @POS names a compiled function:
- ;   Lambda-list: (PROJ)
+ ;   Lambda-list: (C)
  ;   Derived type: (FUNCTION (T)
  ;                  (VALUES SINGLE-FLOAT SINGLE-FLOAT SINGLE-FLOAT
  ;                          &OPTIONAL))
  ;   Documentation:
- ;     get pos.
- ;   Inline proclamation: INLINE (inline expansion available)
+ ;     get current pos.
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
-## `gmsh/cam:@s`
+## `gmsh/cam:@u`
 ```
- ; GMSH/CAM:@S
+ ; GMSH/CAM:@U
  ;   [symbol]
  ; 
- ; @S names a compiled function:
- ;   Lambda-list: (PROJ)
- ;   Derived type: (FUNCTION (T) (VALUES SINGLE-FLOAT &OPTIONAL))
+ ; @U names a compiled function:
+ ;   Lambda-list: (C)
+ ;   Derived type: (FUNCTION (T)
+ ;                  (VALUES SINGLE-FLOAT SINGLE-FLOAT SINGLE-FLOAT
+ ;                          &OPTIONAL))
  ;   Documentation:
- ;     get scale.
- ;   Inline proclamation: INLINE (inline expansion available)
+ ;     get current u.
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
@@ -34,13 +34,27 @@
  ;   [symbol]
  ; 
  ; @UP names a compiled function:
- ;   Lambda-list: (PROJ)
+ ;   Lambda-list: (C)
  ;   Derived type: (FUNCTION (T)
  ;                  (VALUES SINGLE-FLOAT SINGLE-FLOAT SINGLE-FLOAT
  ;                          &OPTIONAL))
  ;   Documentation:
- ;     get up.
- ;   Inline proclamation: INLINE (inline expansion available)
+ ;     get current up.
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+```
+
+## `gmsh/cam:@v`
+```
+ ; GMSH/CAM:@V
+ ;   [symbol]
+ ; 
+ ; @V names a compiled function:
+ ;   Lambda-list: (C)
+ ;   Derived type: (FUNCTION (T)
+ ;                  (VALUES SINGLE-FLOAT SINGLE-FLOAT SINGLE-FLOAT
+ ;                          &OPTIONAL))
+ ;   Documentation:
+ ;     get current v.
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
@@ -50,28 +64,12 @@
  ;   [symbol]
  ; 
  ; @VPN names a compiled function:
- ;   Lambda-list: (PROJ)
+ ;   Lambda-list: (C)
  ;   Derived type: (FUNCTION (T)
  ;                  (VALUES SINGLE-FLOAT SINGLE-FLOAT SINGLE-FLOAT
  ;                          &OPTIONAL))
  ;   Documentation:
- ;     get vpn.
- ;   Inline proclamation: INLINE (inline expansion available)
- ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
-```
-
-## `gmsh/cam:@xy`
-```
- ; GMSH/CAM:@XY
- ;   [symbol]
- ; 
- ; @XY names a compiled function:
- ;   Lambda-list: (PROJ)
- ;   Derived type: (FUNCTION (T)
- ;                  (VALUES SINGLE-FLOAT SINGLE-FLOAT &OPTIONAL))
- ;   Documentation:
- ;     get view plane offset.
- ;   Inline proclamation: INLINE (inline expansion available)
+ ;     get current vpn.
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
@@ -88,33 +86,50 @@
  ;   Direct superclasses: STRUCTURE-OBJECT
  ;   No subclasses.
  ;   Slots:
- ;     GMSH/CAM::VPN
- ;       Type: VEQ:FVEC
- ;       Initform: (GMSH/CAM::ZERO)
- ;     GMSH/CAM::UP
- ;       Type: VEQ:FVEC
- ;       Initform: (GMSH/CAM::ZERO)
+ ;     GMSH/CAM::NAV-MODE
+ ;       Type: KEYWORD
+ ;       Initform: :FLY
+ ;     GMSH/CAM::PROJ-MODE
+ ;       Type: KEYWORD
+ ;       Initform: :PERSP
  ;     GMSH/CAM::POS
+ ;       Type: VEQ:3FVEC
+ ;       Initform: (VEQ:F3$PT 150.0 150.0 50.0)
+ ;     GMSH/CAM::UP
+ ;       Type: VEQ:3FVEC
+ ;       Initform: (VEQ:F3$PT 0.0 1.0 0.0)
+ ;     GMSH/CAM::VPN
+ ;       Type: VEQ:3FVEC
+ ;       Initform: (VEQ:F3$PT 0.0 0.0 1.0)
+ ;     GMSH/CAM::PAR
  ;       Type: VEQ:FVEC
- ;       Initform: (GMSH/CAM::ZERO)
+ ;       Initform: (VEQ:F$~ (6)
+ ;                   100.0
+ ;                   10.0
+ ;                   1000.0
+ ;                   10.0
+ ;                   3.0
+ ;                   100.0)
  ;     GMSH/CAM::U
- ;       Type: VEQ:FVEC
- ;       Initform: (GMSH/CAM::ZERO)
+ ;       Type: VEQ:3FVEC
+ ;       Initform: (VEQ:F3$VAL 0.0)
  ;     GMSH/CAM::V
- ;       Type: VEQ:FVEC
- ;       Initform: (GMSH/CAM::ZERO)
- ;     GMSH/CAM::SU
- ;       Type: VEQ:FVEC
- ;       Initform: (GMSH/CAM::ZERO)
- ;     GMSH/CAM::SV
- ;       Type: VEQ:FVEC
- ;       Initform: (GMSH/CAM::ZERO)
- ;     GMSH/CAM::XY
- ;       Type: VEQ:FVEC
- ;       Initform: (VEQ:F2$VAL 0.0)
- ;     GMSH/CAM::S
- ;       Type: VEQ:FF (unboxed)
- ;       Initform: 1.0
+ ;       Type: VEQ:3FVEC
+ ;       Initform: (VEQ:F3$VAL 0.0)
+```
+
+## `gmsh/cam:cam-par`
+```
+:missing:
+
+ ; GMSH/CAM:CAM-PAR
+ ;   [symbol]
+ ; 
+ ; CAM-PAR names a compiled function:
+ ;   Lambda-list: (INSTANCE)
+ ;   Derived type: (FUNCTION (GMSH/CAM:CAM)
+ ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL))
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
 ## `gmsh/cam:cam-pos`
@@ -127,33 +142,7 @@
  ; CAM-POS names a compiled function:
  ;   Lambda-list: (INSTANCE)
  ;   Derived type: (FUNCTION (GMSH/CAM:CAM)
- ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL))
- ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
- ; 
- ; (SETF CAM-POS) names a compiled function:
- ;   Lambda-list: (VALUE INSTANCE)
- ;   Derived type: (FUNCTION ((SIMPLE-ARRAY SINGLE-FLOAT) GMSH/CAM:CAM)
- ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL))
- ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
-```
-
-## `gmsh/cam:cam-s`
-```
-:missing:
-
- ; GMSH/CAM:CAM-S
- ;   [symbol]
- ; 
- ; CAM-S names a compiled function:
- ;   Lambda-list: (INSTANCE)
- ;   Derived type: (FUNCTION (GMSH/CAM:CAM)
- ;                  (VALUES SINGLE-FLOAT &OPTIONAL))
- ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
- ; 
- ; (SETF CAM-S) names a compiled function:
- ;   Lambda-list: (VALUE INSTANCE)
- ;   Derived type: (FUNCTION (SINGLE-FLOAT GMSH/CAM:CAM)
- ;                  (VALUES SINGLE-FLOAT &OPTIONAL))
+ ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT (3)) &OPTIONAL))
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
@@ -167,13 +156,7 @@
  ; CAM-U names a compiled function:
  ;   Lambda-list: (INSTANCE)
  ;   Derived type: (FUNCTION (GMSH/CAM:CAM)
- ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL))
- ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
- ; 
- ; (SETF CAM-U) names a compiled function:
- ;   Lambda-list: (VALUE INSTANCE)
- ;   Derived type: (FUNCTION ((SIMPLE-ARRAY SINGLE-FLOAT) GMSH/CAM:CAM)
- ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL))
+ ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT (3)) &OPTIONAL))
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
@@ -187,13 +170,7 @@
  ; CAM-UP names a compiled function:
  ;   Lambda-list: (INSTANCE)
  ;   Derived type: (FUNCTION (GMSH/CAM:CAM)
- ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL))
- ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
- ; 
- ; (SETF CAM-UP) names a compiled function:
- ;   Lambda-list: (VALUE INSTANCE)
- ;   Derived type: (FUNCTION ((SIMPLE-ARRAY SINGLE-FLOAT) GMSH/CAM:CAM)
- ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL))
+ ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT (3)) &OPTIONAL))
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
@@ -207,13 +184,7 @@
  ; CAM-V names a compiled function:
  ;   Lambda-list: (INSTANCE)
  ;   Derived type: (FUNCTION (GMSH/CAM:CAM)
- ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL))
- ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
- ; 
- ; (SETF CAM-V) names a compiled function:
- ;   Lambda-list: (VALUE INSTANCE)
- ;   Derived type: (FUNCTION ((SIMPLE-ARRAY SINGLE-FLOAT) GMSH/CAM:CAM)
- ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL))
+ ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT (3)) &OPTIONAL))
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
@@ -227,13 +198,7 @@
  ; CAM-VPN names a compiled function:
  ;   Lambda-list: (INSTANCE)
  ;   Derived type: (FUNCTION (GMSH/CAM:CAM)
- ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL))
- ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
- ; 
- ; (SETF CAM-VPN) names a compiled function:
- ;   Lambda-list: (VALUE INSTANCE)
- ;   Derived type: (FUNCTION ((SIMPLE-ARRAY SINGLE-FLOAT) GMSH/CAM:CAM)
- ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL))
+ ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT (3)) &OPTIONAL))
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
@@ -243,10 +208,10 @@
  ;   [symbol]
  ; 
  ; EXPORT-DATA names a compiled function:
- ;   Lambda-list: (P)
+ ;   Lambda-list: (C)
  ;   Derived type: (FUNCTION (GMSH/CAM:CAM) (VALUES CONS &OPTIONAL))
  ;   Documentation:
- ;     export the neccessary values to recreate cam. import with gmsh/cam:import-data.
+ ;     serialize cam. see import-data.
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
@@ -256,53 +221,71 @@
  ;   [symbol]
  ; 
  ; IMPORT-DATA names a compiled function:
- ;   Lambda-list: (P)
+ ;   Lambda-list: (O)
  ;   Derived type: (FUNCTION (LIST) *)
  ;   Documentation:
- ;     recreate proj from an a list exported by gmsh/cam:export-data.
+ ;     load serialized cam. see export-data.
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
 ## `gmsh/cam:make`
 ```
+:missing:
+
  ; GMSH/CAM:MAKE
  ;   [symbol]
  ; 
  ; MAKE names a compiled function:
- ;   Lambda-list: (&KEY (S 1.0) (POS (F3$VAL 1000.0)) VPN LOOK
- ;                 (UP (F3$POINT 0.0 0.0 1.0)) (XY (F2$VAL 500.0)))
+ ;   Lambda-list: (&KEY ((NAV-MODE NAV-MODE) FLY)
+ ;                 ((PROJ-MODE PROJ-MODE) PERSP)
+ ;                 ((POS POS) (F3$PT 150.0 150.0 50.0))
+ ;                 ((UP UP) (F3$PT 0.0 1.0 0.0))
+ ;                 ((VPN VPN) (F3$PT 0.0 0.0 1.0))
+ ;                 ((PAR PAR)
+ ;                  (F$~ (6)
+ ;                    100.0
+ ;                    10.0
+ ;                    1000.0
+ ;                    10.0
+ ;                    3.0
+ ;                    100.0))
+ ;                 ((U U) (F3$VAL 0.0)) ((V V) (F3$VAL 0.0)))
  ;   Derived type: (FUNCTION
- ;                  (&KEY (:S SINGLE-FLOAT)
- ;                   (:POS (SIMPLE-ARRAY SINGLE-FLOAT)) (:VPN T) (:LOOK T)
- ;                   (:UP (SIMPLE-ARRAY SINGLE-FLOAT))
- ;                   (:XY (SIMPLE-ARRAY SINGLE-FLOAT)))
+ ;                  (&KEY (:NAV-MODE KEYWORD) (:PROJ-MODE KEYWORD)
+ ;                   (:POS (SIMPLE-ARRAY SINGLE-FLOAT #1=(3)))
+ ;                   (:UP (SIMPLE-ARRAY SINGLE-FLOAT #1#))
+ ;                   (:VPN (SIMPLE-ARRAY SINGLE-FLOAT #1#))
+ ;                   (:PAR (SIMPLE-ARRAY SINGLE-FLOAT))
+ ;                   (:U (SIMPLE-ARRAY SINGLE-FLOAT #1#))
+ ;                   (:V (SIMPLE-ARRAY SINGLE-FLOAT #1#)))
  ;                  (VALUES GMSH/CAM:CAM &OPTIONAL))
- ;   Documentation:
- ;     make camera
- ;     
- ;       default up is (0 0 1)
- ;       default pos is (1000.0 1000.0 1000.0)
- ;       if look and vpn are unset, the camera will look at the origin.
- ;     
- ;       default scale is 1.0
- ;       default xy is (0.0 0.0)
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
-## `gmsh/cam:pan-cam`
+## `gmsh/cam:nav/around!`
 ```
-:missing:
-
- ; GMSH/CAM:PAN-CAM
+ ; GMSH/CAM:NAV/AROUND!
  ;   [symbol]
+ ; 
+ ; NAV/AROUND! names a compiled function:
+ ;   Lambda-list: (C AX VAL)
+ ;   Derived type: (FUNCTION (GMSH/CAM:CAM KEYWORD SINGLE-FLOAT) *)
+ ;   Documentation:
+ ;     rotate around cam axis.
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
-## `gmsh/cam:pan-xy`
+## `gmsh/cam:nav/trans!`
 ```
-:missing:
-
- ; GMSH/CAM:PAN-XY
+ ; GMSH/CAM:NAV/TRANS!
  ;   [symbol]
+ ; 
+ ; NAV/TRANS! names a compiled function:
+ ;   Lambda-list: (C AX VAL)
+ ;   Derived type: (FUNCTION (GMSH/CAM:CAM KEYWORD SINGLE-FLOAT) *)
+ ;   Documentation:
+ ;     translate cam.
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
 ## `gmsh/cam:pm`
@@ -311,42 +294,43 @@
  ;   [symbol]
  ; 
  ; PM names a compiled function:
- ;   Lambda-list: (P S &OPTIONAL (NEAR 0.1) (FAR 500.0))
- ;   Derived type: (FUNCTION
- ;                  (GMSH/CAM:CAM SINGLE-FLOAT &OPTIONAL SINGLE-FLOAT
- ;                   SINGLE-FLOAT)
+ ;   Lambda-list: (C &OPTIONAL (MODE (@PROJ-MODE C)))
+ ;   Derived type: (FUNCTION (GMSH/CAM:CAM &OPTIONAL KEYWORD)
  ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT (16)) &OPTIONAL))
  ;   Documentation:
- ;     projection matrix. compatible with gmsh/scene
+ ;     projection matrix. compatible with gmsh/scene and gmsh/xrend.
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
-## `gmsh/cam:rotate`
+## `gmsh/cam:scale-from-to!`
 ```
 :missing:
 
- ; GMSH/CAM:ROTATE
- ;   [symbol]
-```
-
-## `gmsh/cam:update`
-```
- ; GMSH/CAM:UPDATE
+ ; GMSH/CAM:SCALE-FROM-TO!
  ;   [symbol]
  ; 
- ; UPDATE names a compiled function:
- ;   Lambda-list: (PROJ &KEY S XY UP POS VPN LOOK)
+ ; SCALE-FROM-TO! names a compiled function:
+ ;   Lambda-list: (C FROM TO)
  ;   Derived type: (FUNCTION
- ;                  (GMSH/CAM:CAM &KEY (:S T) (:POS T) (:VPN T) (:LOOK T)
- ;                   (:UP T) (:XY T))
+ ;                  (GMSH/CAM:CAM (UNSIGNED-BYTE 32) (UNSIGNED-BYTE 32))
+ ;                  (VALUES GMSH/CAM:CAM &OPTIONAL))
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+```
+
+## `gmsh/cam:update!`
+```
+ ; GMSH/CAM:UPDATE!
+ ;   [symbol]
+ ; 
+ ; UPDATE! names a compiled function:
+ ;   Lambda-list: (C &KEY UP POS VPN LOOK)
+ ;   Derived type: (FUNCTION
+ ;                  (GMSH/CAM:CAM &KEY (:UP T) (:POS T) (:VPN T)
+ ;                   (:LOOK T))
  ;                  (VALUES GMSH/CAM:CAM &OPTIONAL))
  ;   Documentation:
- ;     update projection parameters.
- ;     
- ;       use vpn to set view plane normal directly, or look to set view plane normal
- ;       relative to camera.
- ;     
- ;       ensures that internal state is updated appropriately.
+ ;     consistently update camera values. use vpn to set view plane normal (away
+ ;     from dop); or look to set view plane normal relative to position.
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
@@ -355,21 +339,12 @@
  ; GMSH/CAM:VM
  ;   [symbol]
  ; 
- ; VM names a macro:
- ;   Lambda-list: (&REST REST)
+ ; VM names a compiled function:
+ ;   Lambda-list: (C)
+ ;   Derived type: (FUNCTION (GMSH/CAM:CAM)
+ ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT (16)) &OPTIONAL))
  ;   Documentation:
- ;     WRAPS: %VM
- ;     ARGS: (P (VA 3 LOOK))
- ;     DOCSTRING: view matrix, compatible with gmsh/scene
- ;     defined via veq:FVDEF*
+ ;     view matrix, compatible with gmsh/scene and gmsh/xrend.
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
-```
-
-## `gmsh/cam:zoom`
-```
-:missing:
-
- ; GMSH/CAM:ZOOM
- ;   [symbol]
 ```
 

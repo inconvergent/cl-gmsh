@@ -60,41 +60,38 @@
  ;   Direct superclasses: STRUCTURE-OBJECT
  ;   No subclasses.
  ;   Slots:
- ;     TIME
- ;       Type: VEQ:FF (unboxed)
- ;       Initform: 0.0
- ;     GMSH/BVH::NODES
- ;       Type: GMSH/BVH::BVH-NODE-VEC
- ;       Initform: (GMSH/BVH::INIT-BVH-NODE-VEC 1)
- ;     GMSH/BVH::INT-NODES
- ;       Type: VEQ:PVEC
- ;       Initform: (VEQ:P4$ZERO 0)
  ;     GMSH/BVH::SIMD-NODES
  ;       Type: VEQ:PVEC
  ;       Initform: (VEQ:P4$ZERO 0)
- ;     GMSH/BVH::POLYS
- ;       Type: VEQ:PVEC
- ;       Initform: (VEQ:P3$ZERO 0)
+ ;     GMSH/BVH::SIMD-MIMA
+ ;       Type: VEQ:FVEC
+ ;       Initform: (VEQ:F4$ZERO 0)
  ;     GMSH/BVH::POLYFX
  ;       Type: VEQ:FVEC
  ;       Initform: (VEQ:F3$ZERO 0)
  ;     GMSH/BVH::NORMALS
  ;       Type: VEQ:FVEC
  ;       Initform: (VEQ:F3$ZERO 0)
- ;     GMSH/BVH::MIMA
- ;       Type: VEQ:FVEC
- ;       Initform: (VEQ:F4$ZERO 0)
- ;     GMSH/BVH::SIMD-MIMA
- ;       Type: VEQ:FVEC
- ;       Initform: (VEQ:F4$ZERO 0)
- ;     GMSH/BVH::LVL
- ;       Type: FIXNUM
- ;       Initform: 0
+ ;     GMSH/BVH::POLYS
+ ;       Type: VEQ:PVEC
+ ;       Initform: (VEQ:P3$ZERO 0)
  ;     GMSH/BVH::MAT
  ;       Type: VEQ:SVEC
  ;       Initform: NIL
+ ;     GMSH/BVH::MIMA
+ ;       Type: VEQ:FVEC
+ ;       Initform: (VEQ:F4$ZERO 0)
+ ;     GMSH/BVH::NODES
+ ;       Type: GMSH/BVH::BVH-NODES
+ ;       Initform: (GMSH/BVH::INIT-BVH-NODES 1)
+ ;     GMSH/BVH::INT-NODES
+ ;       Type: VEQ:PVEC
+ ;       Initform: (VEQ:P4$ZERO 0)
+ ;     GMSH/BVH::MODE
+ ;       Type: KEYWORD
+ ;       Initform: :BVH4-SIMD
  ;     GMSH/BVH::NUM-LEAVES
- ;       Type: FIXNUM
+ ;       Type: VEQ:PN
  ;       Initform: 0
  ;     GMSH/BVH::NUM-NODES
  ;       Type: VEQ:PN
@@ -102,12 +99,15 @@
  ;     GMSH/BVH::NUM-POLYS
  ;       Type: VEQ:PN
  ;       Initform: 0
- ;     GMSH/BVH::MODE
- ;       Type: KEYWORD
- ;       Initform: :BVH2
  ;     GMSH/BVH::CNT
- ;       Type: FIXNUM
+ ;       Type: VEQ:PN
  ;       Initform: 0
+ ;     GMSH/BVH::LVL
+ ;       Type: VEQ:PN
+ ;       Initform: 0
+ ;     TIME
+ ;       Type: VEQ:FF (unboxed)
+ ;       Initform: 0.0
 ```
 
 ## `gmsh/bvh:gpu/pack-bvh`

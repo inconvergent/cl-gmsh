@@ -1,15 +1,12 @@
 
-
 (asdf:defsystem #:gmsh
   :description "triangular mesh and raytracer utilities."
-  :version "1.4.0"
+  :version "2.0.0"
   :author "anders hoff / @inconvergent / inconvergent@gmail.com"
   :licence "MIT"
   :in-order-to ((asdf:test-op (asdf:test-op #:gmsh/tests)))
   :pathname "src/" :serial nil
-  :depends-on (#:uiop #:sb-simd
-               #:auxin #:lparallel #:fset
-               #:cl-opengl #:cl-glu #:sdl2)
+  :depends-on (#:uiop #:sb-simd #:auxin #:lparallel #:fset #:cl-opengl #:cl-glu #:sdl2)
   :components ((:file "packages")
                (:file "init" :depends-on ("packages"))
                (:file "utils" :depends-on ("init"))
@@ -44,10 +41,8 @@
                (:file "voxel/voxel" :depends-on ("voxel/init"))))
 
 (asdf:defsystem #:gmsh/tests
-  :depends-on (#:uiop #:sb-simd
-               #:auxin #:lparallel #:fset
-               #:cl-opengl #:cl-glu #:sdl2)
-  :version "1.4.0"
+  :depends-on (#:uiop #:sb-simd #:auxin #:lparallel #:fset #:cl-opengl #:cl-glu #:sdl2 #:gmsh)
+  :version "2.0.0"
   :perform (asdf:test-op (o s) (uiop:symbol-call ':gmsh-tests '#:run-tests))
   :pathname "test/" :serial t
   :components ((:file "run")))

@@ -1,6 +1,5 @@
 (in-package :gmsh/xrend)
 
-
 (defmacro rc-simple (&rest rest) "simple raycast using current raycaster."
   `(veq:mvc #'gmsh/bvh:simd4/simple-raycast ,@rest))
 (defmacro rc (&rest rest) "raycast using current raycaster."

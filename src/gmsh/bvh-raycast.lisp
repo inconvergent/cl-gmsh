@@ -15,7 +15,7 @@
      (veq:xlet ((nodes (gmsh/bvh::bvh-nodes bvh))
                 (polyfx (gmsh/bvh::bvh-polyfx bvh))
                 (f3!inv (-eps-div ll)))
-       (declare (bvh-node-vec nodes) (veq:fvec polyfx))
+       (declare (bvh-nodes nodes) (veq:fvec polyfx))
        (let ((hs 900000.0) (hi -1))
          (declare (veq:ff hs) (veq:in hi))
          (labels ((rec (ni &aux (ci (aref nodes ni)) (n (num ci)))

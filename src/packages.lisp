@@ -39,8 +39,8 @@
   (:use #:common-lisp)
   (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:doc)
   (:export
-    #:sdl-info #:bind-buffer-object #:init-viewport #:window-context
-    #:make-buftex #:init-controller
+    #:sdl-info #:bind-buffer-object #:init-viewport #:window-context #:show-diag
+    #:make-buftex #:init-controller #:make-render
     #:compile-shader #:make-program #:make-program*
     #:to-gl-array #:set-uniform-f #:set-uniform-i #:set-uniform-mat-4f #:tick))
 
@@ -48,40 +48,30 @@
   (:use #:common-lisp)
   (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:wrn)
   (:export #:scene
-    #:@s #:set-s #:@pm #:@vm
     #:scene/make #:scene/load #:scene/save #:canv/save #:scene/new-canv
-    #:update-axis #:update-view #:make-vm #:make-pm
-    #:gpu/do-pack-bvh
-    #:scene-msh #:scene-look #:scene-proj
-    #:scene-program
+    #:update-axis #:update-view #:split-edges
+    #:gpu/do-pack-bvh #:scale-to!
+    #:@msh #:@cam #:@canv #:@program #:@pm #:@vm #:@size
     #:scene-matfx #:scene-matmap
-    #:scene-canv
     #:getmat #:setmat))
 
 (defpackage #:gmsh/cam
   (:use #:common-lisp)
-  (:import-from #:gmsh #:*opt*)
+  (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:doc #:wrn)
   (:import-from #:auxin #:with-struct)
-  (:export #:cam #:export-data #:import-data #:make #:pan-cam #:pan-xy
-           #:cam-u #:cam-v #:cam-s #:cam-up #:cam-pos #:cam-vpn
-           #:rotate #:update #:zoom
+  (:export #:cam #:export-data #:import-data #:make
+           #:cam-u #:cam-v #:cam-up #:cam-pos #:cam-vpn #:cam-par
+           #:update! #:nav/around! #:nav/trans! #:scale-from-to!
            #:vm #:pm
-           #:@pos #:@vpn #:@xy #:@up #:@s))
+           #:@pos #:@vpn #:@up #:@u #:@v))
 
 (defpackage #:gmsh/xrend
   (:use #:common-lisp)
   (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:doc #:wrn)
   (:export #:xrend #:init #:iter-timer #:get-info-fx))
 
-(defpackage #:gvox
+(defpackage #:gvox ; TODO: incomplete
   (:use #:common-lisp)
   (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:doc #:wrn)
   (:export #:get-mesh #:make #:setvoxel))
-
-; TODO: helpers for material, scene, in sep package?
-; (defpackage #:bgl
-;   (:use #:common-lisp)
-;   (:export
-;     #:load-shader #:gl-init #:build-shader #:make-program
-;     #:sdl-info #:debug-log #:render))
 

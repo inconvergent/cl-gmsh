@@ -213,10 +213,10 @@ keywords:
  - num         : smallest number of polys in a node.
  - mode        : acceleration structure.
  - num-buckets : SAH estimation buckets.
-" (apply #'gmsh/bvh::make (@all-polys msh)
+" (unless (> (gmsh:@pnum msh) 0) (error "BVH: empty mesh"))
+  (apply #'gmsh/bvh::make (@all-polys msh)
          (lambda (verts) (declare (list verts)) (@verts msh verts))
          rest))
-
 
 (veq:fvdef add-verts-polys! (msh verts polys)
   (declare (gmsh msh) (veq:fvec verts) (list polys))
@@ -254,7 +254,7 @@ keywords:
     (add-verts-polys! msh
       ($shape/box xy (:vr s 0) 0.0 0.0 0.0 (:vr s 1) 0.0 0.0 0.0 (:vr s 2))
       '#.(group `(1 2 3 7 6 5 4 5 1 5 6 2 2 6 7 0 3 7
-                        0 1 3 4 7 5 0 4 1 1 5 2 3 2 7 4 0 7) 3))))
+                  0 1 3 4 7 5 0 4 1 1 5 2 3 2 7 4 0 7) 3))))
 
 (defun add-vert-strip! (msh aa bb &optional closed)
   (declare (gmsh msh) (list aa bb) (boolean closed))
