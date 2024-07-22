@@ -1,5 +1,7 @@
 (in-package :gmsh/scene)
 
+(declaim (inline @pm @vm setmat getmat setmats))
+
 (defun -prt (o s)
   (format s "<@scene ~@(~a ~a~%~a~%~a>~)"
             (scene-size o) (scene-program o) (scene-msh o) (scene-cam o)))
@@ -17,7 +19,6 @@
   (pm #(nil) :type vector :read-only t)
   (vm #(nil) :type vector :read-only t))
 
-; (declaim (inline @pm @vm @s @near @proj-mode @cam-mode set-s set-near))
 (defun @program (sc) (declare (scene sc)) "get program." (scene-program sc))
 (defun @size    (sc) (declare (scene sc)) "get program." (scene-size sc))
 (defun @msh     (sc) (declare (scene sc)) "get msh."     (scene-msh sc))
@@ -25,22 +26,6 @@
 (defun @pm      (sc) (declare (scene sc)) "get pm."      (scene-pm sc))
 (defun @vm      (sc) (declare (scene sc)) "get vm."      (scene-vm sc))
 (defun @canv    (sc) (declare (scene sc)) "get canv"     (scene-canv sc))
-
-(veq:fvdef update-view (sc &aux (cam (@cam sc)))
-  (declare (optimize speed (safety 1))) "update scene view."
-  (labels ((trans  (ax val) (gmsh/cam:nav/trans!  cam ax val))
-           (around (ax val) (gmsh/cam:nav/around! cam ax val)))
-    (loop for (fx ax s) in `((,#'trans  :u     -2.0)
-                             (,#'trans  :vpn    2.0)
-                             (,#'around :yaw    0.05)
-                             (,#'around :pitch  0.05)
-                             (,#'around :roll   0.1)
-                             (,#'around :roll  -0.1))
-          for val across (scene-axis-state sc) if (and fx (> (abs val) veq:*eps*))
-          do (funcall (the function fx) ax (* s val))))
-  ; NOTE: the look value for vm is artificial. can simplify this
-  (setf (veq:$ (scene-vm sc)) (gmsh/cam:vm (@cam sc))
-        (veq:$ (scene-pm sc)) (gmsh/cam:pm (@cam sc))))
 
 (defun scale-to! (sc to &optional (from (@size sc)))
   (gmsh/cam:scale-from-to! (gmsh/scene:@cam sc) from to)
@@ -51,6 +36,23 @@
   (declare (scene sc) (string fn) (veq:ff gamma)) "save scene canvas to fn as png."
   (canvas:save (scene-canv sc) fn :gamma gamma))
 
+(doc PS4 CONTROLLER BUTTONS
+
+      L2              R2
+      L1 9            R1  10
+
+      ↑ 11            3
+  ←13   14 →       2     1
+      ↓ 12            0
+
+      7     sticks    8       )
+
+(veq:fvdef update-view (sc &aux (c (@cam sc)))
+  (declare #.*opt* (scene sc)) "update scene view and proj matrices."
+  (gmsh/cam:nav/axis! c (scene-axis-state sc))
+  (setf (veq:$ (scene-vm sc)) (gmsh/cam:vm c)
+        (veq:$ (scene-pm sc)) (gmsh/cam:pm c)))
+
 (veq:fvdef update-axis (sc ax val &aux (val (* (signum val) (max 0 (- (abs val) 3500)))))
   (labels ((analogue (val &aux (val* (expt (veq:fclamp (/ (veq:ff (abs val))
                                                           #.(veq:ff (- 32767 3500))))
@@ -58,7 +60,6 @@
                      (* (signum val) val*)))
      (setf (aref (scene-axis-state sc) ax) (analogue val))))
 
-(declaim (inline setmat getmat setmats))
 (defun setmat (sc p m &aux (matmap (scene-matmap sc)))
   (declare (scene sc) (list p m)) "set poly mat"
   (if m (setf (gethash p matmap) m)

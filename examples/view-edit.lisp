@@ -5,7 +5,6 @@
 (setf lparallel:*kernel* (lparallel:make-kernel 10))
 (defvar *window-size* 1000)
 (defvar *pid* 0)
-; (rnd:set-rnd-state 113)
 
 (veq:fvdef reset-mesh (sc &aux (msh (gmsh/scene:@msh sc)))
   (labels ((reset-mat () (clrhash (gmsh/scene::scene-matmap sc))
@@ -43,9 +42,7 @@
                      (error (e) (gmsh:wrn :alter-msh "unexpected err: ~a" e)))))
   (print msh))
 
-(defun fn () (fn:fn))
-
-(veq:fvdef main (&aux (srcfile cl-user::*load-truename* ))
+(veq:fvdef main (&aux (srcfile cl-user::*load-truename*))
   (gmsh/gl:window-context (*window-size* *window-size*)
     (let ((sc (gmsh/scene:scene/make))
           (itt 0))
@@ -60,35 +57,22 @@
                                  (gmsh/scene::update-axis sc ax v))
           (:controllerbuttondown (:state state :which which :button b :type ty)
             ; (lqn:out "~&██ btn: ~a~&" b)
-            ;     L2              R2
-            ;     L1 9            R1  10
-            ;
-            ;     ↑ 11            3
-            ; ←13   14 →       2     1
-            ;     ↓ 12            0
-            ;
-            ;     7               8
             (case b (3  (do-alter-mesh sc :sym)         (f@render-init)) ; triangle
                     (2  (do-alter-mesh sc :stretch-v)   (f@render-init)) ; square
                     (1  (do-alter-mesh sc :stretch-vpn) (f@render-init)) ; circle
-                    ; (0  (setf *pid* (mod (1+ *pid*) (length gmsh:*programs*))) ; roll program
-                    ;     (funcall program (aref gmsh:*programs* *pid*))
-                    ;     (funcall render-init))
-                    ; (12 (gmsh/scene::scene/save sc (fn))) ; down
+                    (0  (setf *pid* (mod (1+ *pid*) (length gmsh:*programs*))) ; roll program
+                        (funcall program (aref gmsh:*programs* *pid*))
+                        (funcall render-init))
                     (6  (reset-mesh sc) (funcall render-init)) ; options
-                    ; (9  (update-s sc     1.0)) ; L1
-                    ; (10 (update-s sc    -1.0)) ; R1
-                    ; (11 (update-near sc  1.0)) ; up
-                    ; (12 (update-near sc -1.0)) ; dwn
-                    ))
+                    (9  (gmsh/cam:nav/near! cam  1.0))
+                    (10 (gmsh/cam:nav/near! cam -1.0))
+                    (7  (gmsh/cam:set-nav-mode cam :pan) (print :pan))
+                    (8  (gmsh/cam:set-nav-mode cam :fly) (print :fly))
+                    (4  (print sc))))
           (:keydown (:keysym keysym)
-            ; (lqn:out "~&██ key: ~a~&" (sdl2:scancode keysym))
             (case (sdl2:scancode keysym)
-                  (:scancode-e (gmsh/scene:scene/save sc (fn) :srcfile srcfile))
-                  (:scancode-s (do-alter-mesh sc :sym) (f@render-init))
-                  ; (:scancode-1 (swap-proj-mode sc :ortho))
-                  ; (:scancode-2 (swap-proj-mode sc :persp))
-                  ))
+                  (:scancode-e (gmsh/scene:scene/save sc (fn:fn) :srcfile srcfile))
+                  (:scancode-s (do-alter-mesh sc :sym) (f@render-init))))
           (:idle () (let ((t0 (veq:ff (get-internal-real-time))))
                       (when run (gmsh/scene:update-view sc) (f@render))
                       (sdl2:gl-swap-window win)

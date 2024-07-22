@@ -123,7 +123,7 @@
  ;   Slots:
  ;     GMSH/CAM::NAV-MODE
  ;       Type: KEYWORD
- ;       Initform: :FLY
+ ;       Initform: :PAN
  ;     GMSH/CAM::PROJ-MODE
  ;       Type: KEYWORD
  ;       Initform: :PERSP
@@ -151,90 +151,6 @@
  ;     GMSH/CAM::V
  ;       Type: VEQ:3FVEC
  ;       Initform: (VEQ:F3$VAL 0.0)
-```
-
-## `gmsh/cam:cam-par`
-```
-:missing:
-
- ; GMSH/CAM:CAM-PAR
- ;   [symbol]
- ; 
- ; CAM-PAR names a compiled function:
- ;   Lambda-list: (INSTANCE)
- ;   Derived type: (FUNCTION (GMSH/CAM:CAM)
- ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL))
- ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
-```
-
-## `gmsh/cam:cam-pos`
-```
-:missing:
-
- ; GMSH/CAM:CAM-POS
- ;   [symbol]
- ; 
- ; CAM-POS names a compiled function:
- ;   Lambda-list: (INSTANCE)
- ;   Derived type: (FUNCTION (GMSH/CAM:CAM)
- ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT (3)) &OPTIONAL))
- ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
-```
-
-## `gmsh/cam:cam-u`
-```
-:missing:
-
- ; GMSH/CAM:CAM-U
- ;   [symbol]
- ; 
- ; CAM-U names a compiled function:
- ;   Lambda-list: (INSTANCE)
- ;   Derived type: (FUNCTION (GMSH/CAM:CAM)
- ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT (3)) &OPTIONAL))
- ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
-```
-
-## `gmsh/cam:cam-up`
-```
-:missing:
-
- ; GMSH/CAM:CAM-UP
- ;   [symbol]
- ; 
- ; CAM-UP names a compiled function:
- ;   Lambda-list: (INSTANCE)
- ;   Derived type: (FUNCTION (GMSH/CAM:CAM)
- ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT (3)) &OPTIONAL))
- ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
-```
-
-## `gmsh/cam:cam-v`
-```
-:missing:
-
- ; GMSH/CAM:CAM-V
- ;   [symbol]
- ; 
- ; CAM-V names a compiled function:
- ;   Lambda-list: (INSTANCE)
- ;   Derived type: (FUNCTION (GMSH/CAM:CAM)
- ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT (3)) &OPTIONAL))
- ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
-```
-
-## `gmsh/cam:cam-vpn`
-```
-:missing:
-
- ; GMSH/CAM:CAM-VPN
- ;   [symbol]
- ; 
- ; CAM-VPN names a compiled function:
- ;   Lambda-list: (INSTANCE)
- ;   Derived type: (FUNCTION (GMSH/CAM:CAM)
- ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT (3)) &OPTIONAL))
- ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
 ## `gmsh/cam:export-data`
@@ -271,7 +187,7 @@
  ;   [symbol]
  ; 
  ; MAKE names a compiled function:
- ;   Lambda-list: (&KEY ((NAV-MODE NAV-MODE) FLY)
+ ;   Lambda-list: (&KEY ((NAV-MODE NAV-MODE) PAN)
  ;                 ((PROJ-MODE PROJ-MODE) PERSP)
  ;                 ((POS POS) (F3$PT 150.0 150.0 50.0))
  ;                 ((UP UP) (F3$PT 0.0 1.0 0.0))
@@ -310,6 +226,50 @@
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
+## `gmsh/cam:nav/axis!`
+```
+:missing:
+
+ ; GMSH/CAM:NAV/AXIS!
+ ;   [symbol]
+ ; 
+ ; NAV/AXIS! names a compiled function:
+ ;   Lambda-list: (C AXIS &OPTIONAL (STP 1.0))
+ ;   Derived type: (FUNCTION
+ ;                  (GMSH/CAM:CAM (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL
+ ;                   SINGLE-FLOAT)
+ ;                  (VALUES GMSH/CAM:CAM &OPTIONAL))
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+```
+
+## `gmsh/cam:nav/near!`
+```
+ ; GMSH/CAM:NAV/NEAR!
+ ;   [symbol]
+ ; 
+ ; NAV/NEAR! names a compiled function:
+ ;   Lambda-list: (C VAL &OPTIONAL (MODE (@PROJ-MODE C)))
+ ;   Derived type: (FUNCTION (GMSH/CAM:CAM SINGLE-FLOAT &OPTIONAL KEYWORD)
+ ;                  (VALUES GMSH/CAM:CAM &OPTIONAL))
+ ;   Documentation:
+ ;     change near value of current projection mode.
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+```
+
+## `gmsh/cam:nav/s!`
+```
+ ; GMSH/CAM:NAV/S!
+ ;   [symbol]
+ ; 
+ ; NAV/S! names a compiled function:
+ ;   Lambda-list: (C VAL &OPTIONAL (MODE (@PROJ-MODE C)))
+ ;   Derived type: (FUNCTION (GMSH/CAM:CAM SINGLE-FLOAT &OPTIONAL KEYWORD)
+ ;                  (VALUES GMSH/CAM:CAM &OPTIONAL))
+ ;   Documentation:
+ ;     change s value of current projection mode.
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+```
+
 ## `gmsh/cam:nav/trans!`
 ```
  ; GMSH/CAM:NAV/TRANS!
@@ -334,6 +294,7 @@
  ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT (16)) &OPTIONAL))
  ;   Documentation:
  ;     projection matrix. compatible with gmsh/scene and gmsh/xrend.
+ ;   Inline proclamation: INLINE (inline expansion available)
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
@@ -349,6 +310,34 @@
  ;   Derived type: (FUNCTION
  ;                  (GMSH/CAM:CAM (UNSIGNED-BYTE 32) (UNSIGNED-BYTE 32))
  ;                  (VALUES GMSH/CAM:CAM &OPTIONAL))
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+```
+
+## `gmsh/cam:set-nav-mode`
+```
+ ; GMSH/CAM:SET-NAV-MODE
+ ;   [symbol]
+ ; 
+ ; SET-NAV-MODE names a compiled function:
+ ;   Lambda-list: (C MODE)
+ ;   Derived type: (FUNCTION (GMSH/CAM:CAM KEYWORD)
+ ;                  (VALUES KEYWORD &OPTIONAL))
+ ;   Documentation:
+ ;     set nav mode :pan / :fly / :around.
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+```
+
+## `gmsh/cam:set-proj-mode`
+```
+ ; GMSH/CAM:SET-PROJ-MODE
+ ;   [symbol]
+ ; 
+ ; SET-PROJ-MODE names a compiled function:
+ ;   Lambda-list: (C MODE)
+ ;   Derived type: (FUNCTION (GMSH/CAM:CAM KEYWORD)
+ ;                  (VALUES KEYWORD &OPTIONAL))
+ ;   Documentation:
+ ;     set nav mode. :ortho / :persp.
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
@@ -380,6 +369,7 @@
  ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT (16)) &OPTIONAL))
  ;   Documentation:
  ;     view matrix, compatible with gmsh/scene and gmsh/xrend.
+ ;   Inline proclamation: INLINE (inline expansion available)
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 

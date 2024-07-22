@@ -37,7 +37,7 @@
 
 (defpackage #:gmsh/gl
   (:use #:common-lisp)
-  (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:doc)
+  (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:wrn #:doc)
   (:export
     #:sdl-info #:bind-buffer-object #:init-viewport #:window-context #:show-diag
     #:make-buftex #:init-controller #:make-render
@@ -46,7 +46,7 @@
 
 (defpackage #:gmsh/scene
   (:use #:common-lisp)
-  (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:wrn)
+  (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:wrn #:doc)
   (:export #:scene
     #:scene/make #:scene/load #:scene/save #:canv/save #:scene/new-canv
     #:update-axis #:update-view #:split-edges
@@ -57,21 +57,20 @@
 
 (defpackage #:gmsh/cam
   (:use #:common-lisp)
-  (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:doc #:wrn)
+  (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:wrn #:doc)
   (:import-from #:auxin #:with-struct)
   (:export #:cam #:export-data #:import-data #:make
-           #:cam-u #:cam-v #:cam-up #:cam-pos #:cam-vpn #:cam-par
-           #:update! #:nav/around! #:nav/trans! #:scale-from-to!
-           #:vm #:pm
-           #:@pos #:@vpn #:@up #:@u #:@v))
+           #:@pos #:@vpn #:@up #:@u #:@v #:vm #:pm
+           #:update! #:nav/around! #:nav/trans! #:nav/s! #:nav/near! #:nav/axis!
+           #:set-nav-mode #:set-proj-mode #:scale-from-to!))
 
 (defpackage #:gmsh/xrend
   (:use #:common-lisp)
-  (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:doc #:wrn)
+  (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:wrn #:doc)
   (:export #:xrend #:init #:iter-timer #:get-info-fx))
 
 (defpackage #:gvox ; TODO: incomplete
   (:use #:common-lisp)
-  (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:doc #:wrn)
+  (:import-from #:gmsh #:*opt* #:*opt1* #:*eps* #:wrn #:doc)
   (:export #:get-mesh #:make #:setvoxel))
 

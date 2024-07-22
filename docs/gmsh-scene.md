@@ -49,6 +49,7 @@
  ;   Derived type: (FUNCTION (GMSH/SCENE:SCENE) (VALUES VECTOR &OPTIONAL))
  ;   Documentation:
  ;     get pm.
+ ;   Inline proclamation: INLINE (inline expansion available)
  ;   Source file: /data/x/gmsh/src/gmsh/scene.lisp
 ```
 
@@ -89,6 +90,7 @@
  ;   Derived type: (FUNCTION (GMSH/SCENE:SCENE) (VALUES VECTOR &OPTIONAL))
  ;   Documentation:
  ;     get vm.
+ ;   Inline proclamation: INLINE (inline expansion available)
  ;   Source file: /data/x/gmsh/src/gmsh/scene.lisp
 ```
 
@@ -348,10 +350,11 @@
  ;   [symbol]
  ; 
  ; UPDATE-VIEW names a compiled function:
- ;   Lambda-list: (SC &AUX (CAM (@CAM SC)))
- ;   Derived type: (FUNCTION (T) (VALUES T &OPTIONAL))
+ ;   Lambda-list: (SC &AUX (C (@CAM SC)))
+ ;   Derived type: (FUNCTION (GMSH/SCENE:SCENE)
+ ;                  (VALUES (SIMPLE-ARRAY SINGLE-FLOAT (16)) &OPTIONAL))
  ;   Documentation:
- ;     update scene view.
+ ;     update scene view and proj matrices.
  ;   Source file: /data/x/gmsh/src/gmsh/scene.lisp
 ```
 
