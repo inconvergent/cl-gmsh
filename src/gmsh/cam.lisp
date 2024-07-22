@@ -23,12 +23,9 @@
   (u   (veq:f3$val 0f0) :type veq:3fvec :read-only t)  ; view plane horizontal
   (v   (veq:f3$val 0f0) :type veq:3fvec :read-only t)) ; view plane vertical
 
-; (declaim (inline @pos @s @up @vpn))
-(veq:fvdef @pos       (c) "get current pos." (veq:f3$s c cam- :pos))
-(veq:fvdef @up        (c) "get current up."  (veq:f3$s c cam- :up))
-(veq:fvdef @vpn       (c) "get current vpn." (veq:f3$s c cam- :vpn))
-(veq:fvdef @u         (c) "get current u."   (veq:f3$s c cam- :u))
-(veq:fvdef @v         (c) "get current v."   (veq:f3$s c cam- :v))
+(declaim (inline @pos @up @vpn @u @v))
+(veq:make-struct-vec-getters cam- 3 ff (pos up vpn u v par))
+(veq:make-struct-vec-setters cam- 3 ff (pos up vpn u v par))
 (veq:fvdef @nav-mode  (c) "get current nav mode. :fly or :around."   (cam-nav-mode c))
 (veq:fvdef @proj-mode (c) "get current proj mode. :ortho or :persp." (cam-proj-mode c))
 
@@ -41,8 +38,9 @@
 (defmacro proj-par (c &optional mode)
   (declare (symbol c))
   "get s/near/far as values for :ortho or :persp projection modes."
-  `(ecase (@proj-mode c) (:ortho (veq:f$ (cam-par ,c) 0 1 2))
-                         (:persp (veq:f$ (cam-par ,c) 3 4 5))))
+  `(ecase ,(or mode `(@proj-mode c))
+          (:ortho (veq:f$ (cam-par ,c) 0 1 2))
+          (:persp (veq:f$ (cam-par ,c) 3 4 5))))
 
 (veq:fvdef vm (c) (declare #.*opt* (cam c))
   "view matrix, compatible with gmsh/scene and gmsh/xrend."

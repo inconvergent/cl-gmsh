@@ -38,10 +38,8 @@
                              (msk (gmsh:msk/v msh x (dot x))))
               (gmsh:plane-slice! msh pos nn- :matfx #'polymatfx)
               (gmsh:msk/tx! msh x msk (veq:f3from x nn- s))))
-       (handler-case (ecase (print mode)
-                            (:sym (sym))
-                            (:stretch-vpn (stretch-vpn))
-                            (:stretch-v (stretch-v)))
+       (handler-case (ecase mode (:sym (sym)) (:stretch-vpn (stretch-vpn))
+                                 (:stretch-v (stretch-v)))
                      (error (e) (gmsh:wrn :alter-msh "unexpected err: ~a" e)))))
   (print msh))
 

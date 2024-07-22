@@ -4,12 +4,19 @@
  ;   [symbol]
  ; 
  ; @POS names a compiled function:
- ;   Lambda-list: (C)
- ;   Derived type: (FUNCTION (T)
+ ;   Lambda-list: (C &OPTIONAL (I 0))
+ ;   Derived type: (FUNCTION (T &OPTIONAL (UNSIGNED-BYTE 32))
  ;                  (VALUES SINGLE-FLOAT SINGLE-FLOAT SINGLE-FLOAT
  ;                          &OPTIONAL))
  ;   Documentation:
- ;     get current pos.
+ ;     get pos. as 3 values.
+ ;   Inline proclamation: INLINE (inline expansion available)
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+ ; 
+ ; (SETF @POS) has a complex setf-expansion:
+ ;   Lambda-list: (C1 &OPTIONAL (I2 0))
+ ;   Documentation:
+ ;     set 3 values in struct field CAM-POS.
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
@@ -19,12 +26,19 @@
  ;   [symbol]
  ; 
  ; @U names a compiled function:
- ;   Lambda-list: (C)
- ;   Derived type: (FUNCTION (T)
+ ;   Lambda-list: (C &OPTIONAL (I 0))
+ ;   Derived type: (FUNCTION (T &OPTIONAL (UNSIGNED-BYTE 32))
  ;                  (VALUES SINGLE-FLOAT SINGLE-FLOAT SINGLE-FLOAT
  ;                          &OPTIONAL))
  ;   Documentation:
- ;     get current u.
+ ;     get u. as 3 values.
+ ;   Inline proclamation: INLINE (inline expansion available)
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+ ; 
+ ; (SETF @U) has a complex setf-expansion:
+ ;   Lambda-list: (C19 &OPTIONAL (I20 0))
+ ;   Documentation:
+ ;     set 3 values in struct field CAM-U.
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
@@ -34,12 +48,19 @@
  ;   [symbol]
  ; 
  ; @UP names a compiled function:
- ;   Lambda-list: (C)
- ;   Derived type: (FUNCTION (T)
+ ;   Lambda-list: (C &OPTIONAL (I 0))
+ ;   Derived type: (FUNCTION (T &OPTIONAL (UNSIGNED-BYTE 32))
  ;                  (VALUES SINGLE-FLOAT SINGLE-FLOAT SINGLE-FLOAT
  ;                          &OPTIONAL))
  ;   Documentation:
- ;     get current up.
+ ;     get up. as 3 values.
+ ;   Inline proclamation: INLINE (inline expansion available)
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+ ; 
+ ; (SETF @UP) has a complex setf-expansion:
+ ;   Lambda-list: (C7 &OPTIONAL (I8 0))
+ ;   Documentation:
+ ;     set 3 values in struct field CAM-UP.
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
@@ -49,12 +70,19 @@
  ;   [symbol]
  ; 
  ; @V names a compiled function:
- ;   Lambda-list: (C)
- ;   Derived type: (FUNCTION (T)
+ ;   Lambda-list: (C &OPTIONAL (I 0))
+ ;   Derived type: (FUNCTION (T &OPTIONAL (UNSIGNED-BYTE 32))
  ;                  (VALUES SINGLE-FLOAT SINGLE-FLOAT SINGLE-FLOAT
  ;                          &OPTIONAL))
  ;   Documentation:
- ;     get current v.
+ ;     get v. as 3 values.
+ ;   Inline proclamation: INLINE (inline expansion available)
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+ ; 
+ ; (SETF @V) has a complex setf-expansion:
+ ;   Lambda-list: (C25 &OPTIONAL (I26 0))
+ ;   Documentation:
+ ;     set 3 values in struct field CAM-V.
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
@@ -64,12 +92,19 @@
  ;   [symbol]
  ; 
  ; @VPN names a compiled function:
- ;   Lambda-list: (C)
- ;   Derived type: (FUNCTION (T)
+ ;   Lambda-list: (C &OPTIONAL (I 0))
+ ;   Derived type: (FUNCTION (T &OPTIONAL (UNSIGNED-BYTE 32))
  ;                  (VALUES SINGLE-FLOAT SINGLE-FLOAT SINGLE-FLOAT
  ;                          &OPTIONAL))
  ;   Documentation:
- ;     get current vpn.
+ ;     get vpn. as 3 values.
+ ;   Inline proclamation: INLINE (inline expansion available)
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+ ; 
+ ; (SETF @VPN) has a complex setf-expansion:
+ ;   Lambda-list: (C13 &OPTIONAL (I14 0))
+ ;   Documentation:
+ ;     set 3 values in struct field CAM-VPN.
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 

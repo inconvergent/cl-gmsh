@@ -19,6 +19,7 @@
           ; (sc (gmsh/scene:scene/make))
           (sc (load-scene "_box.gmsh-scene"))
           (itt 0))
+
       (veq:mvb (render-init render render-clean program) (gmsh/gl:make-render sc)
         (funcall render-init)
         (sdl2:with-event-loop (:method :poll)

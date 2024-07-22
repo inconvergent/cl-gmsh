@@ -11,7 +11,7 @@
  ;                  ((UNSIGNED-BYTE 32) (UNSIGNED-BYTE 32)
  ;                   (UNSIGNED-BYTE 32))
  ;                  (VALUES FUNCTION &OPTIONAL))
- ;   Source file: /data/x/gmsh/src/gmsh/cpu/render-utils.lisp
+ ;   Source file: /data/x/gmsh/src/render/utils.lisp
 ```
 
 ## `gmsh/xrend:init`
@@ -23,7 +23,7 @@
  ; 
  ; INIT names a macro:
  ;   Lambda-list: (K &KEY (CONTEXT (FUNCTION XREND-WORKER-CONTEXT)))
- ;   Source file: /data/x/gmsh/src/gmsh/cpu/render-utils.lisp
+ ;   Source file: /data/x/gmsh/src/render/utils.lisp
 ```
 
 ## `gmsh/xrend:iter-timer`
@@ -84,6 +84,6 @@
  ;      - world    : environment color.
  ;      - miss     : miss color.
  ;      - info     : print progress every nth row.
- ;   Source file: /data/x/gmsh/src/gmsh/cpu/render.lisp
+ ;   Source file: /data/x/gmsh/src/render/render.lisp
 ```
 

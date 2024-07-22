@@ -3,6 +3,7 @@
 (load "/home/anders/quicklisp/setup.lisp") (require :sb-sprof)
 (ql:quickload :auxin) (ql:quickload :gmsh)
 (gmsh/xrend:init 60)
+(defvar *window-size* 2000)
 
 (veq:fvdef new-scene ()
   (declare (optimize speed (safety 1)))
@@ -27,13 +28,15 @@
       (setmat (:ll :w) (box :s (veq:f3$pt rr rr rr)))
 
       (loop for lim in '(10f0) do (gmsh/scene:split-edges sc lim))
-      (gmsh/scene:scene/new-canv sc :size 2000)
+      (gmsh/scene:scene/new-canv sc :size *window-size*)
       (gmsh/cam:update! (gmsh/scene:@cam sc)
           :pos (veq:f3$pt 150f0 150.0 125.0)
           :look (veq:f3$pt (rnd:3in-sphere 0.01)))
+      ; (setf (gmsh/cam::@par (gmsh/scene:@cam sc) 1) (values 30.3 31.300 33.3))
+      ; (veq:vp (gmsh/cam::@par (gmsh/scene:@cam sc) 1))
       (print sc))))
 
-(veq:fvdef main (size)
+(veq:fvdef main ()
   (declare (optimize speed (safety 0) space))
   (let* ((sc (new-scene))
          (msh (gmsh/scene:@msh sc))
@@ -44,13 +47,13 @@
     (gmsh/scene:scene/save sc "_box")
     ; render
     (time (handler-case
-      (gmsh/xrend:xrend sc bvh :size 2000 :raylen 2000.0
-                                   :vol t :par t :aa 50 :ao-rep 5
+      (gmsh/xrend:xrend sc bvh :size *window-size* :vol t :par t :aa 50 :ao-rep 5
+                                   :raylen 2000.0
                                    :vlim 50.0 :vdst 1000.0 :vmult 100.0
                                    :miss :bgk :world :bgk)
       (sb-sys:interactive-interrupt () (warn "render aborted. exporting png ..."))))
     ; save _box.png
     (gmsh/scene:canv/save sc "_box" :gamma 1.1)))
 
-(main 1000)
+(main)
 

@@ -10,20 +10,18 @@
                     (the veq:ff (/ ,x)) #.*eps*))))
 
 (veq:fvdef default-mat (n &aux  ; :c :x or 0 0
-                               (res (veq:$make :n n :dim 2 :v :c :type keyword)))
+                               (res (veq:$make :n n :dim 2 :v :cc :type keyword)))
   "make n default materials"
   (loop for i from 1 below (* 2 n) by 2 do (setf (aref res i) :x)) res)
 
 ; objs list: ((2 3 4) #(xmi xma ...) #normal)
-(veq:fvdef make (input-objs vfx &key (num 5)  (mode :bvh4-simd) matfx (num-buckets 31))
+(veq:fvdef make (input-objs vfx &key (num 5) (mode :bvh4-simd) matfx (num-buckets 31))
   (declare #.*opt1* (list input-objs) (function vfx) (symbol mode)
-                   (veq:pn num num-buckets))
+                    (veq:pn num num-buckets))
   "build bvh from these objects"
-  (macrolet (($ (ni field)
-              `(,(gmsh::symb (string-upcase (gmsh::mkstr "bvh-node-" field)))
-                 (aref nodes ,ni))))
+  (macrolet (($ (ni field) `(,(lqn:sym! "bvh-node-" field) (aref nodes ,ni))))
     (let* ((t0 (auxin:now))
-           (npolys (+ 10 (length input-objs)))
+           (npolys (+ 8 (length input-objs)))
            (all-objs (-make-objects-and-normals vfx input-objs))
            ; TODO: WTF is this number, and why is it multiplied by 3?
            (max-node-num (* 3 (expt 2 (ceiling (log npolys 2)))))

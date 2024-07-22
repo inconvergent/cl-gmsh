@@ -58,11 +58,11 @@
   (declare #.*opt* (bvh bvh) (list matpar mats))
   "return packed bvh arrays for gpu rendering."
   (labels ((find-mat-key (mk &aux (res (cdr (assoc mk mats))))
-              (if res res (progn (wrn :gpumat-key "missing mat for: ~a" mk) 0)))
+              (if res res (progn (wrn :gpumat-key "missing material for: ~a" mk) 0)))
            (find-color-ind (ci)
              (loop for i from 0 for (cand . rest) in matpar
                    if (eq cand ci) do (return-from find-color-ind i))
-             (wrn :gpumat-ind "missing mat color for: ~a" ci) 0)
+             (wrn :gpumat-ind "missing material color for: ~a" ci) 0)
            (do-mat (mk ci) (declare (keyword mk ci))
              (values (find-mat-key mk) (find-color-ind ci)))
            (pck-mat (mat &aux (mat* (veq:i4$zero (veq:2$num mat))) (par* (veq:f4$zero 30)))

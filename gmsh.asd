@@ -30,12 +30,12 @@
                (:file "gmsh/bvh-raycast-simd" :depends-on ("gmsh/bvh"))
                (:file "gmsh/cam" :depends-on ("macros"))
                (:file "gmsh/scene" :depends-on ("gmsh/cam" "gmsh/bvh"))
-               (:file "gmsh/cpu/render-utils"
+               (:file "render/utils"
                 :depends-on ("gmsh/scene"
                              "gmsh/bvh-raycast" "gmsh/bvh-raycast-simd"
                              "gmsh/bvh" "gmsh/gmsh"))
-               (:file "gmsh/cpu/render" :depends-on ("gmsh/cpu/render-utils"))
-               (:file "gmsh/gpu/gl" :depends-on ("gmsh/bvh" "gmsh/gmsh"))
+               (:file "render/render" :depends-on ("render/utils"))
+               (:file "gl/gl" :depends-on ("gmsh/bvh" "gmsh/gmsh"))
 
                (:file "voxel/init" :depends-on ("gmsh/gmsh"))
                (:file "voxel/voxel" :depends-on ("voxel/init"))))

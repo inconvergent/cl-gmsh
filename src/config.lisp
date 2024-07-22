@@ -24,9 +24,9 @@
    (defvar *dev* nil)))
 
 (defvar *programs* #(:std :flat))
-(defvar *mats* '((:c . 0) (:l . 1) (:ao . 2)))
+(defvar *mats* '((:cc . 0) (:ao . 1) (:rr . 2) (:ro . 3) (:ll . 4)))
 (defvar *matpar*
-  '((:x   0.7 0.4 0.3  1.0)
+  '((:x   0.7 0.4 0.3  1.0) ; default color if missing
     (:c   0.0 1.0 1.0  1.0) (:m  1.0 0.0 1.0  1.0) (:y  1.0 1.0 0.0  1.0)
     (:r   1.0 0.0 0.0  1.0) (:g  0.0 1.0 0.0  1.0) (:b  0.0 0.0 1.0  1.0)
     (:k   0.0 0.0 0.0  1.0) (:w  1.0 1.0 1.0  1.0)))

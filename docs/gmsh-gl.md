@@ -8,7 +8,7 @@
  ; BIND-BUFFER-OBJECT names a compiled function:
  ;   Lambda-list: (BUF TY O &KEY (SLOT 0) &AUX (ARR (TO-GL-ARRAY O TY)))
  ;   Derived type: (FUNCTION (T T T &KEY (:SLOT T)) *)
- ;   Source file: /data/x/gmsh/src/gmsh/gpu/gl.lisp
+ ;   Source file: /data/x/gmsh/src/gl/gl.lisp
 ```
 
 ## `gmsh/gl:compile-shader`
@@ -21,7 +21,7 @@
  ;   Derived type: (FUNCTION (KEYWORD STRING) (VALUES T &OPTIONAL))
  ;   Documentation:
  ;     build shader of type :vertex-shader, :fragment-shader at src.
- ;   Source file: /data/x/gmsh/src/gmsh/gpu/gl.lisp
+ ;   Source file: /data/x/gmsh/src/gl/gl.lisp
 ```
 
 ## `gmsh/gl:init-controller`
@@ -33,7 +33,7 @@
  ;   Lambda-list: (CONTROLLERS)
  ;   Documentation:
  ;     initialize connected controllers. incomplete.
- ;   Source file: /data/x/gmsh/src/gmsh/gpu/gl.lisp
+ ;   Source file: /data/x/gmsh/src/gl/gl.lisp
 ```
 
 ## `gmsh/gl:init-viewport`
@@ -49,7 +49,7 @@
  ;                  (VALUES &OPTIONAL))
  ;   Documentation:
  ;     initialize gl viewport.
- ;   Source file: /data/x/gmsh/src/gmsh/gpu/gl.lisp
+ ;   Source file: /data/x/gmsh/src/gl/gl.lisp
 ```
 
 ## `gmsh/gl:make-buftex`
@@ -62,7 +62,7 @@
  ; MAKE-BUFTEX names a compiled function:
  ;   Lambda-list: (P NAME BUF BUF-TEX ARR &KEY (SLOT 0) (LAYOUT RGBA32F))
  ;   Derived type: (FUNCTION (T T T T T &KEY (:SLOT T) (:LAYOUT T)) *)
- ;   Source file: /data/x/gmsh/src/gmsh/gpu/gl.lisp
+ ;   Source file: /data/x/gmsh/src/gl/gl.lisp
 ```
 
 ## `gmsh/gl:make-program`
@@ -77,7 +77,7 @@
  ;                  (VALUES T &OPTIONAL))
  ;   Documentation:
  ;     make program from shader files (name.frag, name.vert) located at path loc.
- ;   Source file: /data/x/gmsh/src/gmsh/gpu/gl.lisp
+ ;   Source file: /data/x/gmsh/src/gl/gl.lisp
 ```
 
 ## `gmsh/gl:make-program*`
@@ -90,7 +90,7 @@
  ;   Derived type: (FUNCTION (STRING STRING) (VALUES T &OPTIONAL))
  ;   Documentation:
  ;     make shader program from these two source codes.
- ;   Source file: /data/x/gmsh/src/gmsh/gpu/gl.lisp
+ ;   Source file: /data/x/gmsh/src/gl/gl.lisp
 ```
 
 ## `gmsh/gl:make-render`
@@ -104,7 +104,7 @@
  ;   Lambda-list: (SC)
  ;   Derived type: (FUNCTION (GMSH/SCENE:SCENE)
  ;                  (VALUES FUNCTION FUNCTION FUNCTION FUNCTION &OPTIONAL))
- ;   Source file: /data/x/gmsh/src/gmsh/gpu/gl.lisp
+ ;   Source file: /data/x/gmsh/src/gl/gl.lisp
 ```
 
 ## `gmsh/gl:sdl-info`
@@ -117,7 +117,7 @@
  ;   Derived type: (FUNCTION NIL (VALUES NULL &OPTIONAL))
  ;   Documentation:
  ;     print sdl info.
- ;   Source file: /data/x/gmsh/src/gmsh/gpu/gl.lisp
+ ;   Source file: /data/x/gmsh/src/gl/gl.lisp
 ```
 
 ## `gmsh/gl:set-uniform-f`
@@ -129,7 +129,7 @@
  ;   Lambda-list: (P NAME VAL)
  ;   Documentation:
  ;     set float uniform.
- ;   Source file: /data/x/gmsh/src/gmsh/gpu/gl.lisp
+ ;   Source file: /data/x/gmsh/src/gl/gl.lisp
 ```
 
 ## `gmsh/gl:set-uniform-i`
@@ -141,7 +141,7 @@
  ;   Lambda-list: (P NAME VAL)
  ;   Documentation:
  ;     set integer iniform.
- ;   Source file: /data/x/gmsh/src/gmsh/gpu/gl.lisp
+ ;   Source file: /data/x/gmsh/src/gl/gl.lisp
 ```
 
 ## `gmsh/gl:set-uniform-mat-4f`
@@ -153,7 +153,7 @@
  ;   Lambda-list: (P NAME VAL &OPTIONAL (TRANSPOSE T))
  ;   Documentation:
  ;     set 4f uniform.
- ;   Source file: /data/x/gmsh/src/gmsh/gpu/gl.lisp
+ ;   Source file: /data/x/gmsh/src/gl/gl.lisp
 ```
 
 ## `gmsh/gl:show-diag`
@@ -167,7 +167,7 @@
  ;   Lambda-list: (ITT T0)
  ;   Derived type: (FUNCTION ((UNSIGNED-BYTE 32) T)
  ;                  (VALUES NULL &OPTIONAL))
- ;   Source file: /data/x/gmsh/src/gmsh/gpu/gl.lisp
+ ;   Source file: /data/x/gmsh/src/gl/gl.lisp
 ```
 
 ## `gmsh/gl:tick`
@@ -181,7 +181,7 @@
  ;                  (VALUES SINGLE-FLOAT &OPTIONAL))
  ;   Documentation:
  ;     get current tick.
- ;   Source file: /data/x/gmsh/src/gmsh/gpu/gl.lisp
+ ;   Source file: /data/x/gmsh/src/gl/gl.lisp
 ```
 
 ## `gmsh/gl:to-gl-array`
@@ -195,7 +195,7 @@
  ;   Derived type: (FUNCTION (SEQUENCE KEYWORD) (VALUES T &OPTIONAL))
  ;   Documentation:
  ;     create gl array from seq.
- ;   Source file: /data/x/gmsh/src/gmsh/gpu/gl.lisp
+ ;   Source file: /data/x/gmsh/src/gl/gl.lisp
 ```
 
 ## `gmsh/gl:window-context`
@@ -209,6 +209,6 @@
  ;                 &BODY BODY)
  ;   Documentation:
  ;     create gl window context. see basic.lisp for example use. incomplete.
- ;   Source file: /data/x/gmsh/src/gmsh/gpu/gl.lisp
+ ;   Source file: /data/x/gmsh/src/gl/gl.lisp
 ```
 
