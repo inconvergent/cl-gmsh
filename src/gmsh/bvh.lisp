@@ -9,10 +9,10 @@
                `(if (> (the veq:ff (abs (the veq:ff ,x))) #.*eps*)
                     (the veq:ff (/ ,x)) #.*eps*))))
 
-(veq:fvdef default-mat (n &aux  ; :c :x or 0 0
-                               (res (veq:$make :n n :dim 2 :v :cc :type keyword)))
+(veq:fvdef default-mat (n &aux (res (veq:$make :n n :dim 2 :v :cc :type keyword)))
   "make n default materials"
-  (loop for i from 1 below (* 2 n) by 2 do (setf (aref res i) :x)) res)
+  (loop for i from 1 below (* 2 n) by 2 do (setf (aref res i) :x))
+  res)
 
 ; objs list: ((2 3 4) #(xmi xma ...) #normal)
 (veq:fvdef make (input-objs vfx &key (num 5) (mode :bvh4-simd) matfx (num-buckets 31))

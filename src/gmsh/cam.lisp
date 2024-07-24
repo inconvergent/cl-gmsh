@@ -1,6 +1,10 @@
 (in-package :gmsh/cam)
 
 (declaim (inline @pos @up @vpn @u @v vm pm make-uv look-vpn))
+(defparameter *nav-modes*  #(:pan :fly))
+(defparameter *proj-modes* #(:persp :ortho))
+(defun nxt-mode (l c) (declare (vector l) (keyword c)) "return next mode in l."
+  (aref l (mod (1+ (position c l)) (length l))))
 
 (veq:fvdef -prt (o s)
   (labels ((fmtvec (name s (:va 3 v)) (lqn:fmt "~a:~a~08,2f | ~08,2f | ~08,2f" name s v)))
@@ -14,28 +18,33 @@
               (m@fmtvec :proj " " (veq:f$ (cam-par o) 3 4 5)))))
 
 (defstruct (cam (:constructor make) (:print-object -prt))
-  (nav-mode  :pan    :type keyword   :read-only nil)
-  (proj-mode :persp  :type keyword   :read-only nil)
-  (pos       (veq:f3$pt 150f0 150f0 50f0) :type veq:3fvec :read-only t) ; cam position
-  (up        (veq:f3$pt 0f0 1f0 0f0)      :type veq:3fvec :read-only t) ; cam up
-  (vpn       (veq:f3$pt 0f0 0f0 1f0)      :type veq:3fvec :read-only t) ; away from dop
-  (par (veq:f$~ (6) 100f0 10f0 1000f0                  ; ortho s near far
-                    10f0   3f0  100f0)                 ; proj  s near far
+  (nav-mode  (aref *nav-modes* 0)            :type keyword   :read-only nil)
+  (proj-mode (aref *proj-modes* 0)           :type keyword   :read-only nil)
+  (pos       (veq:f3$pt 150.0 150.0 50.0) :type veq:3fvec :read-only t) ; cam position
+  (up        (veq:f3$pt 0.0 1.0 0.0)      :type veq:3fvec :read-only t) ; cam up
+  (vpn       (veq:f3$pt 0.0 0.0 1.0)      :type veq:3fvec :read-only t) ; away from dop
+  (par (veq:f$~ (6) 1000.0 0.1 1000.0                                   ; ortho: s near far
+                       0.1 0.1 1000.0)                                  ; proj:  s near far
                         :type veq:fvec  :read-only t)
-  (u   (veq:f3$val 0f0) :type veq:3fvec :read-only t)  ; view plane horizontal
-  (v   (veq:f3$val 0f0) :type veq:3fvec :read-only t)) ; view plane vertical
+  (u   (veq:f3$val 0.0) :type veq:3fvec :read-only t)                   ; cam horizontal
+  (v   (veq:f3$val 0.0) :type veq:3fvec :read-only t))                  ; cam vertical
 
 (veq:make-struct-vec-getters cam- 3 ff (pos up vpn u v par))
 (veq:make-struct-vec-setters cam- 3 ff (pos up vpn u v par))
-(veq:fvdef @nav-mode  (c) "get current nav mode. :pan / :fly / :around." (cam-nav-mode c))
-(veq:fvdef @proj-mode (c) "get current proj mode. :ortho / :persp."      (cam-proj-mode c))
+(veq:fvdef @nav-mode  (c) "get current nav mode."  (cam-nav-mode c))
+(veq:fvdef @proj-mode (c) "get current proj mode." (cam-proj-mode c))
 
 (defun set-nav-mode (c mode) (declare (cam c) (keyword mode))
-  "set nav mode :pan / :fly / :around."
+  "set nav mode see: *proj-modes*"
   (setf (cam-nav-mode c) mode))
+(defun roll-nav-mode (c) "next nav-mode. see *nav-modes*"
+  (set-nav-mode c (nxt-mode *nav-modes* (@nav-mode c))))
+
 (defun set-proj-mode (c mode) (declare (cam c) (keyword mode))
-  "set nav mode. :ortho / :persp."
+  "set proj mode. see: *proj-modes*"
   (setf (cam-proj-mode c) mode))
+(defun roll-proj-mode (c) "next proj mode. see *proj-modes*"
+  (set-proj-mode c (nxt-mode *proj-modes* (@proj-mode c))))
 
 (veq:fvdef vm (c) (declare #.*opt* (cam c))
   "view matrix, compatible with gmsh/scene and gmsh/xrend."
@@ -68,17 +77,19 @@
   (ecase mode (:ortho (incf (aref (cam-par c) 1) val))
               (:persp (incf (aref (cam-par c) 4) val)))
   c)
-(defun nav/axis! (c axis &optional (stp 1f0))
-  (declare (cam c) (veq:fvec axis) (veq:ff stp))
+(defun nav/axis! (c axis &optional (stp 1.0) (trans 16.0) (yaw 0.03)
+                                             (pitch 0.03) (roll 0.1))
+  (declare #.*opt* (cam c) (veq:fvec axis) (veq:ff stp trans yaw pitch roll))
   (labels ((trans  (ax val) (nav/trans!  c ax val))
            (around (ax val) (nav/around! c ax val)))
-    (loop for (fx ax s) in (ecase (@nav-mode c)
-                            (:fly `((,#'trans  :u     -2.0)  (,#'trans  :vpn    2.0)
-                                    (,#'around :yaw    0.05) (,#'around :pitch  0.05)
-                                    (,#'around :roll   0.1)  (,#'around :roll  -0.1)))
-                            (:pan `((,#'trans  :u     -2.0)  (,#'trans  :v     -2.0)
-                                    (,#'around :yaw    0.05) (,#'around :pitch  0.05)
-                                    (,#'around :roll   0.1)  (,#'around :roll  -0.1))))
+    (loop for (fx ax s) of-type (function keyword veq:ff)
+          in (ecase (@nav-mode c)
+               (:fly `((,#'trans  :u    ,(- trans)) (,#'trans  :vpn      ,trans)
+                       (,#'around :yaw     ,yaw)    (,#'around :pitch    ,pitch)
+                       (,#'around :roll    ,roll)   (,#'around :roll  ,(- roll))))
+               (:pan `((,#'trans  :u    ,(- trans)) (,#'trans  :v     ,(- trans))
+                       (,#'around :yaw     ,yaw)    (,#'around :pitch    ,pitch)
+                       (,#'around :roll    ,roll)   (,#'around :roll  ,(- roll)))))
           for val across axis if (and fx (> (abs val) veq:*eps*))
           do (funcall (the function fx) ax (* stp s val))))
   c)
@@ -86,7 +97,7 @@
 (veq:fvdef make-uv ((:va 3 up vpn)) (declare #.*opt* (veq:ff up vpn))
   "calculate cam plane u/v vectors."
   (veq:xlet ((f3!v (veq:f3norm (f3.@- (veq:f3from up vpn (- (veq:f3dot up vpn)))))))
-    (unless (< (abs (veq:f3dot up vpn)) #.(- 1f0 veq:*eps*))
+    (unless (< (abs (veq:f3dot up vpn)) #.(- 1.0 veq:*eps*))
             (wrn :gimbal-lock "gmsh/cam: gimbal lock.~%up: ~a~%vpn: ~a"
                               (list up) (list vpn)))
     (veq:~ (veq:f3rot v vpn veq:fpi5) v)))
@@ -110,7 +121,7 @@ from dop); or look to set view plane normal relative to position."
 
 (veq:fvdef nav/trans! (c ax val) (declare #.*opt* (cam c) (keyword ax) (veq:ff val))
   "translate cam."
-  (update! c :pos (veq:f3$pt (f3!@+ (gmsh/cam:@pos c)
+  (update! c :pos (veq:f3$pt (f3!@+ (@pos c)
                                (f3!@.* val (ecase ax (:u (@u c)) (:v (@v c))
                                                      (:vpn (@vpn c))))))))
 

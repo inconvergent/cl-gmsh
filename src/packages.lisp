@@ -62,7 +62,10 @@
   (:export #:cam #:export-data #:import-data #:make
            #:@pos #:@vpn #:@up #:@u #:@v #:vm #:pm
            #:update! #:nav/around! #:nav/trans! #:nav/s! #:nav/near! #:nav/axis!
-           #:set-nav-mode #:set-proj-mode #:scale-from-to!))
+           #:*nav-modes* #:*proj-modes*
+           #:set-nav-mode #:set-proj-mode #:roll-nav-mode #:roll-proj-mode
+           #:@nav-mode #:@proj-mode
+           #:scale-from-to!))
 
 (defpackage #:gmsh/xrend
   (:use #:common-lisp)

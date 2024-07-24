@@ -93,7 +93,7 @@
  ; 
  ; *PROGRAMS* names a special variable:
  ;   Declared type: VECTOR
- ;   Value: #(:STD :FLAT)
+ ;   Value: #(:STD :FLAT :VOL)
 ```
 
 ## `gmsh:*wrncnt*`
@@ -105,7 +105,7 @@
  ; 
  ; *WRNCNT* names a special variable:
  ;   Declared type: HASH-TABLE
- ;   Value: #<HASH-TABLE :TEST EQL :COUNT 0 {10C5AD99B3}>
+ ;   Value: #<HASH-TABLE :TEST EQL :COUNT 0 {10C5416503}>
 ```
 
 ## `gmsh:@all-polys`

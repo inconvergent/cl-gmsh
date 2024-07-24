@@ -213,7 +213,7 @@ keywords:
  - num         : smallest number of polys in a node.
  - mode        : acceleration structure.
  - num-buckets : SAH estimation buckets.
-" (unless (> (gmsh:@pnum msh) 0) (error "BVH: empty mesh"))
+" (unless (> (@pnum msh) 0) (error "BVH: empty mesh"))
   (apply #'gmsh/bvh::make (@all-polys msh)
          (lambda (verts) (declare (list verts)) (@verts msh verts))
          rest))
@@ -290,7 +290,7 @@ keywords:
 ;     (veq:xlet ((f3!cam* (f3!@+ (veq:f3$ cam)
 ;                                (f3!@*. (veq:f3$ vpn) -870.0)))
 ;                (f3!u* (veq:f3$ u)) (f3!v* (veq:f3$ v))
-;                (v (gmsh::add-verts! msh
+;                (v (add-verts! msh
 ;                     (veq:f$~ (12) (f3!@+ (rnd:3in-sphere 3.0)
 ;                                          (veq:f3from cam* (f3!@+ u* v*) 30.0))
 ;                                   (f3!@+ (rnd:3in-sphere 3.0)
@@ -299,6 +299,6 @@ keywords:
 ;                                          (veq:f3from cam* (f3.@- (f3!@+ v* u*)) 30.0))
 ;                                   (f3!@+ (rnd:3in-sphere 3.0)
 ;                                          (veq:f3from cam* (f3!@- v* u*) 30.0))))))
-;       ; (gmsh:add-polys! msh (list (list (first v) (third v) (second v))
-;       ;                            (list (first v) (third v) (fourth v)))))))
+;       ; (add-polys! msh (list (list (first v) (third v) (second v))
+;       ;                       (list (first v) (third v) (fourth v)))))))
 

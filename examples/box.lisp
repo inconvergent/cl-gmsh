@@ -30,7 +30,7 @@
       (loop for lim in '(10f0) do (gmsh/scene:split-edges sc lim))
       (gmsh/scene:scene/new-canv sc :size *window-size*)
       (gmsh/cam:update! (gmsh/scene:@cam sc)
-          :pos (veq:f3$pt 150f0 150.0 125.0)
+          :pos (veq:f3$pt 100f0 -100.0 625.0)
           :look (veq:f3$pt (rnd:3in-sphere 0.01)))
       ; (setf (gmsh/cam::@par (gmsh/scene:@cam sc) 1) (values 30.3 31.300 33.3))
       ; (veq:vp (gmsh/cam::@par (gmsh/scene:@cam sc) 1))
@@ -47,10 +47,11 @@
     (gmsh/scene:scene/save sc "_box")
     ; render
     (time (handler-case
-      (gmsh/xrend:xrend sc bvh :size *window-size* :vol t :par t :aa 50 :ao-rep 5
-                                   :raylen 2000.0
-                                   :vlim 50.0 :vdst 1000.0 :vmult 100.0
-                                   :miss :bgk :world :bgk)
+      (gmsh/xrend:xrend sc bvh :size *window-size*
+                               :vol t :par t :aa 50 :ao-rep 5
+                               :raylen 2000.0
+                               :vlim 50.0 :vdst 1000.0 :vmult 100.0
+                               :miss :bgk :world :bgk)
       (sb-sys:interactive-interrupt () (warn "render aborted. exporting png ..."))))
     ; save _box.png
     (gmsh/scene:canv/save sc "_box" :gamma 1.1)))

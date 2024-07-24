@@ -86,7 +86,7 @@
                    do (setf (aref nodes* (+ i 3)) -4))
              nodes*))
    (auxin:with-struct
-     (gmsh/bvh::bvh- nodes int-nodes polys mima polyfx normals mat) bvh
+     (bvh- nodes int-nodes polys mima polyfx normals mat) bvh
      (veq:~ (veq:new-stride (3 4 ff) normals) (pck-mima mima)
             (veq:new-stride (3 4 ff) polyfx)  (pck-nodes int-nodes)
             (pck-mat mat)))))

@@ -23,7 +23,7 @@
    (defvar *opt1* '(optimize (safety 0) (speed 3) (debug 0) (space 0)))
    (defvar *dev* nil)))
 
-(defvar *programs* #(:std :flat))
+(defvar *programs* #(:std :flat :vol))
 (defvar *mats* '((:cc . 0) (:ao . 1) (:rr . 2) (:ro . 3) (:ll . 4)))
 (defvar *matpar*
   '((:x   0.7 0.4 0.3  1.0) ; default color if missing

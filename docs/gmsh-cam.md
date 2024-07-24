@@ -1,3 +1,38 @@
+## `gmsh/cam:*nav-modes*`
+```
+:missing:
+
+ ; GMSH/CAM:*NAV-MODES*
+ ;   [symbol]
+ ; 
+ ; *NAV-MODES* names a special variable:
+ ;   Value: #(:PAN :FLY)
+```
+
+## `gmsh/cam:*proj-modes*`
+```
+:missing:
+
+ ; GMSH/CAM:*PROJ-MODES*
+ ;   [symbol]
+ ; 
+ ; *PROJ-MODES* names a special variable:
+ ;   Value: #(:PERSP :ORTHO)
+```
+
+## `gmsh/cam:@nav-mode`
+```
+ ; GMSH/CAM:@NAV-MODE
+ ;   [symbol]
+ ; 
+ ; @NAV-MODE names a compiled function:
+ ;   Lambda-list: (C)
+ ;   Derived type: (FUNCTION (T) (VALUES KEYWORD &OPTIONAL))
+ ;   Documentation:
+ ;     get current nav mode.
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+```
+
 ## `gmsh/cam:@pos`
 ```
  ; GMSH/CAM:@POS
@@ -17,6 +52,19 @@
  ;   Lambda-list: (C1 &OPTIONAL (I2 0))
  ;   Documentation:
  ;     set 3 values in struct field CAM-POS.
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+```
+
+## `gmsh/cam:@proj-mode`
+```
+ ; GMSH/CAM:@PROJ-MODE
+ ;   [symbol]
+ ; 
+ ; @PROJ-MODE names a compiled function:
+ ;   Lambda-list: (C)
+ ;   Derived type: (FUNCTION (T) (VALUES KEYWORD &OPTIONAL))
+ ;   Documentation:
+ ;     get current proj mode.
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
@@ -123,10 +171,10 @@
  ;   Slots:
  ;     GMSH/CAM::NAV-MODE
  ;       Type: KEYWORD
- ;       Initform: :PAN
+ ;       Initform: (AREF GMSH/CAM:*NAV-MODES* 0)
  ;     GMSH/CAM::PROJ-MODE
  ;       Type: KEYWORD
- ;       Initform: :PERSP
+ ;       Initform: (AREF GMSH/CAM:*PROJ-MODES* 0)
  ;     GMSH/CAM::POS
  ;       Type: VEQ:3FVEC
  ;       Initform: (VEQ:F3$PT 150.0 150.0 50.0)
@@ -139,12 +187,12 @@
  ;     GMSH/CAM::PAR
  ;       Type: VEQ:FVEC
  ;       Initform: (VEQ:F$~ (6)
- ;                   100.0
- ;                   10.0
  ;                   1000.0
- ;                   10.0
- ;                   3.0
- ;                   100.0)
+ ;                   0.1
+ ;                   1000.0
+ ;                   0.1
+ ;                   0.1
+ ;                   1000.0)
  ;     GMSH/CAM::U
  ;       Type: VEQ:3FVEC
  ;       Initform: (VEQ:F3$VAL 0.0)
@@ -187,19 +235,19 @@
  ;   [symbol]
  ; 
  ; MAKE names a compiled function:
- ;   Lambda-list: (&KEY ((NAV-MODE NAV-MODE) PAN)
- ;                 ((PROJ-MODE PROJ-MODE) PERSP)
+ ;   Lambda-list: (&KEY ((NAV-MODE NAV-MODE) (AREF *NAV-MODES* 0))
+ ;                 ((PROJ-MODE PROJ-MODE) (AREF *PROJ-MODES* 0))
  ;                 ((POS POS) (F3$PT 150.0 150.0 50.0))
  ;                 ((UP UP) (F3$PT 0.0 1.0 0.0))
  ;                 ((VPN VPN) (F3$PT 0.0 0.0 1.0))
  ;                 ((PAR PAR)
  ;                  (F$~ (6)
- ;                    100.0
- ;                    10.0
  ;                    1000.0
- ;                    10.0
- ;                    3.0
- ;                    100.0))
+ ;                    0.1
+ ;                    1000.0
+ ;                    0.1
+ ;                    0.1
+ ;                    1000.0))
  ;                 ((U U) (F3$VAL 0.0)) ((V V) (F3$VAL 0.0)))
  ;   Derived type: (FUNCTION
  ;                  (&KEY (:NAV-MODE KEYWORD) (:PROJ-MODE KEYWORD)
@@ -234,9 +282,11 @@
  ;   [symbol]
  ; 
  ; NAV/AXIS! names a compiled function:
- ;   Lambda-list: (C AXIS &OPTIONAL (STP 1.0))
+ ;   Lambda-list: (C AXIS &OPTIONAL (STP 1.0) (TRANS 16.0) (YAW 0.03)
+ ;                 (PITCH 0.03) (ROLL 0.1))
  ;   Derived type: (FUNCTION
  ;                  (GMSH/CAM:CAM (SIMPLE-ARRAY SINGLE-FLOAT) &OPTIONAL
+ ;                   SINGLE-FLOAT SINGLE-FLOAT SINGLE-FLOAT SINGLE-FLOAT
  ;                   SINGLE-FLOAT)
  ;                  (VALUES GMSH/CAM:CAM &OPTIONAL))
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
@@ -298,6 +348,32 @@
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
+## `gmsh/cam:roll-nav-mode`
+```
+ ; GMSH/CAM:ROLL-NAV-MODE
+ ;   [symbol]
+ ; 
+ ; ROLL-NAV-MODE names a compiled function:
+ ;   Lambda-list: (C)
+ ;   Derived type: (FUNCTION (T) *)
+ ;   Documentation:
+ ;     next nav-mode. see *nav-modes*
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+```
+
+## `gmsh/cam:roll-proj-mode`
+```
+ ; GMSH/CAM:ROLL-PROJ-MODE
+ ;   [symbol]
+ ; 
+ ; ROLL-PROJ-MODE names a compiled function:
+ ;   Lambda-list: (C)
+ ;   Derived type: (FUNCTION (T) *)
+ ;   Documentation:
+ ;     next proj mode. see *proj-modes*
+ ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
+```
+
 ## `gmsh/cam:scale-from-to!`
 ```
 :missing:
@@ -323,7 +399,7 @@
  ;   Derived type: (FUNCTION (GMSH/CAM:CAM KEYWORD)
  ;                  (VALUES KEYWORD &OPTIONAL))
  ;   Documentation:
- ;     set nav mode :pan / :fly / :around.
+ ;     set nav mode see: *proj-modes*
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
@@ -337,7 +413,7 @@
  ;   Derived type: (FUNCTION (GMSH/CAM:CAM KEYWORD)
  ;                  (VALUES KEYWORD &OPTIONAL))
  ;   Documentation:
- ;     set nav mode. :ortho / :persp.
+ ;     set proj mode. see: *proj-modes*
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
 ```
 
