@@ -1,5 +1,6 @@
 #version 430 core
 // #extension GL_NV_uniform_buffer_std430_layout : enable
+// layout(std140, binding = 1) uniform Norms { vec3 norms[NUM_TRIS]; };
 
 #define EPS 0.0001
 #define MAX_DST 9999.0
@@ -18,20 +19,16 @@ uniform float ts;
 uniform mat4 pm, vm;
 uniform vec2 resolution;
 uniform vec3 vpn;
-
-out vec4 FragColor;
-
 uniform samplerBuffer norms, mima, polyfx, lights, rnds, matpar;
 uniform isamplerBuffer nodes, mats;
-// layout(std140, binding = 1) uniform Norms { vec3 norms[NUM_TRIS]; };
+
+out vec4 FragColor;
 
 vec3 nrm(vec3 d, vec3 n) {
   if (dot(d, n) > 0) { return n*-1.0; }
   return n;
 }
 vec3 ws(vec4 w) { return w.xyz/w.w; }
-// vec3 worldToModel(vec3 p) { return ws(inverse(vm) * vec4(p, 1)); }
-// vec3 screenToWorld(vec3 x) { return ws(inverse(vm) * inverse(pm) * vec4(x, 1)); }
 vec3 screenToWorld(vec3 x) { return ws( inverse(vm) * (inverse(pm) * vec4(x, 1))); }
 vec4 ndc(float z){
   return vec4(

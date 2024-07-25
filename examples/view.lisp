@@ -2,22 +2,26 @@
 
 (load "~/quicklisp/setup.lisp") (require :sb-sprof)
 (ql:quickload :gmsh)
-(defvar *window-size* 1500) (defvar *pid* 0)
+(defvar *window-size* 800) (defvar *pid* 0)
 
-(veq:fvdef load-scene (fn &aux (sc (gmsh/scene:scene/load fn)))
+; "_box.gmsh-scene"
+(defvar *fn* "20240725-184124-eb9d6f3-9a09ad53.gmsh-scene")
+; (defvar *fn* "20240725-191628-eb9d6f3-f17b84ef.gmsh-scene")
+
+(veq:fvdef load-scene (&aux (sc (gmsh/scene:scene/load *fn*)))
   (gmsh/scene:scene/new-canv sc)
-  (lqn:out "loaded scene: ~a" fn)
+  (lqn:out "loaded scene: ~a" *fn*)
   (gmsh/scene:scale-to! sc *window-size* )
   (print sc))
 
 (veq:fvdef main (&aux (srcfile cl-user::*load-truename*))
   (gmsh/gl:window-context (*window-size* *window-size*)
-    (let* ((sc (load-scene "_box.gmsh-scene"))
+    (let* ((sc (load-scene ))
            (cam (gmsh/scene:@cam sc))
            (itt 0))
 
       (veq:mvb (render-init render render-clean program) (gmsh/gl:make-render sc)
-        (funcall render-init)
+        (f@render-init)
         (sdl2:with-event-loop (:method :poll)
           (:controllerdeviceadded (:type ty :which which)
             (lqn:out "~&██ ~a ~a~&" ty which)
@@ -26,7 +30,8 @@
                                  (gmsh/scene::update-axis sc ax v))
           (:controllerbuttondown (:state state :which which :button b :type ty)
             ; (lqn:out "~&██ btn: ~a~&" b)
-            (case b (0  (setf *pid* (mod (1+ *pid*) (length gmsh:*programs*))) ; roll program
+            (case b
+                    (0  (setf *pid* (mod (1+ *pid*) (length gmsh:*programs*))) ; roll program
                         (funcall program (aref gmsh:*programs* *pid*))
                         (funcall render-init))
                     (9  (gmsh/cam:nav/s! cam (+ (ecase (gmsh/cam:@proj-mode cam) (:persp 0.005) (:ortho 10.0)))))
@@ -35,7 +40,8 @@
                     (12 (gmsh/cam:nav/near! cam (- (ecase (gmsh/cam:@proj-mode cam) (:persp 0.005) (:ortho 10.0)))))
                     (7  (gmsh/cam:roll-nav-mode cam)  (print (gmsh/cam:@nav-mode cam)))
                     (8  (gmsh/cam:roll-proj-mode cam) (print (gmsh/cam:@proj-mode cam)))
-                    (4  (print sc))))
+                    (4  (print sc))
+                    ))
           (:keydown (:keysym keysym)
             (case (sdl2:scancode keysym)
                   (:scancode-e (gmsh/scene:scene/save sc (fn:fn) :srcfile srcfile))))

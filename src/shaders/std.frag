@@ -1,5 +1,6 @@
 #version 430 core
 // #extension GL_NV_uniform_buffer_std430_layout : enable
+// layout(std140, binding = 1) uniform Norms { vec3 norms[NUM_TRIS]; };
 
 #define EPS 0.0001
 #define MAX_DST 9999.0
@@ -18,14 +19,10 @@ uniform float ts;
 uniform mat4 pm, vm;
 uniform vec2 resolution;
 uniform vec3 vpn;
-
-out vec4 FragColor;
-
 uniform samplerBuffer norms, mima, polyfx, lights, rnds, matpar;
 uniform isamplerBuffer nodes, mats;
-// layout(std140, binding = 1) uniform Norms { vec3 norms[NUM_TRIS]; };
 
-// COLOR, RND ////////////////////////////////////////////////////////////////
+out vec4 FragColor;
 
 float rand(vec2 co) {
   return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);}
@@ -43,8 +40,6 @@ vec3 hsv2rgb(vec3 c) {
     vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
-
-// TRANSFORM ////////////////////////////////////////////////////////////////
 
 vec3 nrm(vec3 d, vec3 n) {
   if (dot(d, n) > 0) { return n*-1.0; }
@@ -128,28 +123,7 @@ HD raytrace(HD hd, vec3 o, vec3 rd) {
   return hd;
 }
 
-// vec3 volumeLight(HD hd, vec3 o, vec3 h) {
-//   vec3 res = vec3(0);
-//   // const vec3 h = o + rd*hd.t;
-//   HD tmphd = HD(-1, MAX_DST);
-
-//   for (int i = 0 ; i < 100 ; i++) {
-//     tmphd.t_id = -1;
-//     rr = rand(rr+ts + gl_FragCoord.xy);
-//     const vec4 r = texelFetch(rnds, int(i+rr*10000.0)%10000);
-
-//     rr = rand(rr+ts + gl_FragCoord.xy);
-//     const vec3 p = mix(o, h, rr);
-//     tmphd = raytrace(tmphd, p, r.yzw);
-
-//     // if ((tmphd.t_id > -1) && texelFetch(mats, tmphd.t_id).x > 0) {
-//     // }
-//     res += vec3(0.31)*int((tmphd.t_id > -1) && texelFetch(mats, tmphd.t_id).x > 0);
-//   }
-//   return res;
-// }
-
-void main() { ////////////////////////////////////////////////////////////////
+void main() {
   const vec4 ndc_coord = ndc(0);
   const vec3 world_far = screenToWorld(ndc(1).xyz);
   const vec3 cam = screenToWorld(ndc_coord.xyz);
@@ -159,22 +133,12 @@ void main() { ////////////////////////////////////////////////////////////////
   if (hd.t_id > -1) { // HIT
     const int mi = texelFetch(mats, hd.t_id).x;
     vec3 c = texelFetch(matpar, texelFetch(mats, hd.t_id).y).xyz;
-
-    // texelFetch(mats, hd.t_id)
     const vec3 n = nrm(rd, texelFetch(norms, hd.t_id).xyz);
     const float v = abs(dot(vpn, n));
     FragColor = vec4(v*c,0);
-    // FragColor = vec4(c, 0);
-
-    #if 1
-    const vec3 h = cam + rd*max(min(hd.t, MAX_VOL_DST), 0);
-    // FragColor.xyz += 1*int(m>0);
-    // FragColor.xyz = vec3(1.0);
-    #endif
   } else { // MISS
     FragColor = vec4(1, 1, 1, 1); // FragColor = vec4(abs(coord.xy), 0, 0);
   }
-
 
   if ( floor(gl_FragCoord.x)==floor(resolution.x * 0.5) ) {
     FragColor.xyz = 1-FragColor.xyz;

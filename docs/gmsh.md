@@ -105,7 +105,7 @@
  ; 
  ; *WRNCNT* names a special variable:
  ;   Declared type: HASH-TABLE
- ;   Value: #<HASH-TABLE :TEST EQL :COUNT 0 {10C5A77803}>
+ ;   Value: #<HASH-TABLE :TEST EQL :COUNT 0 {10C545DA13}>
 ```
 
 ## `gmsh:@all-polys`

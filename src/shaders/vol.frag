@@ -19,15 +19,12 @@ uniform float urr;
 uniform mat4 pm, vm;
 uniform vec2 resolution;
 uniform vec3 vpn;
-
-out vec4 FragColor;
-
 uniform samplerBuffer norms, mima, polyfx, lights, rnds, matpar;
 uniform isamplerBuffer nodes, mats;
 
-// try: https://github.com/ashima/webgl-noise/blob/master/src/noise2D.glsl
+out vec4 FragColor;
 
-float rand(vec2 co) {
+float rand(vec2 co) { // try: https://github.com/ashima/webgl-noise/blob/master/src/noise2D.glsl
   return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);}
 
 // TRANSFORM ////////////////////////////////////////////////////////////////
@@ -37,8 +34,6 @@ vec3 nrm(vec3 d, vec3 n) {
   return n;
 }
 vec3 ws(vec4 w) { return w.xyz/w.w; }
-// vec3 worldToModel(vec3 p) { return ws(inverse(vm) * vec4(p, 1)); }
-// vec3 screenToWorld(vec3 x) { return ws(inverse(vm) * inverse(pm) * vec4(x, 1)); }
 vec3 screenToWorld(vec3 x) { return ws( inverse(vm) * (inverse(pm) * vec4(x, 1))); }
 vec4 ndc(float z){
   return vec4(
@@ -48,7 +43,6 @@ vec4 ndc(float z){
 // https://gamedev.stackexchange.com/questions/18436/most-efficient-aabb-vs-ray-collision-algorithms
 // from: https://www.shadertoy.com/view/wtSyRd
 bool isectRayBox(vec3 minpos, vec3 maxpos, vec3 o, vec3 idr) {
-  // vec3 idr = 1.0 / ray_dir;
   const vec3 tbot = idr * (minpos - o);
   const vec3 ttop = idr * (maxpos - o);
   const vec3 tmin = min(ttop, tbot);
@@ -114,7 +108,7 @@ HD raytrace(HD hd, vec3 o, vec3 rd) {
   return hd;
 }
 
-void main() { ////////////////////////////////////////////////////////////////
+void main() {
   const vec4 ndc_coord = ndc(0);
   const vec3 world_far = screenToWorld(ndc(1).xyz);
   const vec3 cam = screenToWorld(ndc_coord.xyz);
@@ -130,18 +124,10 @@ void main() { ////////////////////////////////////////////////////////////////
     const vec3 n = nrm(rd, texelFetch(norms, hd.t_id).xyz);
     const float v = abs(dot(vpn, n));
     FragColor = vec4(v*c,0);
-    // FragColor = vec4(c, 0);
-
-    // #if 1
-    // const vec3 h = cam + rd*max(min(hd.t, MAX_VOL_DST), 0);
-    // FragColor.xyz += 1*int(m>0);
-    // FragColor.xyz = vec3(1.0);
-    // #endif
   } else { // MISS
     FragColor = vec4(0, 0, 0, 1); // FragColor = vec4(abs(coord.xy), 0, 0);
   }
 
-  // VOLUME -----------------------------------------------------------------------------
   float raylen = 1000.0;
 
   vec3 vol_far = cam + raylen*rdn;
@@ -150,9 +136,6 @@ void main() { ////////////////////////////////////////////////////////////////
     vol_far = cam + hd.t* rd;
     vrep = int(ceil(hd.t*MAX_VOL_REP));
   }
-
-  // vec4 k = texelFetch(rnds, int(r * 1024));
-  // FragColor.xyz *= k.xyz;
 
   float r = rand(gl_FragCoord.xy*ts);
 
@@ -171,9 +154,6 @@ void main() { ////////////////////////////////////////////////////////////////
   }
 
   FragColor.xyz += sqrt(vres/vrep)*2;
-  // FragColor.xyz *= hd.t;
-
-  // VOLUME -----------------------------------------------------------------------------
 
   if ( floor(gl_FragCoord.x)==floor(resolution.x * 0.5) ) {
     FragColor.xyz = 1-FragColor.xyz;
