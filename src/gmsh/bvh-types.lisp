@@ -4,13 +4,13 @@
 (deftype sah-buckets () `(simple-array sah-bucket))
 (deftype bbox        () `(simple-array veq:ff (6)))
 
-(defmacro bbox (&rest rest) `(veq:f$~ (6) ,@rest))
-(defmacro bb$ (b f) `(,(gmsh::symb :sah-bucket- f) ,b)) ; TODO: rename these
-(defmacro bb$! (b f v) `(setf (bb$ ,b ,f) ,v))
-(defmacro bb$n (b) `(bb$ ,b :num-inds))
-
-(defmacro make-bb () `(locally (declare #.*opt1*)
-                        (veq:f3$line *bvhhi* *bvhlo* *bvhhi* *bvhlo* *bvhhi* *bvhlo*)))
+(defmacro bbox       (&rest bb) `(veq:f$~ (6) ,@bb))
+(defmacro bb$        (b f)      `(,(gmsh::symb :sah-bucket- f) ,b)) ; TODO: rename these
+(defmacro bb$!       (b f v)    `(setf (bb$ ,b ,f) ,v))
+(defmacro bb$n       (b)        `(bb$ ,b :num-inds))
+(defmacro make-bb    ()         `(locally (declare #.*opt1*)
+                                   (veq:f3$ln *bvhhi* *bvhlo* *bvhhi*
+                                              *bvhlo* *bvhhi* *bvhlo*)))
 (defmacro reset-bb! (b*)
   `(locally (declare #.*opt*)
     (let ((b ,b*)) (declare (bbox b))
@@ -34,13 +34,13 @@
              (f!z (abs (f2_@- (veq:$ b 5 4)))))
     (* 0.1 (sqrt (+ (* x z) (* x y) (* y z))))))
 
-(defstruct (bvh-node (:constructor -make-bvh-node) (:print-object -print-bvh-node))
-  (num 0 :type veq:pn :read-only nil)
-  (ref 0 :type veq:pn :read-only nil)
-  (ax 0 :type (unsigned-byte 4) :read-only nil)
-  (bbox (bbox (veq:vnval 6 0f0)) :type bbox :read-only t)
-  (lvl 0 :type (unsigned-byte 4) :read-only nil))
-(defun -print-bvh-node (o s)
+(defstruct (bvh-node (:constructor -make-bvh-node) (:print-object -prt-bvh-node))
+  (bbox (bbox (veq:vnval 6 0f0)) :type bbox              :read-only t)
+  (num 0                         :type veq:pn            :read-only nil)
+  (ref 0                         :type veq:pn            :read-only nil)
+  (ax 0                          :type (unsigned-byte 4) :read-only nil)
+  (lvl 0                         :type (unsigned-byte 4) :read-only nil))
+(defun -prt-bvh-node (o s)
   (declare (notinline bvh-node-num bvh-node-ref bvh-node-ax bvh-node-lvl bvh-node-bbox))
   (auxin:with-struct (bvh-node- num ref ax lvl bbox) o
     (format s "<@bvh/n ~d ↳~2<~d~> | ~a ~4@<~d~>~a  □~{ ~05,2f~}>"
@@ -54,48 +54,43 @@
                 :initial-contents (loop repeat n collect (-make-bvh-node))))
 
 (declaim (inline bvh-polyfx bvh-nodes bvh-polys))
-(defstruct (bvh (:constructor -make-bvh) (:print-object -print-bvh))
+(defstruct (bvh (:constructor -make-bvh) (:print-object -prt-bvh))
   "static BVH object for rendering"
-  (simd-nodes (veq:p4$zero 0)  :type veq:pvec :read-only nil)
-  (simd-mima (veq:f4$zero 0)   :type veq:fvec :read-only t)
-  (polyfx (veq:f3$zero 0)      :type veq:fvec :read-only t)
-  (normals (veq:f3$zero 0)     :type veq:fvec :read-only t)
-  (polys (veq:p3$zero 0)       :type veq:pvec :read-only t)
-  (mat nil                     :type veq:svec :read-only t)
-  (mima (veq:f4$zero 0)        :type veq:fvec :read-only t)
-  (nodes (init-bvh-nodes 1) :type bvh-nodes :read-only nil)
-  (int-nodes (veq:p4$zero 0)   :type veq:pvec :read-only nil)
-  (mode :bvh4-simd             :type keyword :read-only t)
-  (num-leaves 0                :type veq:pn :read-only t)
-  (num-nodes 0                 :type veq:pn :read-only t)
-  (num-polys 0                 :type veq:pn :read-only t)
-  (cnt 0                       :type veq:pn :read-only nil)
-  (lvl 0                       :type veq:pn :read-only t)
-  (time 0.0                    :type veq:ff :read-only t))
-(defun -print-bvh (o s)
+  (simd-nodes (veq:p4$zero 0)    :type veq:pvec  :read-only t)
+  (simd-mima  (veq:f4$zero 0)    :type veq:fvec  :read-only t)
+  (polyfx     (veq:f3$zero 0)    :type veq:fvec  :read-only t)
+  (normals    (veq:f3$zero 0)    :type veq:fvec  :read-only t)
+  (polys      (veq:p3$zero 0)    :type veq:pvec  :read-only t)
+  (mat        nil                :type veq:svec  :read-only t)
+  (mima       (veq:f4$zero 0)    :type veq:fvec  :read-only t)
+  (nodes      (init-bvh-nodes 1) :type bvh-nodes :read-only t)
+  (int-nodes  (veq:p4$zero 0)    :type veq:pvec  :read-only t)
+  (mode       :bvh4-simd         :type keyword   :read-only t)
+  (num-leaves 0                  :type veq:pn    :read-only t)
+  (num-nodes  0                  :type veq:pn    :read-only t)
+  (num-polys  0                  :type veq:pn    :read-only t)
+  (cnt        0                  :type veq:pn    :read-only t)
+  (lvl        0                  :type veq:pn    :read-only t)
+  (time       0.0                :type veq:ff    :read-only t))
+(defun -prt-bvh (o s)
   (declare (notinline bvh-time bvh-num-nodes bvh-num-polys bvh-lvl bvh-mode bvh-num-leaves))
   (auxin:with-struct (bvh- num-nodes num-polys lvl time mode num-leaves) o
     (format s "<@~a ❦~1<~d~> # ~a ↳~2<~d~> ∇ ~a s ~a>"
               (lqn:sdwn mode) num-leaves num-nodes lvl num-polys  time)))
-; (auxin:define-struct-load-form bvh)
 
-; (defun -print-sah-bucket (o s)
-;   (auxin:with-struct (sah-bucket- mi ma fwdcnt fwdbb bckcnt bckbb inds) o
-;     (format s "<@sah/b # ~d | ~05,2f ~05,2f | fwd: ~a ~05,2f | bck: ~a ~05,2f ~%~a ~%~a>"
-;             (length inds) mi ma fwdcnt fwdbb bckcnt bckbb)))
-; (declaim (inline sah-bucket-fwdcnt sah-bucket-bckcnt
-;                  sah-bucket-mi sah-bucket-ma
-;                  sah-bucket-bckbb sah-bucket-fwdbb
-;                  sah-bucket-bb sah-bucket-inds))
+(declaim (inline sah-bucket-fwdcnt sah-bucket-bckcnt sah-bucket-mi sah-bucket-ma
+                 sah-bucket-bckbb sah-bucket-fwdbb sah-bucket-bb sah-bucket-inds))
 (defstruct (sah-bucket (:constructor -make-sah-bucket)
-                       ; (:print-object -print-sah-bucket)
-                       )
-  ; (inds (auxin:make-adjustable-vector :type 'veq:pn) :type vector)
-  (inds (list) :type list) (num-inds 0 :type veq:pn)
-  (mi *bvhhi* :type veq:ff)    (ma *bvhlo* :type veq:ff)
-  (fwdcnt 0 :type veq:pn)      (bckcnt 0 :type veq:pn)
-  (fwdbb (make-bb) :type bbox) (bckbb (make-bb) :type bbox)
-  (bb (make-bb) :type bbox))
+                       (:print-object -prt-sah-bucket))
+  (inds   (list)    :type list)   (num-inds 0         :type veq:pn)
+  (mi     *bvhhi*   :type veq:ff) (ma       *bvhlo*   :type veq:ff)
+  (fwdcnt 0         :type veq:pn) (bckcnt   0         :type veq:pn)
+  (fwdbb  (make-bb) :type bbox)   (bckbb    (make-bb) :type bbox)
+  (bb     (make-bb) :type bbox))
+(defun -prt-sah-bucket (o s)
+  (auxin:with-struct (sah-bucket- num-inds mi ma fwdcnt fwdbb bckcnt bckbb) o
+    (format s "<@sah/b # ~d | ~05,2f ~05,2f | fwd: ~a ~05,2f | bck: ~a ~05,2f>"
+            num-inds mi ma fwdcnt fwdbb bckcnt bckbb)))
 
 (defun init-sah-buckets (n)
   (make-array n :adjustable nil :element-type 'sah-bucket

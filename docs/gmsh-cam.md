@@ -355,7 +355,7 @@
  ; 
  ; ROLL-NAV-MODE names a compiled function:
  ;   Lambda-list: (C)
- ;   Derived type: (FUNCTION (T) *)
+ ;   Derived type: (FUNCTION (GMSH/CAM:CAM) *)
  ;   Documentation:
  ;     next nav-mode. see *nav-modes*
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
@@ -368,7 +368,7 @@
  ; 
  ; ROLL-PROJ-MODE names a compiled function:
  ;   Lambda-list: (C)
- ;   Derived type: (FUNCTION (T) *)
+ ;   Derived type: (FUNCTION (GMSH/CAM:CAM) *)
  ;   Documentation:
  ;     next proj mode. see *proj-modes*
  ;   Source file: /data/x/gmsh/src/gmsh/cam.lisp
